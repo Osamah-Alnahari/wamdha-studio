@@ -9,7 +9,7 @@ import { Toaster } from "sonner"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Book Document Splitter",
+  title: "Studio",
   description: "Upload a document and create summaries with custom images",
 }
 

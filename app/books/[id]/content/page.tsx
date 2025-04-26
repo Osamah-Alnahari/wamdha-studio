@@ -1,7 +1,7 @@
 import { DocumentPage } from "@/components/document-page";
 
 export const metadata = {
-  title: "Content Management - Book Document Splitter",
+  title: "Content Management",
   description: "Manage book content and create summaries",
 };
 

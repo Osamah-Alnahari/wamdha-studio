@@ -1,7 +1,7 @@
 import { BookDetailsPage } from "@/components/book-details-page";
 
 export const metadata = {
-  title: "Book Details - Book Document Splitter",
+  title: "Book Details",
   description: "View and edit book details",
 };
 

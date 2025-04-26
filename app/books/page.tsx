@@ -1,7 +1,7 @@
 import { LibraryPage } from "@/components/library-page"
 
 export const metadata = {
-  title: "My Library - Book Document Splitter",
+  title: "My Library",
   description: "Manage your books and summaries",
 }
 
