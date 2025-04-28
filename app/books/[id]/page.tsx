@@ -1,4 +1,4 @@
-import { BookDetailsPage } from "@/components/book-details-page";
+import { BookDetailsPage } from "@/components/shared/book/book-details-page";
 
 export const metadata = {
   title: "Book Details",
