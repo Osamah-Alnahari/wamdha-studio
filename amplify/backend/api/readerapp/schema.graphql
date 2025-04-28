@@ -1,0 +1,95 @@
+############################
+# 1. Reading Models
+############################
+
+type Read @model
+  @auth(rules: [
+    { allow: public, operations: [read] },
+    { allow: owner, identityClaim: "sub", operations: [create, update, delete] }
+  ]) {
+  id: ID!
+  title: String!
+  description: String
+  thumbnailUrl: String!
+  AuthorName: String!
+
+  # Associate each Read with its owner
+  userId: ID! @index(name: "byUser", sortKeyFields: [])
+  user: User @belongsTo(fields: ["userId"])
+
+  slides: [Slide] @hasMany(indexName: "byRead", fields: ["id"])
+}
+
+type Slide @model
+  @auth(rules: [
+    { allow: public, operations: [read] },
+    { allow: owner, identityClaim: "sub", operations: [create, update, delete] }
+  ]) {
+  id: ID!
+  readId: ID! @index(name: "byRead", sortKeyFields: ["slideNumber"])
+  read: Read @belongsTo(fields: ["readId"])
+
+  slideNumber: Int!
+  text: String!
+  imageUrl: String!        # S3 key for this slide’s image
+}
+
+############################
+# 2. User Profile & Activity
+############################
+
+type User @model
+  @auth(rules: [
+    { allow: owner, ownerField: "id", identityClaim: "sub", operations: [create, read, update, delete] }
+  ]) {
+  id: ID!
+  username: String!
+  email: String!
+  givenName: String!
+  dailyStreak: Int!
+  lastActive: AWSDateTime!
+
+  reads:        [Read]             @hasMany(indexName: "byUser", fields: ["id"])
+  progress:     [UserBookProgress] @hasMany(indexName: "byUser", fields: ["id"])
+  achievements: [Achievement]      @hasMany(indexName: "byUser", fields: ["id"])
+  badges:       [Badge]            @hasMany(indexName: "byUser", fields: ["id"])
+}
+
+type UserBookProgress @model
+  @auth(rules: [
+    { allow: owner, ownerField: "userId", identityClaim: "sub", operations: [create, read, update, delete] }
+  ]) {
+  id: ID!
+  userId: ID! @index(name: "byUser", sortKeyFields: [])
+  user: User @belongsTo(fields: ["userId"])
+
+  bookId: ID!
+  lastSlideNumber: Int!
+  updatedAt: AWSDateTime!
+}
+
+type Achievement @model
+  @auth(rules: [
+    { allow: owner, ownerField: "userId", identityClaim: "sub", operations: [create, read, update, delete] }
+  ]) {
+  id: ID!
+  userId: ID! @index(name: "byUser", sortKeyFields: [])
+  user: User @belongsTo(fields: ["userId"])
+
+  name: String!
+  description: String
+  unlockedAt: AWSDateTime!
+}
+
+type Badge @model
+  @auth(rules: [
+    { allow: owner, ownerField: "userId", identityClaim: "sub", operations: [create, read, update, delete] }
+  ]) {
+  id: ID!
+  userId: ID! @index(name: "byUser", sortKeyFields: [])
+  user: User @belongsTo(fields: ["userId"])
+
+  name: String!
+  iconUrl: String        # S3 key for badge icon
+  earnedAt: AWSDateTime!
+}

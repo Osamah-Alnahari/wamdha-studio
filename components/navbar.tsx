@@ -1,61 +1,54 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { usePathname, useRouter } from "next/navigation"
-import { Book, FileText, LogOut, Menu, X, PlusCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { cn } from "@/lib/utils"
-import { toast } from "sonner"
-
-interface UserType {
-  name: string
-  email: string
-  isLoggedIn: boolean
-}
+"use client";
+import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { Book, FileText, LogOut, Menu, X, PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { signOut } from "aws-amplify/auth";
+import { getErrorMessage } from "@/utils/get-error-message";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Navbar() {
-  const pathname = usePathname()
-  const router = useRouter()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [user, setUser] = useState<UserType | null>(null)
-  const [mounted, setMounted] = useState(false)
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, setUser } = useAuth();
 
-  useEffect(() => {
-    setMounted(true)
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser))
-      } catch (e) {
-        console.error("Failed to parse user data:", e)
-      }
+  if (
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/confirm-signup"
+  ) {
+    return null;
+  }
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.log(getErrorMessage(error));
     }
-  }, [])
-
-  // Don't show navbar on login or register pages
-  if (pathname === "/login" || pathname === "/register") {
-    return null
-  }
-
-  const handleLogout = () => {
-    localStorage.removeItem("user")
-    setUser(null)
-    setIsMenuOpen(false)
-    toast.success("Logged out successfully")
-    window.location.href = "/login"
-  }
+    setUser(null);
+    setIsMenuOpen(false);
+    toast.success("Logged out successfully");
+    window.location.href = "/login";
+  };
 
   const handleNavigation = (path: string) => {
-    router.push(path)
-    setIsMenuOpen(false)
-  }
+    router.push(path);
+    setIsMenuOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => handleNavigation("/books")}>
+          <div
+            className="flex items-center space-x-2 cursor-pointer"
+            onClick={() => handleNavigation("/books")}
+          >
             <Book className="h-6 w-6" />
             <span className="font-bold">عليم</span>
           </div>
@@ -66,7 +59,7 @@ export function Navbar() {
           <div
             className={cn(
               "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-              pathname === "/books" ? "text-primary" : "text-muted-foreground",
+              pathname === "/books" ? "text-primary" : "text-muted-foreground"
             )}
             onClick={() => handleNavigation("/books")}
           >
@@ -76,7 +69,9 @@ export function Navbar() {
           <div
             className={cn(
               "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-              pathname === "/books/new" ? "text-primary" : "text-muted-foreground",
+              pathname === "/books/new"
+                ? "text-primary"
+                : "text-muted-foreground"
             )}
             onClick={() => handleNavigation("/books/new")}
           >
@@ -93,7 +88,9 @@ export function Navbar() {
             <div className="flex items-center gap-4">
               <div className="flex flex-col items-end">
                 <span className="text-sm font-medium">{user.name}</span>
-                <span className="text-xs text-muted-foreground">{user.email}</span>
+                <span className="text-xs text-muted-foreground">
+                  {user.email}
+                </span>
               </div>
               <Button variant="ghost" size="icon" onClick={handleLogout}>
                 <LogOut className="h-5 w-5" />
@@ -102,18 +99,31 @@ export function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant="ghost" onClick={() => handleNavigation("/login")}>
+              <Button
+                variant="ghost"
+                onClick={() => handleNavigation("/login")}
+              >
                 Sign in
               </Button>
-              <Button onClick={() => handleNavigation("/register")}>Sign up</Button>
+              <Button onClick={() => handleNavigation("/register")}>
+                Sign up
+              </Button>
             </div>
           )}
         </div>
 
         {/* Mobile Menu Button */}
         <div className="flex md:hidden">
-          <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </Button>
         </div>
       </div>
@@ -126,7 +136,9 @@ export function Navbar() {
               <div
                 className={cn(
                   "flex items-center py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-                  pathname === "/books" ? "text-primary" : "text-muted-foreground",
+                  pathname === "/books"
+                    ? "text-primary"
+                    : "text-muted-foreground"
                 )}
                 onClick={() => handleNavigation("/books")}
               >
@@ -136,7 +148,9 @@ export function Navbar() {
               <div
                 className={cn(
                   "flex items-center py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-                  pathname === "/books/new" ? "text-primary" : "text-muted-foreground",
+                  pathname === "/books/new"
+                    ? "text-primary"
+                    : "text-muted-foreground"
                 )}
                 onClick={() => handleNavigation("/books/new")}
               >
@@ -151,7 +165,9 @@ export function Navbar() {
                 <div className="flex items-center gap-4">
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">{user.name}</span>
-                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {user.email}
+                    </span>
                   </div>
                   <Button variant="ghost" size="icon" onClick={handleLogout}>
                     <LogOut className="h-5 w-5" />
@@ -160,10 +176,15 @@ export function Navbar() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" onClick={() => handleNavigation("/login")}>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleNavigation("/login")}
+                  >
                     Sign in
                   </Button>
-                  <Button onClick={() => handleNavigation("/register")}>Sign up</Button>
+                  <Button onClick={() => handleNavigation("/register")}>
+                    Sign up
+                  </Button>
                 </div>
               )}
             </div>
@@ -171,5 +192,5 @@ export function Navbar() {
         </div>
       )}
     </header>
-  )
+  );
 }

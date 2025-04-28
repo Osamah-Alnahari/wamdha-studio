@@ -1,11 +1,11 @@
-import { BookDetailsPage } from "@/components/book-details-page"
+import { BookDetailsPage } from "@/components/shared/book/book-details-page";
 
 export const metadata = {
   title: "Create New Book",
   description: "Create a new book and enter its details",
-}
+};
 
 export default function NewBookPage() {
   // Force isNew to be true to prevent any redirection
-  return <BookDetailsPage isNew={true} />
+  return <BookDetailsPage isNew={true} />;
 }

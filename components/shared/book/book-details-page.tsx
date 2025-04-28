@@ -1,21 +1,24 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { BookDetails } from "@/components/book-details"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { FileText } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { getBook, createBook, updateBook, type Book } from "@/lib/api-client"
-import { toast } from "sonner"
+import { useState, useEffect } from "react";
+import { BookDetails } from "@/components/shared/book/book-details";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { FileText } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { getBook, createBook, updateBook, type Book } from "@/lib/api-client";
+import { toast } from "sonner";
 
 interface BookDetailsPageProps {
-  bookId?: string
-  isNew?: boolean
+  bookId?: string;
+  isNew?: boolean;
 }
 
-export function BookDetailsPage({ bookId, isNew = false }: BookDetailsPageProps) {
-  const router = useRouter()
+export function BookDetailsPage({
+  bookId,
+  isNew = false,
+}: BookDetailsPageProps) {
+  const router = useRouter();
   const [bookInfo, setBookInfo] = useState<Book>({
     id: bookId || `book-${Date.now()}`,
     title: "",
@@ -24,12 +27,12 @@ export function BookDetailsPage({ bookId, isNew = false }: BookDetailsPageProps)
     coverImageUrl: undefined,
     isOwnedByUser: false,
     createdAt: Date.now(),
-  })
-  const [isLoading, setIsLoading] = useState(!isNew)
+  });
+  const [isLoading, setIsLoading] = useState(!isNew);
 
   // Load book info from API on component mount
   useEffect(() => {
-    console.log("BookDetailsPage useEffect - isNew:", isNew, "bookId:", bookId)
+    console.log("BookDetailsPage useEffect - isNew:", isNew, "bookId:", bookId);
 
     if (isNew) {
       // For new books, reset to empty state
@@ -41,32 +44,32 @@ export function BookDetailsPage({ bookId, isNew = false }: BookDetailsPageProps)
         coverImageUrl: undefined,
         isOwnedByUser: false,
         createdAt: Date.now(),
-      })
-      setIsLoading(false)
-      return
+      });
+      setIsLoading(false);
+      return;
     }
 
     // Only redirect if we're not in "new book" mode and bookId is missing
     if (!isNew && !bookId) {
-      console.log("Redirecting to /books because !isNew && !bookId")
-      router.push("/books")
-      return
+      console.log("Redirecting to /books because !isNew && !bookId");
+      router.push("/books");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     // Load book data using the API client
     const loadBookData = async () => {
       try {
-        console.log("Attempting to load book with ID:", bookId)
-        const book = await getBook(bookId)
-        console.log("Book data retrieved:", book)
+        console.log("Attempting to load book with ID:", bookId);
+        const book = await getBook(bookId);
+        console.log("Book data retrieved:", book);
 
         if (book) {
-          setBookInfo(book)
-          setIsLoading(false)
+          setBookInfo(book);
+          setIsLoading(false);
         } else {
-          console.error("Book not found in data store for ID:", bookId)
+          console.error("Book not found in data store for ID:", bookId);
 
           // Instead of redirecting, create a new book with this ID
           const newBookInfo = {
@@ -77,10 +80,10 @@ export function BookDetailsPage({ bookId, isNew = false }: BookDetailsPageProps)
             coverImageUrl: undefined,
             isOwnedByUser: true,
             createdAt: Date.now(),
-          }
+          };
 
-          setBookInfo(newBookInfo)
-          setIsLoading(false)
+          setBookInfo(newBookInfo);
+          setIsLoading(false);
 
           // Save this new book to prevent future redirects
           try {
@@ -90,45 +93,45 @@ export function BookDetailsPage({ bookId, isNew = false }: BookDetailsPageProps)
               description: newBookInfo.description,
               coverImageUrl: newBookInfo.coverImageUrl,
               isOwnedByUser: newBookInfo.isOwnedByUser,
-            })
-            console.log("Created placeholder book for ID:", bookId)
+            });
+            console.log("Created placeholder book for ID:", bookId);
           } catch (saveError) {
-            console.error("Failed to save placeholder book:", saveError)
+            console.error("Failed to save placeholder book:", saveError);
           }
         }
       } catch (e) {
-        console.error("Failed to load book data:", e)
-        setIsLoading(false)
+        console.error("Failed to load book data:", e);
+        setIsLoading(false);
       }
-    }
+    };
 
-    loadBookData()
-  }, [bookId, isNew, router])
+    loadBookData();
+  }, [bookId, isNew, router]);
 
   const handleBookInfoUpdate = async (info: Omit<Book, "id" | "createdAt">) => {
     try {
       if (isNew) {
         // Create a new book using the API client
-        const newBook = await createBook(info)
+        const newBook = await createBook(info);
 
         // Redirect to the new book's content page
-        router.push(`/books/${newBook.id}/content`)
+        router.push(`/books/${newBook.id}/content`);
       } else {
         // Update the existing book using the API client
-        const updatedBook = await updateBook(bookInfo.id, info)
-        setBookInfo(updatedBook)
+        const updatedBook = await updateBook(bookInfo.id, info);
+        setBookInfo(updatedBook);
 
         toast.success("Book details updated", {
           description: "Your book details have been saved.",
-        })
+        });
       }
     } catch (e) {
-      console.error("Failed to save book:", e)
+      console.error("Failed to save book:", e);
       toast.error("Error saving book", {
         description: "There was a problem saving your book details.",
-      })
+      });
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -139,7 +142,7 @@ export function BookDetailsPage({ bookId, isNew = false }: BookDetailsPageProps)
           <div className="h-[400px] bg-muted rounded"></div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -173,8 +176,12 @@ export function BookDetailsPage({ bookId, isNew = false }: BookDetailsPageProps)
             : "Edit the details of your book below before creating summaries."}
         </p>
 
-        <BookDetails bookInfo={bookInfo} onUpdateBookInfo={handleBookInfoUpdate} isNew={isNew} />
+        <BookDetails
+          bookInfo={bookInfo}
+          onUpdateBookInfo={handleBookInfoUpdate}
+          isNew={isNew}
+        />
       </div>
     </div>
-  )
+  );
 }
