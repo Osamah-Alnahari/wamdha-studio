@@ -11,13 +11,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { resendSignUpCode, signIn } from "@aws-amplify/auth";
+import { fetchAuthSession, resendSignUpCode, signIn } from "@aws-amplify/auth";
 import { getErrorMessage } from "@/utils/get-error-message";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { setUser } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -73,11 +75,8 @@ export function LoginForm() {
     let redirectLink = "/library";
     try {
       const result = await signIn({
-        username: "osama142494@gmail.com",
-        // fake data for testing
-        password: "!!22QQww",
-        // username: String(formData.email),
-        // password: String(formData.password),
+        username: String(formData.email),
+        password: String(formData.password),
       });
       const { isSignedIn, nextStep } = result;
 
@@ -87,7 +86,14 @@ export function LoginForm() {
         });
         redirectLink = "/confirm-signup?email=" + formData.email;
       } else if (isSignedIn) {
-        window.location.href = "/library";
+        const session = await fetchAuthSession();
+        const idToken = session.tokens?.idToken?.toString();
+        if (idToken) {
+          const payload = JSON.parse(atob(idToken.split(".")[1]));
+          const email = payload.email || "";
+          const name = payload.name || "";
+          setUser({ email, name, isLoggedIn: true });
+        }
       }
       router.push(redirectLink);
     } catch (error) {

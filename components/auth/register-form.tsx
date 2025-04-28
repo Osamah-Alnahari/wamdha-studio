@@ -97,6 +97,8 @@ export function RegisterForm() {
         options: {
           userAttributes: {
             email: String(formData.email),
+            preferred_username: String(formData.name),
+            given_name: String(formData.name),
           },
           autoSignIn: true,
         },
