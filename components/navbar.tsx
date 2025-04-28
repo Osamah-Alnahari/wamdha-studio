@@ -17,7 +17,6 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, setUser } = useAuth();
 
-  // Don't show navbar on login or register pages
   if (
     pathname === "/login" ||
     pathname === "/register" ||
