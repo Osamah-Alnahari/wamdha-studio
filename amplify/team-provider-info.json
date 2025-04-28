@@ -1,0 +1,23 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-readerapp-staging-8b655-authRole",
+      "UnauthRoleArn": "arn:aws:iam::570522843504:role/amplify-readerapp-staging-8b655-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::570522843504:role/amplify-readerapp-staging-8b655-authRole",
+      "Region": "me-south-1",
+      "DeploymentBucketName": "amplify-readerapp-staging-8b655-deployment",
+      "UnauthRoleName": "amplify-readerapp-staging-8b655-unauthRole",
+      "StackName": "amplify-readerapp-staging-8b655",
+      "StackId": "arn:aws:cloudformation:me-south-1:570522843504:stack/amplify-readerapp-staging-8b655/f71e0310-1868-11f0-b53c-06d345d49c43",
+      "AmplifyAppId": "d339kw1wl071s1"
+    },
+    "categories": {
+      "auth": {
+        "ReaderApp": {}
+      },
+      "storage": {
+        "readerAppContentStorage": {}
+      }
+    }
+  }
+}
