@@ -1,21 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Book, FileText, LogOut, Menu, X, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { fetchAuthSession, signOut } from "aws-amplify/auth";
+import { signOut } from "aws-amplify/auth";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { useAuth } from "@/contexts/AuthContext";
-
-interface UserType {
-  name: string;
-  email: string;
-  isLoggedIn: boolean;
-}
 
 export function Navbar() {
   const pathname = usePathname();
