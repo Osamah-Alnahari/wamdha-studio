@@ -8,6 +8,9 @@ import { FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getBook, createBook, updateBook, type Book } from "@/lib/api-client";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { client } from "@/lib/amplify";
+import { createRead } from "@/src/graphql/mutations";
 
 interface BookDetailsPageProps {
   bookId?: string;
@@ -29,6 +32,7 @@ export function BookDetailsPage({
     createdAt: Date.now(),
   });
   const [isLoading, setIsLoading] = useState(!isNew);
+  const { user } = useAuth();
 
   // Load book info from API on component mount
   useEffect(() => {
@@ -49,16 +53,11 @@ export function BookDetailsPage({
       return;
     }
 
-    // Only redirect if we're not in "new book" mode and bookId is missing
     if (!isNew && !bookId) {
-      console.log("Redirecting to /books because !isNew && !bookId");
       router.push("/books");
       return;
     }
-
     setIsLoading(true);
-
-    // Load book data using the API client
     const loadBookData = async () => {
       try {
         console.log("Attempting to load book with ID:", bookId);
@@ -110,14 +109,42 @@ export function BookDetailsPage({
 
   const handleBookInfoUpdate = async (info: Omit<Book, "id" | "createdAt">) => {
     try {
-      if (isNew) {
-        // Create a new book using the API client
-        const newBook = await createBook(info);
+      console.log("Updating book info:", info);
 
-        // Redirect to the new book's content page
-        router.push(`/books/${newBook.id}/content`);
+      if (!user?.userId) {
+        console.error("User not found. Cannot create a book.");
+        toast.error("Authentication Error", {
+          description: "You must be logged in to create a book.",
+        });
+        return;
+      }
+      console.log("User ID:", info.coverImageUrl);
+      if (isNew) {
+        console.log("User ID:", user.userId);
+        const response = await client.graphql({
+          query: createRead,
+          variables: {
+            input: {
+              title: info.title,
+              AuthorName: info.author,
+              description: info.description,
+              thumbnailUrl: "/src/images/cover.png",
+              userId: user.userId,
+            },
+          },
+          authMode: "userPool",
+        });
+
+        if (response && "data" in response && response.data?.createRead) {
+          const newBook = response.data.createRead;
+          console.log("Book created successfully:", newBook);
+
+          router.push(`/books/${newBook.id}/content`);
+        } else {
+          console.error("Failed to create book:", response);
+          throw new Error("Failed to create book.");
+        }
       } else {
-        // Update the existing book using the API client
         const updatedBook = await updateBook(bookInfo.id, info);
         setBookInfo(updatedBook);
 
@@ -125,10 +152,11 @@ export function BookDetailsPage({
           description: "Your book details have been saved.",
         });
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to save book:", e);
       toast.error("Error saving book", {
-        description: "There was a problem saving your book details.",
+        description:
+          e?.message || "There was a problem saving your book details.",
       });
     }
   };
