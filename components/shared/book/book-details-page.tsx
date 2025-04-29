@@ -128,7 +128,7 @@ export function BookDetailsPage({
               title: info.title,
               AuthorName: info.author,
               description: info.description,
-              thumbnailUrl: "/src/images/cover.png",
+              thumbnailUrl: info.coverImageUrl ?? "",
               userId: user.userId,
             },
           },
