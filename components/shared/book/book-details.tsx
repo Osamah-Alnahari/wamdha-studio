@@ -324,7 +324,7 @@ export function BookDetails({
               type="file"
               ref={fileInputRef}
               onChange={handleImageUpload}
-              accept="image/*"
+              accept="image/png, image/jpeg, image/gif"
               className="hidden"
             />
           </div>
