@@ -23,7 +23,13 @@ import { useAuth } from "@/contexts/AuthContext";
 
 // Dummy book data
 import { dummyBooks } from "@/dummy/books";
+// old
+// import { Storage } from "aws-amplify";
 
+// new
+// import { uploadData, downloadData } from 'aws-amplify/storage';
+
+import { getUrl } from "aws-amplify/storage";
 export function LibraryPage() {
   const router = useRouter();
   const [books, setBooks] = useState<Book[]>([]);
@@ -42,17 +48,24 @@ export function LibraryPage() {
         }
 
         const allBooksData = await getUserBooks(user.userId);
+        const allBooks: Book[] = await Promise.all(
+          allBooksData.map(async (item) => {
+            const imageUrl = item.thumbnailUrl
+              ? await fetchImageUrl(item.thumbnailUrl)
+              : undefined;
 
-        // Extract attributes matching your Book interface
-        const allBooks: Book[] = allBooksData.map((item) => ({
-          id: item.id,
-          title: item.title,
-          author: item.AuthorName || "Unknown Author",
-          description: item.description || "",
-          coverImageUrl: item.thumbnailUrl || undefined,
-          isOwnedByUser: item.userId === user.userId,
-          createdAt: new Date(item.createdAt).getTime(),
-        }));
+            return {
+              id: item.id,
+              title: item.title,
+              author: item.AuthorName || "Unknown Author",
+              description: item.description || "",
+              coverImageUrl: imageUrl,
+              isOwnedByUser: item.userId === user.userId,
+              createdAt: new Date(item.createdAt).getTime(),
+            };
+          })
+        );
+
         // Use dummy data as fallback if empty
         if (allBooks.length === 0) {
           setBooks([...dummyBooks]);
@@ -75,6 +88,18 @@ export function LibraryPage() {
 
     loadBooks();
   }, [user?.userId]);
+
+  const fetchImageUrl = async (key: string) => {
+    if (!key) return undefined;
+
+    try {
+      const { url } = await getUrl({ path: key });
+      return url.href;
+    } catch (error) {
+      console.error("Error fetching image URL for key:", key, error);
+      return undefined;
+    }
+  };
 
   const handleDeleteClick = (bookId: string) => {
     setBookToDelete(bookId);
