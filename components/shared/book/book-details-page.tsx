@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { getBook, createBook, updateBook, type Book } from "@/lib/api-client";
+import { getBook, updateBook, type Book } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { client } from "@/lib/amplify";
@@ -61,7 +61,7 @@ export function BookDetailsPage({
     const loadBookData = async () => {
       try {
         console.log("Attempting to load book with ID:", bookId);
-        const book = await getBook(bookId);
+        const book = await getBook(bookId!);
         console.log("Book data retrieved:", book);
 
         if (book) {
