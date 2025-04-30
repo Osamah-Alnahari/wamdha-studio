@@ -17,8 +17,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { deleteBook, type Book } from "@/lib/api-client";
-import { getUserBooks } from "@/lib/actions/book.actions";
+import { type Book } from "@/lib/api-client";
+import { getUserBooks, deleteBook } from "@/lib/actions/book.actions";
 import { useAuth } from "@/contexts/AuthContext";
 
 // Dummy book data
@@ -101,34 +101,38 @@ export function LibraryPage() {
     }
   };
 
+  // Trigger delete confirmation
   const handleDeleteClick = (bookId: string) => {
     setBookToDelete(bookId);
     setDeleteDialogOpen(true);
   };
 
+  // Confirm delete action
   const confirmDelete = async () => {
     if (!bookToDelete) return;
 
     try {
-      // Check if we're deleting a dummy book
       const isDummyBook = dummyBooks.some((book) => book.id === bookToDelete);
 
       if (!isDummyBook) {
-        // Delete the book using the API client
-        await deleteBook(bookToDelete);
+        const result = await deleteBook(bookToDelete);
+        if (!result.success) {
+          throw new Error(result.error || "Unknown deletion error");
+        }
       }
 
-      // Update state
-      const updatedBooks = books.filter((book) => book.id !== bookToDelete);
-      setBooks(updatedBooks);
+      // Remove the deleted book from state
+      setBooks((prevBooks) =>
+        prevBooks.filter((book) => book.id !== bookToDelete)
+      );
 
       toast.success("Book deleted", {
         description: "The book has been removed from your library.",
       });
-    } catch (e) {
-      console.error("Error deleting book:", e);
+    } catch (error: any) {
+      console.error("Error deleting book:", error);
       toast.error("Error deleting book", {
-        description: "There was a problem deleting the book.",
+        description: error.message || "There was a problem deleting the book.",
       });
     } finally {
       setDeleteDialogOpen(false);
@@ -136,6 +140,7 @@ export function LibraryPage() {
     }
   };
 
+  // Cancel deletion
   const cancelDelete = () => {
     setDeleteDialogOpen(false);
     setBookToDelete(null);

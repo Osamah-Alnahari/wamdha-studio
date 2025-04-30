@@ -1,4 +1,4 @@
-import { createSlide, deleteSlide } from "@/src/graphql/mutations";
+import { createSlide, deleteSlide, deleteRead } from "@/src/graphql/mutations";
 import { listReads, listSlides } from "@/src/graphql/queries";
 import { client } from "@/lib/amplify";
 import { PageSummary } from "../api-client";
@@ -42,6 +42,8 @@ export const uploadSlides = async (
     };
   }
 };
+
+// Name need to be changed
 export const deleteSlidesByBook = async (readId: string) => {
   try {
     // Fetch all slides associated with this book
@@ -110,5 +112,47 @@ export const getUserBooks = async (userId: string) => {
   } catch (error) {
     console.error("Error fetching books:", error);
     throw error;
+  }
+};
+
+export const deleteBook = async (bookId: string) => {
+  try {
+    // Step 1: Delete all associated slides
+    const slidesResult = await deleteSlidesByBook(bookId);
+
+    if (!slidesResult.success) {
+      // Todo: Handle the error appropriately
+      console.error("Failed to delete slides:", slidesResult.error);
+      // throw new Error(`Failed to delete slides: ${slidesResult.error}`);
+    }
+
+    // Step 2: Delete the book itself
+    const bookResult = await client.graphql({
+      query: deleteRead,
+      variables: {
+        input: { id: bookId },
+      },
+      authMode: "userPool",
+    });
+
+    const deletedBook = bookResult.data?.deleteRead;
+
+    if (!deletedBook) {
+      // Todo: Handle the error appropriately
+      console.error("Failed to delete book:", bookResult.errors);
+      // throw new Error("Book deletion failed or returned null.");
+    }
+
+    return {
+      success: true,
+      deletedBookId: deletedBook.id,
+      deletedSlideCount: slidesResult.deletedCount,
+    };
+  } catch (error: any) {
+    console.error("Error deleting book and its slides:", error);
+    return {
+      success: false,
+      error: error.message || "Unknown error occurred during deletion.",
+    };
   }
 };
