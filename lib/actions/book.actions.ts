@@ -1,5 +1,5 @@
 import { createSlide, deleteSlide } from "@/src/graphql/mutations";
-import { listSlides } from "@/src/graphql/queries";
+import { listReads, listSlides } from "@/src/graphql/queries";
 import { client } from "@/lib/amplify";
 import { PageSummary } from "../api-client";
 
@@ -84,5 +84,31 @@ export const deleteSlidesByBook = async (readId: string) => {
       success: false,
       error: error.message || "Unknown error occurred",
     };
+  }
+};
+
+export const getUserBooks = async (userId: string) => {
+  try {
+    const response = await client.graphql({
+      query: listReads,
+      variables: {
+        filter: { userId: { eq: userId } },
+        limit: 100, // Adjust as necessary
+      },
+      authMode: "userPool",
+    });
+
+    const books = response.data?.listReads?.items || [];
+
+    // Sort books by createdAt date (newest first)
+    books.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    return books;
+  } catch (error) {
+    console.error("Error fetching books:", error);
+    throw error;
   }
 };

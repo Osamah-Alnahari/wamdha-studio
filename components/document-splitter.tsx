@@ -9,6 +9,7 @@ import { SummaryViewer } from "@/components/summary-viewer";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, AlignLeft } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import {
   getBook,
   getBookContent,
@@ -36,6 +37,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
   const [viewMode, setViewMode] = useState<"pages" | "summaries">("pages");
   const [isSummarizingPages, setIsSummarizingPages] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const router = useRouter();
   const [bookInfo, setBookInfo] = useState<{
     title: string;
     author: string;
@@ -752,7 +754,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       // Delete existing slides first
       const deleteResult = await deleteSlidesByBook(bookId);
 
-
       // disable it for now
       // if (!deleteResult.success) {
       //   throw new Error(`Deletion error: ${deleteResult.error}`);
@@ -765,6 +766,9 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         toast.success("Slides replaced successfully!", {
           description: `${uploadResult.uploadedCount} slides uploaded.`,
         });
+
+        // move it to here after fixing the backend issue
+        // router.push("/books");
       } else {
         throw new Error(`Upload error: ${uploadResult.error}`);
       }
@@ -777,6 +781,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       //   description: error.message || "An unknown error occurred.",
       // });
     } finally {
+      router.push("/books");
       setIsUploading(false);
     }
   };
