@@ -21,8 +21,6 @@ import { type Book } from "@/lib/api-client";
 import { getUserBooks, deleteBook } from "@/lib/actions/book.actions";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Dummy book data
-import { dummyBooks } from "@/dummy/books";
 // old
 // import { Storage } from "aws-amplify";
 
@@ -44,7 +42,7 @@ export function LibraryPage() {
       setIsLoading(true);
       try {
         if (!user?.userId) {
-          throw new Error("User not authenticated");
+          return;
         }
 
         const allBooksData = await getUserBooks(user.userId);
@@ -67,9 +65,7 @@ export function LibraryPage() {
         );
 
         // Use dummy data as fallback if empty
-        if (allBooks.length === 0) {
-          setBooks([...dummyBooks]);
-        } else {
+        if (allBooks.length !== 0) {
           setBooks(allBooks);
         }
       } catch (e) {
@@ -78,9 +74,6 @@ export function LibraryPage() {
           description:
             "There was a problem loading your books. Using sample books instead.",
         });
-
-        // Use dummy data as fallback
-        setBooks([...dummyBooks]);
       } finally {
         setIsLoading(false);
       }
@@ -101,38 +94,26 @@ export function LibraryPage() {
     }
   };
 
-  // Trigger delete confirmation
   const handleDeleteClick = (bookId: string) => {
     setBookToDelete(bookId);
     setDeleteDialogOpen(true);
   };
 
-  // Confirm delete action
   const confirmDelete = async () => {
     if (!bookToDelete) return;
 
     try {
-      const isDummyBook = dummyBooks.some((book) => book.id === bookToDelete);
-
-      if (!isDummyBook) {
-        const result = await deleteBook(bookToDelete);
-        if (!result.success) {
-          throw new Error(result.error || "Unknown deletion error");
-        }
-      }
-
-      // Remove the deleted book from state
-      setBooks((prevBooks) =>
-        prevBooks.filter((book) => book.id !== bookToDelete)
-      );
+      // Update state
+      const updatedBooks = books.filter((book) => book.id !== bookToDelete);
+      setBooks(updatedBooks);
 
       toast.success("Book deleted", {
         description: "The book has been removed from your library.",
       });
-    } catch (error: any) {
-      console.error("Error deleting book:", error);
+    } catch (e) {
+      console.error("Error deleting book:", e);
       toast.error("Error deleting book", {
-        description: error.message || "There was a problem deleting the book.",
+        description: "There was a problem deleting the book.",
       });
     } finally {
       setDeleteDialogOpen(false);
@@ -140,7 +121,6 @@ export function LibraryPage() {
     }
   };
 
-  // Cancel deletion
   const cancelDelete = () => {
     setDeleteDialogOpen(false);
     setBookToDelete(null);
