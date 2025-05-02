@@ -1,4 +1,9 @@
-import { createSlide, deleteSlide, deleteRead } from "@/src/graphql/mutations";
+import {
+  createSlide,
+  deleteSlide,
+  deleteRead,
+  createRead,
+} from "@/src/graphql/mutations";
 import { listReads, listSlides } from "@/src/graphql/queries";
 import { client } from "@/lib/amplify";
 import { PageSummary } from "../api-client";
@@ -123,7 +128,7 @@ export const deleteBook = async (bookId: string) => {
     if (!slidesResult.success) {
       // Todo: Handle the error appropriately
       console.error("Failed to delete slides:", slidesResult.error);
-      // throw new Error(`Failed to delete slides: ${slidesResult.error}`);
+      throw new Error(`Failed to delete slides: ${slidesResult.error}`);
     }
 
     // Step 2: Delete the book itself
@@ -140,7 +145,7 @@ export const deleteBook = async (bookId: string) => {
     if (!deletedBook) {
       // Todo: Handle the error appropriately
       console.error("Failed to delete book:", bookResult.errors);
-      // throw new Error("Book deletion failed or returned null.");
+      throw new Error("Book deletion failed or returned null.");
     }
 
     return {

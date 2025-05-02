@@ -118,9 +118,7 @@ export function BookDetailsPage({
         });
         return;
       }
-      console.log("User ID:", info.coverImageUrl);
       if (isNew) {
-        console.log("User ID:", user.userId);
         const response = await client.graphql({
           query: createRead,
           variables: {

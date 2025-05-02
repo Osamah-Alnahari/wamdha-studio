@@ -104,9 +104,7 @@ export function LibraryPage() {
 
     try {
       // Update state
-      const updatedBooks = books.filter((book) => book.id !== bookToDelete);
-      setBooks(updatedBooks);
-
+      await deleteBook(bookToDelete);
       toast.success("Book deleted", {
         description: "The book has been removed from your library.",
       });
