@@ -2,7 +2,6 @@
 
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/api";
-import devConfig from "./aws-exports";
 
 // Production config
 const prodConfig = {
@@ -19,7 +18,18 @@ const prodConfig = {
   aws_user_files_s3_bucket_region: process.env.NEXT_PUBLIC_AWS_USER_FILES_S3_BUCKET_REGION,
 };
 
-// set the config based on the environment
-const config = process.env.NODE_ENV === "production" ? prodConfig : devConfig;
-Amplify.configure(config);
-const client = generateClient();
+async function configureAmplify() {
+  let config;
+  if (process.env.NODE_ENV === "production") {
+    config = prodConfig;
+  } else {
+    // Dynamically import only in development
+    const devModule = await import("./aws-exports");
+    config = devModule.default;
+  }
+  Amplify.configure(config);
+  return generateClient();
+}
+
+// Export client promise
+export const clientPromise = configureAmplify();
