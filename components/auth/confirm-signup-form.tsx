@@ -12,7 +12,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { confirmSignUp, resendSignUpCode } from "@aws-amplify/auth";
-import { get } from "http";
 import { getErrorMessage } from "@/utils/get-error-message";
 
 export function ConfirmSignupForm() {
