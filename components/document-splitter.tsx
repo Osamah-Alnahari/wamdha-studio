@@ -11,17 +11,14 @@ import { FileText, AlignLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
-  getBook,
-  getBookContent,
   updateBookContent,
   summarizeText as apiSummarizeText,
   type PageSummary,
 } from "@/lib/api-client";
-import { getRead, listSlides } from "@/src/graphql/queries";
-import { createSlide } from "@/src/graphql/mutations";
+import { getRead } from "@/src/graphql/queries";
 import { client } from "@/lib/amplify";
 import { deleteSlidesByBook, uploadSlides } from "@/lib/actions/book.actions";
-import { Button } from "./ui/button";
+import { getBookContent } from "@/lib/actions/slide.actions";
 interface DocumentSplitterProps {
   bookId?: string;
 }
@@ -70,7 +67,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
         if (response.data?.getRead) {
           const book = response.data.getRead;
-          console.log("Book data:", book);
           if (book) {
             setBookInfo({
               title:
@@ -89,35 +85,33 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
               typeof book.title === "string" ? book.title : "Untitled Book"
             );
 
-            const slidesResponse = await client.graphql({
-              query: listSlides,
-              variables: {
-                filter: { readId: { eq: book.id } },
-                limit: 100, // adjust as needed
-              },
-              authMode: "userPool",
-            });
-            console.log("Slides response:", slidesResponse);
-            const slides = slidesResponse.data?.listSlides?.items;
-            console.log("Slides data:", slides);
             // To do: Handle slides data if exits
             // Get book content
-            // const content = ;
-            // if (content) {
-            //   setPages(content.pages);
-            //   setPageSummaries(content.summaries);
-            //   setFileType("word"); // Default type
-            //   setSelectedPageIndex(0);
-            //   setViewMode("summaries"); // Switch to summaries view
+            const content = await getBookContent(bookId);
+            if (content) {
+              // ToDo: handle title and imagePosition when they exist on DB
+              const summaries: PageSummary[] = content.map((slide: any) => {
+                return {
+                  title: `Title ${slide.slideNumber}`,
+                  content: slide.text,
+                  imageUrl: slide.imageUrl || undefined,
+                  imagePosition: "bottom",
+                  isLoading: false,
+                  isGeneratingImage: false,
+                };
+              });
 
-            //   toast.success("Loaded saved content", {
-            //     description: `Loaded ${content.pages.length} pages from "${
-            //       typeof book?.title === "string"
-            //         ? book?.title
-            //         : "Untitled Book"
-            //     }"`,
-            //   });
-            // }
+              setPageSummaries(summaries); // Now it's an array
+              setFileType("word");
+              setSelectedPageIndex(0);
+              setViewMode("summaries");
+
+              toast.success("Loaded saved content", {
+                description: `Loaded ${content.length} pages from "${
+                  typeof book?.title === "string" ? book.title : "Untitled Book"
+                }"`,
+              });
+            }
           }
         }
       } catch (e) {
@@ -128,6 +122,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     loadBookData();
   }, [bookId]);
 
+  // Function to handle document processing and update state
   const handleDocumentProcessed = async (
     result: string[],
     name: string,
@@ -156,20 +151,20 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     setSelectedPageIndex(0); // Select the first page by default
     setStartedFromScratch(false);
 
-    // Save the content to API
-    if (bookId) {
-      await updateBookContent(bookId, {
-        pages: result,
-        summaries: initialSummaries,
-      });
-    }
+    // // Save the content to API
+    // if (bookId) {
+    //   await updateBookContent(bookId, {
+    //     pages: result,
+    //     summaries: initialSummaries,
+    //   });
+    // }
 
     toast.success("Document processed successfully", {
       description: `${result.length} pages extracted from ${name}`,
     });
   };
 
-  // Fix the handleStartFromScratch function to properly initialize with an empty page
+  // Function to handle starting from scratch
   const handleStartFromScratch = async () => {
     // Set up an empty state for starting from scratch
     setPages([]);
@@ -191,12 +186,12 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     setViewMode("summaries"); // Switch directly to summaries view
 
     // Save the content to API
-    if (bookId) {
-      await updateBookContent(bookId, {
-        pages: [],
-        summaries: [initialPage],
-      });
-    }
+    // if (bookId) {
+    //   await updateBookContent(bookId, {
+    //     pages: [],
+    //     summaries: [initialPage],
+    //   });
+    // }
 
     toast.success("Started from scratch", {
       description: "You can now add pages and create your summaries.",
@@ -307,16 +302,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
           imageUrl: imageUrl,
           isGeneratingImage: false,
         };
-
-        // Save updated summaries to API
-        if (bookId) {
-          updateBookContent(bookId, {
-            pages,
-            summaries: newSummaries,
-          }).catch((err) =>
-            console.error("Error saving generation complete state:", err)
-          );
-        }
 
         return newSummaries;
       });
@@ -656,10 +641,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
           batch.map(async ({ index }) => {
             try {
               // Generate a random placeholder image
-              // In a real app, this would call an AI image generation API
-              await new Promise((resolve) =>
-                setTimeout(resolve, 1500 + Math.random() * 1000)
-              );
 
               const width = 600;
               const height = 400;
@@ -773,7 +754,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         throw new Error(`Upload error: ${uploadResult.error}`);
       }
     } catch (error: any) {
-      console.error(
+      console.log(
         "Failed to replace slides: Delete or upload actions issue",
         error
       );
@@ -788,8 +769,9 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
   // Render the appropriate content based on the current state
   const renderContent = () => {
-    const showDocumentUploader = pages.length === 0 && !startedFromScratch;
-
+    // check if slides already exists
+    const showDocumentUploader =
+      pageSummaries.length === 0 && !startedFromScratch;
     return (
       <>
         {showDocumentUploader ? (
@@ -823,10 +805,13 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
                   className="mb-4"
                 >
                   <TabsList className="w-full">
-                    <TabsTrigger value="pages" className="flex-1">
-                      <FileText className="mr-2 h-4 w-4" />
-                      Pages
-                    </TabsTrigger>
+                    {/* check if only summarized pages will be displayed */}
+                    {pages.length > 0 && (
+                      <TabsTrigger value="pages" className="flex-1">
+                        <FileText className="mr-2 h-4 w-4" />
+                        Pages
+                      </TabsTrigger>
+                    )}
                     <TabsTrigger value="summaries" className="flex-1">
                       <AlignLeft className="mr-2 h-4 w-4" />
                       Summarized Pages

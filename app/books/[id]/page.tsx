@@ -11,7 +11,5 @@ export default async function BookDetailsRoute({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  console.log("Rendering BookDetailsRoute with id:", id);
-
   return <BookDetailsPage bookId={id} isNew={false} />;
 }

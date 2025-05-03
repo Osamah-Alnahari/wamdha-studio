@@ -1,5 +1,5 @@
 import { createSlide, deleteSlide, deleteRead } from "@/src/graphql/mutations";
-import { listReads, listSlides } from "@/src/graphql/queries";
+import { getRead, listReads, listSlides } from "@/src/graphql/queries";
 import { client } from "@/lib/amplify";
 import { PageSummary } from "../api-client";
 
@@ -31,7 +31,7 @@ export const uploadSlides = async (
       results,
     };
   } catch (error: any) {
-    console.error("Error uploading slides:", error);
+    console.log("Error uploading slides:", error);
 
     const errorMessage =
       error.errors?.[0]?.message || error.message || "Unknown error occurred";
@@ -81,7 +81,7 @@ export const deleteSlidesByBook = async (readId: string) => {
       message: `${slides.length} slides successfully deleted.`,
     };
   } catch (error: any) {
-    console.error("Error deleting slides:", error);
+    console.log("Error deleting slides:", error);
     return {
       success: false,
       error: error.message || "Unknown error occurred",
@@ -107,11 +107,24 @@ export const getUserBooks = async (userId: string) => {
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
-
     return books;
   } catch (error) {
-    console.error("Error fetching books:", error);
+    console.log("Error fetching books:", error);
     throw error;
+  }
+};
+
+export const getBookById = async (bookId: string) => {
+  try {
+    const response = await client.graphql({
+      query: getRead,
+      variables: { id: bookId },
+      authMode: "userPool",
+    });
+
+    return response;
+  } catch (error) {
+    console.log("Error fetching books:", error);
   }
 };
 
@@ -122,7 +135,7 @@ export const deleteBook = async (bookId: string) => {
 
     if (!slidesResult.success) {
       // Todo: Handle the error appropriately
-      console.error("Failed to delete slides:", slidesResult.error);
+      console.log("Failed to delete slides:", slidesResult.error);
       // throw new Error(`Failed to delete slides: ${slidesResult.error}`);
     }
 

@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { getBook, updateBook, type Book } from "@/lib/api-client";
+import { updateBook, type Book } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { client } from "@/lib/amplify";
-import { createRead } from "@/src/graphql/mutations";
+import { createRead, updateRead } from "@/src/graphql/mutations";
+import { getRead } from "@/src/graphql/queries";
 
 interface BookDetailsPageProps {
   bookId?: string;
@@ -36,8 +37,6 @@ export function BookDetailsPage({
 
   // Load book info from API on component mount
   useEffect(() => {
-    console.log("BookDetailsPage useEffect - isNew:", isNew, "bookId:", bookId);
-
     if (isNew) {
       // For new books, reset to empty state
       setBookInfo({
@@ -49,8 +48,9 @@ export function BookDetailsPage({
         isOwnedByUser: false,
         createdAt: Date.now(),
       });
-      setIsLoading(false);
       return;
+    } else {
+      loadBookData();
     }
 
     if (!isNew && !bookId) {
@@ -58,59 +58,39 @@ export function BookDetailsPage({
       return;
     }
     setIsLoading(true);
-    const loadBookData = async () => {
-      try {
-        console.log("Attempting to load book with ID:", bookId);
-        const book = await getBook(bookId!);
-        console.log("Book data retrieved:", book);
-
-        if (book) {
-          setBookInfo(book);
-          setIsLoading(false);
-        } else {
-          console.error("Book not found in data store for ID:", bookId);
-
-          // Instead of redirecting, create a new book with this ID
-          const newBookInfo = {
-            id: bookId || `book-${Date.now()}`,
-            title: "New Book",
-            author: "Author",
-            description: "Add your description here",
-            coverImageUrl: undefined,
-            isOwnedByUser: true,
-            createdAt: Date.now(),
-          };
-
-          setBookInfo(newBookInfo);
-          setIsLoading(false);
-
-          // Save this new book to prevent future redirects
-          try {
-            await updateBook(bookId!, {
-              title: newBookInfo.title,
-              author: newBookInfo.author,
-              description: newBookInfo.description,
-              coverImageUrl: newBookInfo.coverImageUrl,
-              isOwnedByUser: newBookInfo.isOwnedByUser,
-            });
-            console.log("Created placeholder book for ID:", bookId);
-          } catch (saveError) {
-            console.error("Failed to save placeholder book:", saveError);
-          }
-        }
-      } catch (e) {
-        console.error("Failed to load book data:", e);
-        setIsLoading(false);
-      }
-    };
-
-    loadBookData();
   }, [bookId, isNew, router]);
-
+  const loadBookData = async () => {
+    try {
+      // Get book info
+      const response = await client.graphql({
+        query: getRead,
+        variables: { id: bookId! },
+        authMode: "userPool",
+      });
+      if (response.data?.getRead) {
+        const book = response.data.getRead;
+        if (book) {
+          setBookInfo({
+            id: book.id,
+            title: book.title,
+            author: book.AuthorName,
+            description:
+              typeof book.description === "string" ? book.description : "",
+            coverImageUrl: book.thumbnailUrl,
+            isOwnedByUser: book.userId === user?.userId,
+            createdAt: new Date(book.createdAt).getTime(),
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load book data:", e);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleBookInfoUpdate = async (info: Omit<Book, "id" | "createdAt">) => {
     try {
-      console.log("Updating book info:", info);
-
       if (!user?.userId) {
         console.error("User not found. Cannot create a book.");
         toast.error("Authentication Error", {
@@ -118,9 +98,7 @@ export function BookDetailsPage({
         });
         return;
       }
-      console.log("User ID:", info.coverImageUrl);
       if (isNew) {
-        console.log("User ID:", user.userId);
         const response = await client.graphql({
           query: createRead,
           variables: {
@@ -134,10 +112,8 @@ export function BookDetailsPage({
           },
           authMode: "userPool",
         });
-
         if (response && "data" in response && response.data?.createRead) {
           const newBook = response.data.createRead;
-          console.log("Book created successfully:", newBook);
 
           router.push(`/books/${newBook.id}/content`);
         } else {
@@ -145,9 +121,19 @@ export function BookDetailsPage({
           throw new Error("Failed to create book.");
         }
       } else {
-        const updatedBook = await updateBook(bookInfo.id, info);
-        setBookInfo(updatedBook);
-
+        const response = await client.graphql({
+          query: updateRead,
+          variables: {
+            input: {
+              id: bookId!,
+              title: info.title,
+              AuthorName: info.author,
+              description: info.description,
+              thumbnailUrl: info.coverImageUrl ?? "",
+            },
+          },
+          authMode: "userPool",
+        });
         toast.success("Book details updated", {
           description: "Your book details have been saved.",
         });

@@ -2,7 +2,6 @@
 import { uploadData } from "aws-amplify/storage";
 import type React from "react";
 import { v4 as uuidv4 } from "uuid";
-import { FileUploaderHandle } from "@aws-amplify/ui-react-storage";
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+import FetchKeyImage from "@/components/FetchKeyImage";
 
 interface BookInfo {
   title: string;
@@ -43,14 +43,13 @@ export function BookDetails({
   const [coverImageUrl, setCoverImageUrl] = useState<string | undefined>(
     bookInfo.coverImageUrl
   );
-  const [tempPreviewUrl, setTempPreviewUrl] = useState<string | undefined>(
+  const [localImageUrl, setLocalImageUrl] = useState<string | undefined>(
     undefined
   );
+
   const [isDragging, setIsDragging] = useState(false);
-  const [fileInput, setFileInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasChanges, setHasChanges] = useState(false);
-  const fileUploaderRef = useRef<FileUploaderHandle>(null);
   // Update local state when bookInfo prop changes
   useEffect(() => {
     setTitle(bookInfo.title || "");
@@ -112,9 +111,7 @@ export function BookDetails({
       const uniqueId = uuidv4(); // Generate a new UUID
       const extension = file.name.split(".").pop(); // Get the file extension
       const key = `public/${uniqueId}.${extension}`;
-      setCoverImageUrl(key);
-      console.log("Uploading to S3 with key:", key);
-      const { result } = await uploadData({
+      await uploadData({
         path: key,
         data: file,
         options: {
@@ -125,14 +122,10 @@ export function BookDetails({
         },
       });
 
-      console.log("Upload succeeded:", result);
-      // Since you want to show a preview immediately:
-      const url = URL.createObjectURL(file);
-      console.log(url);
-
-      setTempPreviewUrl(url); // For immediate local preview
+      // immediate preview:
+      setCoverImageUrl(key);
+      setLocalImageUrl(URL.createObjectURL(file));
       setHasChanges(true);
-
       toast.success("Cover image uploaded successfully!");
     } catch (error) {
       console.error("Upload failed:", error);
@@ -149,6 +142,7 @@ export function BookDetails({
         setHasChanges(true);
       }
     };
+    // triggers the onload event
     reader.readAsDataURL(file);
   };
 
@@ -295,8 +289,9 @@ export function BookDetails({
             >
               {coverImageUrl ? (
                 <div className="relative aspect-[2/3] w-full">
-                  <img
-                    src={tempPreviewUrl || "/placeholder.svg"}
+                  <FetchKeyImage
+                    imageKey={localImageUrl || coverImageUrl}
+                    tempUrl={localImageUrl !== undefined}
                     alt="Book cover"
                     className="w-full h-full object-cover"
                   />
@@ -328,14 +323,6 @@ export function BookDetails({
               className="hidden"
             />
           </div>
-
-          {/* Amplify approach. But the styling isn't that good*/}
-          {/* <FileUploader
-            acceptedFileTypes={["image/*"]}
-            path="public/"
-            maxFileCount={1}
-            isResumable
-          /> */}
         </div>
       </CardContent>
     </Card>
