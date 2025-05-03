@@ -10,7 +10,7 @@ import { updateBook, type Book } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { client } from "@/lib/amplify";
-import { createRead } from "@/src/graphql/mutations";
+import { createRead, updateRead } from "@/src/graphql/mutations";
 import { getRead } from "@/src/graphql/queries";
 
 interface BookDetailsPageProps {
@@ -121,9 +121,19 @@ export function BookDetailsPage({
           throw new Error("Failed to create book.");
         }
       } else {
-        const updatedBook = await updateBook(bookInfo.id, info);
-        setBookInfo(updatedBook);
-
+        const response = await client.graphql({
+          query: updateRead,
+          variables: {
+            input: {
+              id: bookId!,
+              title: info.title,
+              AuthorName: info.author,
+              description: info.description,
+              thumbnailUrl: info.coverImageUrl ?? "",
+            },
+          },
+          authMode: "userPool",
+        });
         toast.success("Book details updated", {
           description: "Your book details have been saved.",
         });
