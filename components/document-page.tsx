@@ -35,7 +35,7 @@ export function DocumentPage({ bookId }: DocumentPageProps) {
 
         if (response.data?.getRead) {
           const book = response.data.getRead;
-          console.log("Book data:", book);
+          // console.log("Book data:", book);
           setBookTitle(
             typeof book.title === "string" ? book.title : "Book Details"
           );

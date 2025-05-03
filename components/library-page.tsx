@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { type Book } from "@/lib/api-client";
 import { getUserBooks, deleteBook } from "@/lib/actions/book.actions";
 import { useAuth } from "@/contexts/AuthContext";
+import { fetchImageUrl } from "@/lib/utils";
 
 // old
 // import { Storage } from "aws-amplify";
@@ -27,7 +28,6 @@ import { useAuth } from "@/contexts/AuthContext";
 // new
 // import { uploadData, downloadData } from 'aws-amplify/storage';
 
-import { getUrl } from "aws-amplify/storage";
 export function LibraryPage() {
   const router = useRouter();
   const [books, setBooks] = useState<Book[]>([]);
@@ -63,7 +63,6 @@ export function LibraryPage() {
             };
           })
         );
-
         // Use dummy data as fallback if empty
         if (allBooks.length !== 0) {
           setBooks(allBooks);
@@ -82,17 +81,6 @@ export function LibraryPage() {
     loadBooks();
   }, [user?.userId]);
 
-  const fetchImageUrl = async (key: string) => {
-    if (!key) return undefined;
-
-    try {
-      const { url } = await getUrl({ path: key });
-      return url.href;
-    } catch (error) {
-      console.error("Error fetching image URL for key:", key, error);
-      return undefined;
-    }
-  };
 
   const handleDeleteClick = (bookId: string) => {
     setBookToDelete(bookId);
@@ -108,6 +96,7 @@ export function LibraryPage() {
       if (!result.success) {
         throw new Error(result.error);
       }
+      // update the state
       setBooks((prev) => prev.filter((book) => book.id !== bookToDelete));
       toast.success("Book deleted", {
         description: "The book has been removed from your library.",
