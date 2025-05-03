@@ -25,6 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import FetchKeyImage from "./FetchKeyImage";
 
 // Define types for our drag and drop functionality
 interface PageSummary {
@@ -558,11 +559,16 @@ export function SummarizedPagesList({
                   {summary.imageUrl && (
                     <div className="flex-shrink-0">
                       <div className="relative w-16 h-16 rounded-md overflow-hidden">
-                        <img
+                        <FetchKeyImage
+                          imageKey={summary.imageUrl}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          alt="Page image"
+                        />
+                        {/* <img
                           src={summary.imageUrl || "/placeholder.svg"}
                           alt=""
                           className="absolute inset-0 w-full h-full object-cover"
-                        />
+                        /> */}
                       </div>
                     </div>
                   )}

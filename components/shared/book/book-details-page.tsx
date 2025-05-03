@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { client } from "@/lib/amplify";
 import { createRead } from "@/src/graphql/mutations";
-import { getBookById } from "@/lib/actions/book.actions";
 import { getRead } from "@/src/graphql/queries";
 import { fetchImageUrl } from "@/lib/utils";
 

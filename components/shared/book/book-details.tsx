@@ -108,7 +108,7 @@ export function BookDetails({
       const extension = file.name.split(".").pop(); // Get the file extension
       const key = `public/${uniqueId}.${extension}`;
       console.log("Uploading to S3 with key:", key);
-      const { result } = await uploadData({
+      await uploadData({
         path: key,
         data: file,
         options: {
@@ -119,7 +119,7 @@ export function BookDetails({
         },
       });
 
-      // Since you want to show a preview immediately:
+      // immediate preview:
       const url = URL.createObjectURL(file);
       setCoverImageUrl(url);
       setHasChanges(true);
@@ -139,6 +139,7 @@ export function BookDetails({
         setHasChanges(true);
       }
     };
+    // triggers the onload event
     reader.readAsDataURL(file);
   };
 

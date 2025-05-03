@@ -86,19 +86,22 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
               typeof book.title === "string" ? book.title : "Untitled Book"
             );
 
-            // Handle slides data if exits
+            // To do: Handle slides data if exits
             // Get book content
             const content = await getBookContent(bookId);
             if (content) {
               // ToDo: handle title and imagePosition when they exist on DB
-              const summaries: PageSummary[] = content.map((slide: any) => ({
-                title: `Title ${slide.slideNumber}`,
-                content: slide.text,
-                imageUrl: slide.imageUrl || undefined,
-                imagePosition: "bottom",
-                isLoading: false,
-                isGeneratingImage: false,
-              }));
+              const summaries: PageSummary[] = content.map((slide: any) => {
+                console.log("Slide data:", slide.imageUrl);
+                return {
+                  title: `Title ${slide.slideNumber}`,
+                  content: slide.text,
+                  imageUrl: slide.imageUrl || undefined,
+                  imagePosition: "bottom",
+                  isLoading: false,
+                  isGeneratingImage: false,
+                };
+              });
 
               setPageSummaries(summaries); // Now it's an array
               setFileType("word");
@@ -650,9 +653,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
           batch.map(async ({ index }) => {
             try {
               // Generate a random placeholder image
-              // In a real app, this would call an AI image generation API
               await new Promise((resolve) =>
-                setTimeout(resolve, 1000 + Math.random() * 1000)
+                setTimeout(resolve, Math.random() * 1000)
               );
 
               const width = 600;

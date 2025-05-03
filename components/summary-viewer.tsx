@@ -1,43 +1,56 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect, useRef } from "react"
-import { Save, Upload, ImageIcon, Loader2, X, Smartphone, Edit, ArrowUp, ArrowDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/hooks/use-toast"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { cn } from "@/lib/utils"
-import { MobilePreview } from "@/components/mobile-preview"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
+import { useState, useEffect, useRef } from "react";
+import {
+  Save,
+  Upload,
+  ImageIcon,
+  Loader2,
+  X,
+  Smartphone,
+  Edit,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { MobilePreview } from "@/components/mobile-preview";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { uploadData } from "aws-amplify/storage";
+import { v4 as uuidv4 } from "uuid";
+import { fetchImageUrl } from "@/lib/utils";
+import FetchKeyImage from "./FetchKeyImage";
 
 interface PageSummary {
-  title: string
-  content: string
-  imageUrl?: string
-  imagePosition?: "top" | "bottom"
-  isGeneratingImage?: boolean
+  title: string;
+  content: string;
+  imageUrl?: string;
+  imagePosition?: "top" | "bottom";
+  isGeneratingImage?: boolean;
 }
 
 interface BookInfo {
-  title: string
-  author: string
-  description: string
-  coverImageUrl?: string
-  isOwnedByUser: boolean
+  title: string;
+  author: string;
+  description: string;
+  coverImageUrl?: string;
+  isOwnedByUser: boolean;
 }
 
 interface SummaryViewerProps {
-  pageSummary: PageSummary
-  pageIndex: number
-  bookInfo: BookInfo
-  onUpdateSummary: (summary: PageSummary) => void
-  onImageGenerationStart?: (pageIndex: number) => void
-  onImageGenerationComplete?: (pageIndex: number, imageUrl: string) => void
+  pageSummary: PageSummary;
+  pageIndex: number;
+  bookInfo: BookInfo;
+  onUpdateSummary: (summary: PageSummary) => void;
+  onImageGenerationStart?: (pageIndex: number) => void;
+  onImageGenerationComplete?: (pageIndex: number, imageUrl: string) => void;
 }
 
 export function SummaryViewer({
@@ -48,108 +61,164 @@ export function SummaryViewer({
   onImageGenerationStart,
   onImageGenerationComplete,
 }: SummaryViewerProps) {
-  const { toast } = useToast()
-  const [title, setTitle] = useState(pageSummary.title)
-  const [content, setContent] = useState(pageSummary.content)
-  const [imageUrl, setImageUrl] = useState<string | undefined>(pageSummary.imageUrl)
-  const [imagePosition, setImagePosition] = useState<"top" | "bottom">(pageSummary.imagePosition || "bottom")
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
-  const [isDragging, setIsDragging] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
-  const [viewMode, setViewMode] = useState<"edit" | "preview">("edit")
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
+  const { toast } = useToast();
+  const [title, setTitle] = useState(pageSummary.title);
+  const [content, setContent] = useState(pageSummary.content);
+  const [imageUrl, setImageUrl] = useState<string | undefined>(
+    pageSummary.imageUrl
+  );
+  const [imagePosition, setImagePosition] = useState<"top" | "bottom">(
+    pageSummary.imagePosition || "bottom"
+  );
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [viewMode, setViewMode] = useState<"edit" | "preview">("edit");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imageDisplayUrl, setImageDisplayUrl] = useState<string | undefined>(
+    pageSummary.imageUrl
+  );
+  console.log("SummaryViewer - pageIndex:", pageSummary.imageUrl);
   // Ensure bookInfo properties are strings
   const safeBookInfo = {
-    title: typeof bookInfo.title === "string" ? bookInfo.title : "Untitled Book",
-    author: typeof bookInfo.author === "string" ? bookInfo.author : "Unknown Author",
-    description: typeof bookInfo.description === "string" ? bookInfo.description : "",
+    title:
+      typeof bookInfo.title === "string" ? bookInfo.title : "Untitled Book",
+    author:
+      typeof bookInfo.author === "string" ? bookInfo.author : "Unknown Author",
+    description:
+      typeof bookInfo.description === "string" ? bookInfo.description : "",
     coverImageUrl: bookInfo.coverImageUrl,
     isOwnedByUser: !!bookInfo.isOwnedByUser,
-  }
-
+  };
   // Update local state when the selected page changes
   useEffect(() => {
     if (pageSummary) {
-      setTitle(typeof pageSummary.title === "string" ? pageSummary.title : `Summary ${pageIndex + 1}`)
-      setContent(typeof pageSummary.content === "string" ? pageSummary.content : "")
-      setImageUrl(pageSummary.imageUrl)
-      setImagePosition(pageSummary.imagePosition || "bottom")
-      setIsGeneratingImage(!!pageSummary.isGeneratingImage)
-      setHasChanges(false)
+      setTitle(
+        typeof pageSummary.title === "string"
+          ? pageSummary.title
+          : `Summary ${pageIndex + 1}`
+      );
+      setContent(
+        typeof pageSummary.content === "string" ? pageSummary.content : ""
+      );
+      setImageUrl(pageSummary.imageUrl);
+
+      setImagePosition(pageSummary.imagePosition || "bottom");
+      setIsGeneratingImage(!!pageSummary.isGeneratingImage);
+      setHasChanges(false);
     }
-  }, [pageSummary, pageIndex])
+    // Load display image
+    const loadDisplayImage = async () => {
+      if (pageSummary.imageUrl) {
+        try {
+          const displayUrl = await fetchImageUrl(pageSummary.imageUrl);
+          setImageDisplayUrl(displayUrl);
+        } catch (err) {
+          console.error("Failed to fetch display image:", err);
+          setImageDisplayUrl(undefined); // or a fallback image URL
+        }
+      } else {
+        setImageDisplayUrl(undefined);
+      }
+    };
+    loadDisplayImage();
+  }, [pageSummary, pageIndex, pageSummary?.imageUrl]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value)
-    setHasChanges(true)
-  }
+    setTitle(e.target.value);
+    setHasChanges(true);
+  };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value)
-    setHasChanges(true)
-  }
+    setContent(e.target.value);
+    setHasChanges(true);
+  };
 
   const handleImagePositionChange = (checked: boolean) => {
-    setImagePosition(checked ? "top" : "bottom")
-    setHasChanges(true)
-  }
+    setImagePosition(checked ? "top" : "bottom");
+    setHasChanges(true);
+  };
 
   // Update the handleSave function to ensure we're not passing objects directly to toast
   const handleSave = () => {
     // Create a sanitized summary object with validated string values
     const sanitizedSummary: PageSummary = {
-      title: typeof title === "string" && title.trim() ? title : "Untitled Summary",
+      title:
+        typeof title === "string" && title.trim() ? title : "Untitled Summary",
       content: typeof content === "string" ? content : "",
-      imageUrl,
+      imageUrl: imageUrl,
       imagePosition,
       isGeneratingImage: !!pageSummary.isGeneratingImage,
-    }
-
+    };
     // Pass the sanitized summary to the update function
-    onUpdateSummary(sanitizedSummary)
-    setHasChanges(false)
+    onUpdateSummary(sanitizedSummary);
+    setHasChanges(false);
 
     // Use simple string values in toast
     toast.success("Summary updated", {
       description: `Summary for page ${pageIndex + 1} has been saved.`,
-    })
-  }
+    });
+  };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    processImageFile(file)
-  }
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    console.log("File selected:", file);
+    if (!file) return;
+    try {
+      const uniqueId = uuidv4(); // Generate a new UUID
+      const extension = file.name.split(".").pop(); // Get the file extension
+      const key = `public/${uniqueId}.${extension}`;
+      await uploadData({
+        path: key,
+        data: file,
+        options: {
+          onProgress: ({ transferredBytes, totalBytes = 100 }) => {
+            const percent = Math.round((transferredBytes / totalBytes) * 100);
+            console.log(`Upload progress: ${percent}%`);
+          },
+        },
+      });
+      // wait until it becomes available in S3
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      console.log("Image uploaded to S3 with key1:", key);
+      setImageUrl(key);
+      setHasChanges(true);
+      toast.success("Cover image uploaded successfully!");
+    } catch (error) {
+      console.error("Upload failed:", error);
+      toast.error("Failed to upload cover image.");
+    }
+  };
 
   const processImageFile = (file: File) => {
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (event) => {
-      const uploadedImageUrl = event.target?.result as string
-      setImageUrl(uploadedImageUrl)
-      setHasChanges(true)
-    }
-    reader.readAsDataURL(file)
-  }
+      const uploadedImageUrl = event.target?.result as string;
+      setImageUrl(uploadedImageUrl);
+      setHasChanges(true);
+    };
+    // triggers the onload event
+    reader.readAsDataURL(file);
+  };
 
   // Modify the handleGenerateImage function to be more robust
   const handleGenerateImage = () => {
     // Don't allow generating a new image if one is already being generated
-    if (isGeneratingImage) return
+    if (isGeneratingImage) return;
 
     // Store the current page index to ensure the image is applied to the correct page
-    const targetPageIndex = pageIndex
+    const targetPageIndex = pageIndex;
 
-    setIsGeneratingImage(true)
+    setIsGeneratingImage(true);
 
     // Notify parent component that image generation has started
     if (onImageGenerationStart) {
-      onImageGenerationStart(targetPageIndex)
+      onImageGenerationStart(targetPageIndex);
     }
 
     // Create an abort controller to handle cancellation
-    const abortController = new AbortController()
-    const signal = abortController.signal
+    const abortController = new AbortController();
+    const signal = abortController.signal;
 
     // In a real app, this would call an AI image generation API
     // For this demo, we'll simulate it with a timeout and placeholder
@@ -157,126 +226,143 @@ export function SummaryViewer({
       const timeoutId = setTimeout(() => {
         try {
           if (signal.aborted) {
-            reject(new Error("Image generation was cancelled"))
-            return
+            reject(new Error("Image generation was cancelled"));
+            return;
           }
 
           // Generate a random placeholder image
-          const width = 600
-          const height = 400
-          const randomId = Math.floor(Math.random() * 1000)
-          const generatedImageUrl = `https://picsum.photos/seed/${randomId}/${width}/${height}`
+          const width = 600;
+          const height = 400;
+          const randomId = Math.floor(Math.random() * 1000);
+          const generatedImageUrl = `https://picsum.photos/seed/${randomId}/${width}/${height}`;
 
-          resolve(generatedImageUrl)
+          resolve(generatedImageUrl);
         } catch (error) {
-          reject(error)
+          reject(error);
         }
-      }, 1500)
+      }, 1500);
 
       // Clean up the timeout if aborted
       signal.addEventListener("abort", () => {
-        clearTimeout(timeoutId)
-        reject(new Error("Image generation was cancelled"))
-      })
-    })
+        clearTimeout(timeoutId);
+        reject(new Error("Image generation was cancelled"));
+      });
+    });
 
-    generateImagePromise
-      .then((generatedImageUrl) => {
-        // Update local state only if we're still on the same page
-        if (pageIndex === targetPageIndex) {
-          setImageUrl(generatedImageUrl)
-          setIsGeneratingImage(false)
-          setHasChanges(true)
-        }
+    generateImagePromise.then(async (generatedImageUrl) => {
+      if (pageIndex === targetPageIndex) {
+        setIsGeneratingImage(false);
+      }
+      // Upload generated image to S3
+      try {
+        const response = await fetch(generatedImageUrl);
+        const blob = await response.blob();
+        const file = new File([blob], "generated-image.jpg", {
+          type: blob.type,
+        });
 
-        // Always notify parent component that image generation is complete
-        // This ensures the state is updated correctly even if the user has switched pages
+        const uniqueId = uuidv4();
+        const extension = file.name.split(".").pop();
+        const key = `public/${uniqueId}.${extension}`;
+
+        await uploadData({
+          path: key,
+          data: file,
+          options: {
+            onProgress: ({ transferredBytes, totalBytes = 100 }) => {
+              const percent = Math.round((transferredBytes / totalBytes) * 100);
+              console.log(`Generated image upload progress: ${percent}%`);
+            },
+          },
+        });
         if (onImageGenerationComplete) {
-          onImageGenerationComplete(targetPageIndex, generatedImageUrl)
+          onImageGenerationComplete(targetPageIndex, key);
         }
+        console.log("Generated image uploaded to S3 with key:", key);
+        setImageUrl(key);
+        setHasChanges(true);
+        toast.success("Generated image uploaded successfully!");
+      } catch (uploadError) {
+        console.error("Upload of generated image failed:", uploadError);
+        toast.error("Failed to upload generated image.");
+      }
 
-        toast.success("Image generated", {
-          description: `Image for page ${targetPageIndex + 1} has been generated.`,
-        })
-      })
-      .catch((error) => {
-        // Only update state if the error wasn't due to cancellation
-        if (error.message !== "Image generation was cancelled") {
-          setIsGeneratingImage(false)
-          toast.error("Failed to generate image", {
-            description: "There was a problem generating the image. Please try again.",
-          })
-          console.error("Image generation error:", error)
-        }
-      })
-
+      toast.success("Image generated", {
+        description: `Image for page ${
+          targetPageIndex + 1
+        } has been generated.`,
+      });
+    });
     // Return the abort controller so it can be used for cleanup
-    return abortController
-  }
+    return abortController;
+  };
 
   // Add a useEffect for cleanup
   useEffect(() => {
-    const abortController: AbortController | null = null
+    const abortController: AbortController | null = null;
 
     return () => {
       // Clean up any pending image generation when component unmounts
       if (abortController) {
-        abortController.abort()
+        abortController.abort();
       }
-    }
-  }, [])
+    };
+  }, []);
 
   const handleRemoveImage = () => {
-    setImageUrl(undefined)
-    setHasChanges(true)
-  }
+    setImageUrl(undefined);
+    setHasChanges(true);
+  };
 
   const triggerFileInput = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
   // Drag and drop handlers
   const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(true)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
 
   const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
 
-    const files = e.dataTransfer.files
+    const files = e.dataTransfer.files;
     if (files.length > 0) {
-      const file = files[0]
+      const file = files[0];
       if (file.type.startsWith("image/")) {
-        processImageFile(file)
+        processImageFile(file);
       } else {
         toast.error("Invalid file type", {
           description: "Please upload an image file.",
-        })
+        });
       }
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Page {pageIndex + 1} Summary</h2>
         <div className="flex items-center gap-2">
-          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "edit" | "preview")}>
+          <Tabs
+            value={viewMode}
+            onValueChange={(value) => setViewMode(value as "edit" | "preview")}
+          >
             <TabsList>
               <TabsTrigger value="edit">
                 <Edit className="mr-2 h-4 w-4" />
@@ -290,7 +376,12 @@ export function SummaryViewer({
           </Tabs>
 
           {viewMode === "edit" && (
-            <Button variant="outline" size="sm" onClick={handleSave} disabled={!hasChanges}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSave}
+              disabled={!hasChanges}
+            >
               <Save className="mr-2 h-4 w-4" />
               Save
             </Button>
@@ -338,7 +429,11 @@ export function SummaryViewer({
                 <div
                   className={cn(
                     "border rounded-md overflow-hidden transition-colors",
-                    isDragging ? "border-primary bg-primary/5" : imageUrl ? "" : "border-dashed",
+                    isDragging
+                      ? "border-primary bg-primary/5"
+                      : imageUrl
+                      ? ""
+                      : "border-dashed"
                   )}
                   onDragEnter={handleDragEnter}
                   onDragLeave={handleDragLeave}
@@ -349,10 +444,10 @@ export function SummaryViewer({
                     <div className="relative">
                       {/* Mobile-sized image preview container */}
                       <div className="mx-auto max-w-[366px] rounded-md overflow-hidden">
-                        <img
-                          src={imageUrl || "/placeholder.svg"}
-                          alt="Summary illustration"
+                        <FetchKeyImage
+                          imageKey={imageUrl}
                           className="w-full h-auto object-cover"
+                          alt="Summary illustration"
                         />
                       </div>
                       <Button
@@ -370,13 +465,21 @@ export function SummaryViewer({
                       onClick={triggerFileInput}
                     >
                       <ImageIcon className="h-10 w-10 mb-2" />
-                      <p>{isDragging ? "Drop image here" : "Drag & drop an image or click to upload"}</p>
+                      <p>
+                        {isDragging
+                          ? "Drop image here"
+                          : "Drag & drop an image or click to upload"}
+                      </p>
                     </div>
                   )}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button variant="outline" onClick={triggerFileInput} className="flex-1">
+                  <Button
+                    variant="outline"
+                    onClick={triggerFileInput}
+                    className="flex-1"
+                  >
                     <Upload className="mr-2 h-4 w-4" />
                     Upload Image
                   </Button>
@@ -384,7 +487,7 @@ export function SummaryViewer({
                     type="file"
                     ref={fileInputRef}
                     onChange={handleImageUpload}
-                    accept="image/*"
+                    accept="image/png, image/jpeg, image/gif"
                     className="hidden"
                   />
                   <Button
@@ -420,7 +523,9 @@ export function SummaryViewer({
                       <div>
                         <p className="font-medium">Image Position</p>
                         <p className="text-sm text-muted-foreground">
-                          {imagePosition === "top" ? "Image shown below title" : "Image shown below content"}
+                          {imagePosition === "top"
+                            ? "Image shown below title"
+                            : "Image shown below content"}
                         </p>
                       </div>
                     </div>
@@ -444,7 +549,7 @@ export function SummaryViewer({
         <MobilePreview
           title={title}
           content={content}
-          imageUrl={imageUrl}
+          imageUrl={imageDisplayUrl}
           imagePosition={imagePosition}
           bookTitle={safeBookInfo.title}
           author={safeBookInfo.author}
@@ -452,5 +557,5 @@ export function SummaryViewer({
         />
       )}
     </div>
-  )
+  );
 }
