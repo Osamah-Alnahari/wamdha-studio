@@ -70,6 +70,9 @@ export function SummaryViewer({
   const [imagePosition, setImagePosition] = useState<"top" | "bottom">(
     pageSummary.imagePosition || "bottom"
   );
+  const [localImageUrl, setLocalImageUrl] = useState<string | undefined>(
+    undefined
+  );
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -78,7 +81,6 @@ export function SummaryViewer({
   const [imageDisplayUrl, setImageDisplayUrl] = useState<string | undefined>(
     pageSummary.imageUrl
   );
-  console.log("SummaryViewer - pageIndex:", pageSummary.imageUrl);
   // Ensure bookInfo properties are strings
   const safeBookInfo = {
     title:
@@ -90,6 +92,7 @@ export function SummaryViewer({
     coverImageUrl: bookInfo.coverImageUrl,
     isOwnedByUser: !!bookInfo.isOwnedByUser,
   };
+  const [isSaving, setIsSaving] = useState(false);
   // Update local state when the selected page changes
   useEffect(() => {
     if (pageSummary) {
@@ -125,49 +128,67 @@ export function SummaryViewer({
   }, [pageSummary, pageIndex, pageSummary?.imageUrl]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-    setHasChanges(true);
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+
+    handleSave({ title: newTitle });
   };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value);
-    setHasChanges(true);
-  };
+    const newContent = e.target.value;
+    setContent(newContent);
 
+    handleSave({ content: newContent });
+  };
   const handleImagePositionChange = (checked: boolean) => {
-    setImagePosition(checked ? "top" : "bottom");
-    setHasChanges(true);
+    const newPosition = checked ? "top" : "bottom";
+    setImagePosition(newPosition);
+
+    handleSave({ imagePosition: newPosition });
   };
 
   // Update the handleSave function to ensure we're not passing objects directly to toast
-  const handleSave = () => {
-    // Create a sanitized summary object with validated string values
+  const handleSave = (
+    overrides?: Partial<
+      Pick<PageSummary, "title" | "content" | "imageUrl" | "imagePosition">
+    >
+  ) => {
+    if (isSaving) return; // Prevent multiple saves at once
+    setIsSaving(true);
     const sanitizedSummary: PageSummary = {
       title:
-        typeof title === "string" && title.trim() ? title : "Untitled Summary",
-      content: typeof content === "string" ? content : "",
-      imageUrl: imageUrl,
-      imagePosition,
+        typeof (overrides?.title ?? title) === "string" &&
+        (overrides?.title ?? title).trim()
+          ? overrides?.title ?? title
+          : "Untitled Summary",
+      content: overrides?.content ?? content,
+      imageUrl: overrides?.hasOwnProperty("imageUrl")
+        ? overrides.imageUrl
+        : imageUrl,
+
+      imagePosition: overrides?.imagePosition ?? imagePosition,
       isGeneratingImage: !!pageSummary.isGeneratingImage,
     };
-    // Pass the sanitized summary to the update function
+
     onUpdateSummary(sanitizedSummary);
     setHasChanges(false);
-
-    // Use simple string values in toast
-    toast.success("Summary updated", {
-      description: `Summary for page ${pageIndex + 1} has been saved.`,
-    });
+    setIsSaving(false);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    console.log("File selected:", file);
+    const targetPageIndex = pageIndex;
     if (!file) return;
+
     try {
-      const uniqueId = uuidv4(); // Generate a new UUID
-      const extension = file.name.split(".").pop(); // Get the file extension
+      // Show loading state to user
+      toast.loading("Uploading image...", { id: "uploadToast" });
+
+      const uniqueId = uuidv4();
+      const extension = file.name.split(".").pop();
       const key = `public/${uniqueId}.${extension}`;
+
+      // Upload and wait for complete response
       await uploadData({
         path: key,
         data: file,
@@ -178,15 +199,21 @@ export function SummaryViewer({
           },
         },
       });
-      // wait until it becomes available in S3
-      await new Promise((resolve) => setTimeout(resolve, 250));
-      console.log("Image uploaded to S3 with key1:", key);
+
+      setLocalImageUrl(URL.createObjectURL(file));
+      // Update state with the image URL
       setImageUrl(key);
       setHasChanges(true);
-      toast.success("Cover image uploaded successfully!");
+      // ensure the image became available in s3
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      handleSave({ imageUrl: key });
+      // Update the toast
+      toast.success("Cover image uploaded successfully!", {
+        id: "uploadToast",
+      });
     } catch (error) {
       console.error("Upload failed:", error);
-      toast.error("Failed to upload cover image.");
+      toast.error("Failed to upload cover image.", { id: "uploadToast" });
     }
   };
 
@@ -221,34 +248,27 @@ export function SummaryViewer({
     const signal = abortController.signal;
 
     // In a real app, this would call an AI image generation API
-    // For this demo, we'll simulate it with a timeout and placeholder
     const generateImagePromise = new Promise<string>((resolve, reject) => {
-      const timeoutId = setTimeout(() => {
-        try {
-          if (signal.aborted) {
-            reject(new Error("Image generation was cancelled"));
-            return;
-          }
-
-          // Generate a random placeholder image
-          const width = 600;
-          const height = 400;
-          const randomId = Math.floor(Math.random() * 1000);
-          const generatedImageUrl = `https://picsum.photos/seed/${randomId}/${width}/${height}`;
-
-          resolve(generatedImageUrl);
-        } catch (error) {
-          reject(error);
+      try {
+        if (signal.aborted) {
+          reject(new Error("Image generation was cancelled"));
+          return;
         }
-      }, 1500);
+        // Generate a random placeholder image
+        const width = 600;
+        const height = 400;
+        const randomId = Math.floor(Math.random() * 1000);
+        const generatedImageUrl = `https://picsum.photos/seed/${randomId}/${width}/${height}`;
 
+        resolve(generatedImageUrl);
+      } catch (error) {
+        reject(error);
+      }
       // Clean up the timeout if aborted
       signal.addEventListener("abort", () => {
-        clearTimeout(timeoutId);
         reject(new Error("Image generation was cancelled"));
       });
     });
-
     generateImagePromise.then(async (generatedImageUrl) => {
       if (pageIndex === targetPageIndex) {
         setIsGeneratingImage(false);
@@ -278,7 +298,7 @@ export function SummaryViewer({
         if (onImageGenerationComplete) {
           onImageGenerationComplete(targetPageIndex, key);
         }
-        console.log("Generated image uploaded to S3 with key:", key);
+        setLocalImageUrl(URL.createObjectURL(file));
         setImageUrl(key);
         setHasChanges(true);
         toast.success("Generated image uploaded successfully!");
@@ -312,6 +332,7 @@ export function SummaryViewer({
   const handleRemoveImage = () => {
     setImageUrl(undefined);
     setHasChanges(true);
+    handleSave({ imageUrl: undefined });
   };
 
   const triggerFileInput = () => {
@@ -375,7 +396,7 @@ export function SummaryViewer({
             </TabsList>
           </Tabs>
 
-          {viewMode === "edit" && (
+          {/* {viewMode === "edit" && (
             <Button
               variant="outline"
               size="sm"
@@ -385,7 +406,7 @@ export function SummaryViewer({
               <Save className="mr-2 h-4 w-4" />
               Save
             </Button>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -445,7 +466,8 @@ export function SummaryViewer({
                       {/* Mobile-sized image preview container */}
                       <div className="mx-auto max-w-[366px] rounded-md overflow-hidden">
                         <FetchKeyImage
-                          imageKey={imageUrl}
+                          imageKey={localImageUrl || imageUrl}
+                          tempUrl={localImageUrl !== undefined}
                           className="w-full h-auto object-cover"
                           alt="Summary illustration"
                         />

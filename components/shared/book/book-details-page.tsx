@@ -12,7 +12,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { client } from "@/lib/amplify";
 import { createRead } from "@/src/graphql/mutations";
 import { getRead } from "@/src/graphql/queries";
-import { fetchImageUrl } from "@/lib/utils";
 
 interface BookDetailsPageProps {
   bookId?: string;
@@ -38,8 +37,6 @@ export function BookDetailsPage({
 
   // Load book info from API on component mount
   useEffect(() => {
-    console.log("BookDetailsPage useEffect - isNew:", isNew, "bookId:", bookId);
-
     if (isNew) {
       // For new books, reset to empty state
       setBookInfo({
@@ -72,7 +69,6 @@ export function BookDetailsPage({
       });
       if (response.data?.getRead) {
         const book = response.data.getRead;
-        const coverImageUrl = await fetchImageUrl(book.thumbnailUrl);
         if (book) {
           setBookInfo({
             id: book.id,
@@ -80,12 +76,11 @@ export function BookDetailsPage({
             author: book.AuthorName,
             description:
               typeof book.description === "string" ? book.description : "",
-            coverImageUrl: coverImageUrl,
+            coverImageUrl: book.thumbnailUrl,
             isOwnedByUser: book.userId === user?.userId,
             createdAt: new Date(book.createdAt).getTime(),
           });
         }
-        console.log("Book info set:", bookInfo);
       }
     } catch (e) {
       console.error("Failed to load book data:", e);
@@ -96,8 +91,6 @@ export function BookDetailsPage({
   };
   const handleBookInfoUpdate = async (info: Omit<Book, "id" | "createdAt">) => {
     try {
-      console.log("Updating book info:", info);
-
       if (!user?.userId) {
         console.error("User not found. Cannot create a book.");
         toast.error("Authentication Error", {
@@ -121,7 +114,6 @@ export function BookDetailsPage({
         });
         if (response && "data" in response && response.data?.createRead) {
           const newBook = response.data.createRead;
-          console.log("Book created successfully:", newBook);
 
           router.push(`/books/${newBook.id}/content`);
         } else {

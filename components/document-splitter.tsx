@@ -67,7 +67,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
         if (response.data?.getRead) {
           const book = response.data.getRead;
-          // console.log("Book data:", book);
           if (book) {
             setBookInfo({
               title:
@@ -92,7 +91,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
             if (content) {
               // ToDo: handle title and imagePosition when they exist on DB
               const summaries: PageSummary[] = content.map((slide: any) => {
-                console.log("Slide data:", slide.imageUrl);
                 return {
                   title: `Title ${slide.slideNumber}`,
                   content: slide.text,
@@ -304,16 +302,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
           imageUrl: imageUrl,
           isGeneratingImage: false,
         };
-
-        // Save updated summaries to API
-        if (bookId) {
-          updateBookContent(bookId, {
-            pages,
-            summaries: newSummaries,
-          }).catch((err) =>
-            console.error("Error saving generation complete state:", err)
-          );
-        }
 
         return newSummaries;
       });
@@ -653,9 +641,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
           batch.map(async ({ index }) => {
             try {
               // Generate a random placeholder image
-              await new Promise((resolve) =>
-                setTimeout(resolve, Math.random() * 1000)
-              );
 
               const width = 600;
               const height = 400;

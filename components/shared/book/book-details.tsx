@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+import FetchKeyImage from "@/components/FetchKeyImage";
 
 interface BookInfo {
   title: string;
@@ -41,6 +42,9 @@ export function BookDetails({
   );
   const [coverImageUrl, setCoverImageUrl] = useState<string | undefined>(
     bookInfo.coverImageUrl
+  );
+  const [localImageUrl, setLocalImageUrl] = useState<string | undefined>(
+    undefined
   );
 
   const [isDragging, setIsDragging] = useState(false);
@@ -107,7 +111,6 @@ export function BookDetails({
       const uniqueId = uuidv4(); // Generate a new UUID
       const extension = file.name.split(".").pop(); // Get the file extension
       const key = `public/${uniqueId}.${extension}`;
-      console.log("Uploading to S3 with key:", key);
       await uploadData({
         path: key,
         data: file,
@@ -120,8 +123,8 @@ export function BookDetails({
       });
 
       // immediate preview:
-      const url = URL.createObjectURL(file);
-      setCoverImageUrl(url);
+      setCoverImageUrl(key);
+      setLocalImageUrl(URL.createObjectURL(file));
       setHasChanges(true);
       toast.success("Cover image uploaded successfully!");
     } catch (error) {
@@ -286,8 +289,9 @@ export function BookDetails({
             >
               {coverImageUrl ? (
                 <div className="relative aspect-[2/3] w-full">
-                  <img
-                    src={coverImageUrl || "/placeholder.svg"}
+                  <FetchKeyImage
+                    imageKey={localImageUrl || coverImageUrl}
+                    tempUrl={localImageUrl !== undefined}
                     alt="Book cover"
                     className="w-full h-full object-cover"
                   />
