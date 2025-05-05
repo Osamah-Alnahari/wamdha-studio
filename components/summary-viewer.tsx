@@ -81,6 +81,23 @@ export function SummaryViewer({
   const [imageDisplayUrl, setImageDisplayUrl] = useState<string | undefined>(
     pageSummary.imageUrl
   );
+
+  // Pending changes queue
+  const pendingChangesRef = useRef<PageSummary>({
+    title: pageSummary.title,
+    content: pageSummary.content,
+    imageUrl: pageSummary.imageUrl,
+    imagePosition: pageSummary.imagePosition || "bottom",
+    isGeneratingImage: !!pageSummary.isGeneratingImage,
+  });
+
+  // Save timeout reference
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Save lock to prevent concurrent saves
+  const isSavingRef = useRef(false);
+  const [isSaving, setIsSaving] = useState(false);
+
   // Ensure bookInfo properties are strings
   const safeBookInfo = {
     title:
@@ -92,7 +109,7 @@ export function SummaryViewer({
     coverImageUrl: bookInfo.coverImageUrl,
     isOwnedByUser: !!bookInfo.isOwnedByUser,
   };
-  const [isSaving, setIsSaving] = useState(false);
+
   // Update local state when the selected page changes
   useEffect(() => {
     if (pageSummary) {
@@ -105,11 +122,30 @@ export function SummaryViewer({
         typeof pageSummary.content === "string" ? pageSummary.content : ""
       );
       setImageUrl(pageSummary.imageUrl);
-
       setImagePosition(pageSummary.imagePosition || "bottom");
       setIsGeneratingImage(!!pageSummary.isGeneratingImage);
       setHasChanges(false);
+
+      // Reset pending changes reference
+      pendingChangesRef.current = {
+        title:
+          typeof pageSummary.title === "string"
+            ? pageSummary.title
+            : `Summary ${pageIndex + 1}`,
+        content:
+          typeof pageSummary.content === "string" ? pageSummary.content : "",
+        imageUrl: pageSummary.imageUrl,
+        imagePosition: pageSummary.imagePosition || "bottom",
+        isGeneratingImage: !!pageSummary.isGeneratingImage,
+      };
     }
+
+    // Clear any pending save timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = null;
+    }
+
     // Load display image
     const loadDisplayImage = async () => {
       if (pageSummary.imageUrl) {
@@ -127,52 +163,104 @@ export function SummaryViewer({
     loadDisplayImage();
   }, [pageSummary, pageIndex, pageSummary?.imageUrl]);
 
+  // Function to actually perform the save
+  const performSave = async () => {
+    if (isSavingRef.current) {
+      // If already saving, schedule another save after a delay
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      saveTimeoutRef.current = setTimeout(performSave, 300);
+      return;
+    }
+
+    try {
+      isSavingRef.current = true;
+      setIsSaving(true);
+
+      // Create a copy of the pending changes
+      const summaryToSave = { ...pendingChangesRef.current };
+
+      // Sanitize the data
+      const sanitizedSummary: PageSummary = {
+        title:
+          typeof summaryToSave.title === "string" && summaryToSave.title.trim()
+            ? summaryToSave.title
+            : "Untitled Summary",
+        content: summaryToSave.content,
+        imageUrl: summaryToSave.imageUrl,
+        imagePosition: summaryToSave.imagePosition,
+        isGeneratingImage: summaryToSave.isGeneratingImage,
+      };
+
+      // Call the update function provided by parent
+      await onUpdateSummary(sanitizedSummary);
+      setHasChanges(false);
+    } catch (error) {
+      console.error("Failed to save changes:", error);
+      toast.error("Failed to save changes. Please try again.");
+    } finally {
+      isSavingRef.current = false;
+      setIsSaving(false);
+    }
+  };
+
+  // Debounced save function
+  const debouncedSave = (changes: Partial<PageSummary>) => {
+    // Update pending changes
+    pendingChangesRef.current = {
+      ...pendingChangesRef.current,
+      ...changes,
+    };
+
+    setHasChanges(true);
+
+    // Clear any existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set a new timeout
+    saveTimeoutRef.current = setTimeout(performSave, 500);
+  };
+
+  // Handle title change
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
-
-    handleSave({ title: newTitle });
+    debouncedSave({ title: newTitle });
   };
 
+  // Handle content change
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
     setContent(newContent);
-
-    handleSave({ content: newContent });
+    debouncedSave({ content: newContent });
   };
+
+  // Handle image position change
   const handleImagePositionChange = (checked: boolean) => {
     const newPosition = checked ? "top" : "bottom";
     setImagePosition(newPosition);
-
-    handleSave({ imagePosition: newPosition });
+    debouncedSave({ imagePosition: newPosition });
   };
 
-  // Update the handleSave function to ensure we're not passing objects directly to toast
-  const handleSave = (
-    overrides?: Partial<
-      Pick<PageSummary, "title" | "content" | "imageUrl" | "imagePosition">
-    >
-  ) => {
-    if (isSaving) return; // Prevent multiple saves at once
-    setIsSaving(true);
-    const sanitizedSummary: PageSummary = {
-      title:
-        typeof (overrides?.title ?? title) === "string" &&
-        (overrides?.title ?? title).trim()
-          ? overrides?.title ?? title
-          : "Untitled Summary",
-      content: overrides?.content ?? content,
-      imageUrl: overrides?.hasOwnProperty("imageUrl")
-        ? overrides.imageUrl
-        : imageUrl,
-
-      imagePosition: overrides?.imagePosition ?? imagePosition,
-      isGeneratingImage: !!pageSummary.isGeneratingImage,
+  // Manual save function for immediate changes that should be saved right away
+  const handleImmediateSave = (changes: Partial<PageSummary>) => {
+    // Update pending changes
+    pendingChangesRef.current = {
+      ...pendingChangesRef.current,
+      ...changes,
     };
 
-    onUpdateSummary(sanitizedSummary);
-    setHasChanges(false);
-    setIsSaving(false);
+    // Clear any existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = null;
+    }
+
+    // Perform save immediately
+    performSave();
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,9 +292,13 @@ export function SummaryViewer({
       // Update state with the image URL
       setImageUrl(key);
       setHasChanges(true);
+
       // ensure the image became available in s3
       await new Promise((resolve) => setTimeout(resolve, 500));
-      handleSave({ imageUrl: key });
+
+      // Save image URL immediately
+      handleImmediateSave({ imageUrl: key });
+
       // Update the toast
       toast.success("Cover image uploaded successfully!", {
         id: "uploadToast",
@@ -223,6 +315,7 @@ export function SummaryViewer({
       const uploadedImageUrl = event.target?.result as string;
       setImageUrl(uploadedImageUrl);
       setHasChanges(true);
+      debouncedSave({ imageUrl: uploadedImageUrl });
     };
     // triggers the onload event
     reader.readAsDataURL(file);
@@ -237,6 +330,7 @@ export function SummaryViewer({
     const targetPageIndex = pageIndex;
 
     setIsGeneratingImage(true);
+    debouncedSave({ isGeneratingImage: true });
 
     // Notify parent component that image generation has started
     if (onImageGenerationStart) {
@@ -269,50 +363,73 @@ export function SummaryViewer({
         reject(new Error("Image generation was cancelled"));
       });
     });
-    generateImagePromise.then(async (generatedImageUrl) => {
-      if (pageIndex === targetPageIndex) {
-        setIsGeneratingImage(false);
-      }
-      // Upload generated image to S3
-      try {
-        const response = await fetch(generatedImageUrl);
-        const blob = await response.blob();
-        const file = new File([blob], "generated-image.jpg", {
-          type: blob.type,
-        });
 
-        const uniqueId = uuidv4();
-        const extension = file.name.split(".").pop();
-        const key = `public/${uniqueId}.${extension}`;
-
-        await uploadData({
-          path: key,
-          data: file,
-          options: {
-            onProgress: ({ transferredBytes, totalBytes = 100 }) => {
-              const percent = Math.round((transferredBytes / totalBytes) * 100);
-              console.log(`Generated image upload progress: ${percent}%`);
-            },
-          },
-        });
-        if (onImageGenerationComplete) {
-          onImageGenerationComplete(targetPageIndex, key);
+    generateImagePromise
+      .then(async (generatedImageUrl) => {
+        if (pageIndex === targetPageIndex) {
+          setIsGeneratingImage(false);
+          debouncedSave({ isGeneratingImage: false });
         }
-        setLocalImageUrl(URL.createObjectURL(file));
-        setImageUrl(key);
-        setHasChanges(true);
-        toast.success("Generated image uploaded successfully!");
-      } catch (uploadError) {
-        console.error("Upload of generated image failed:", uploadError);
-        toast.error("Failed to upload generated image.");
-      }
 
-      toast.success("Image generated", {
-        description: `Image for page ${
-          targetPageIndex + 1
-        } has been generated.`,
+        // Upload generated image to S3
+        try {
+          const response = await fetch(generatedImageUrl);
+          const blob = await response.blob();
+          const file = new File([blob], "generated-image.jpg", {
+            type: blob.type,
+          });
+
+          const uniqueId = uuidv4();
+          const extension = file.name.split(".").pop();
+          const key = `public/${uniqueId}.${extension}`;
+
+          await uploadData({
+            path: key,
+            data: file,
+            options: {
+              onProgress: ({ transferredBytes, totalBytes = 100 }) => {
+                const percent = Math.round(
+                  (transferredBytes / totalBytes) * 100
+                );
+                console.log(`Generated image upload progress: ${percent}%`);
+              },
+            },
+          });
+
+          if (onImageGenerationComplete) {
+            onImageGenerationComplete(targetPageIndex, key);
+          }
+
+          setLocalImageUrl(URL.createObjectURL(file));
+          setImageUrl(key);
+
+          // Save image URL immediately
+          handleImmediateSave({ imageUrl: key });
+
+          toast.success("Generated image uploaded successfully!");
+        } catch (uploadError) {
+          console.error("Upload of generated image failed:", uploadError);
+          toast.error("Failed to upload generated image.");
+        }
+
+        toast.success("Image generated", {
+          description: `Image for page ${
+            targetPageIndex + 1
+          } has been generated.`,
+        });
+      })
+      .catch((error) => {
+        console.error("Image generation failed:", error);
+        setIsGeneratingImage(false);
+        debouncedSave({ isGeneratingImage: false });
+
+        if (!signal.aborted) {
+          toast.error("Failed to generate image", {
+            description: "Please try again later.",
+          });
+        }
       });
-    });
+
     // Return the abort controller so it can be used for cleanup
     return abortController;
   };
@@ -326,13 +443,23 @@ export function SummaryViewer({
       if (abortController) {
         abortController.abort();
       }
+
+      // Clean up any pending save
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+
+        // Perform a final save if there are pending changes
+        if (hasChanges) {
+          performSave();
+        }
+      }
     };
-  }, []);
+  }, [hasChanges]);
 
   const handleRemoveImage = () => {
     setImageUrl(undefined);
     setHasChanges(true);
-    handleSave({ imageUrl: undefined });
+    handleImmediateSave({ imageUrl: undefined });
   };
 
   const triggerFileInput = () => {

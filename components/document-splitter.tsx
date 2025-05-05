@@ -185,14 +185,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     setStartedFromScratch(true);
     setViewMode("summaries"); // Switch directly to summaries view
 
-    // Save the content to API
-    // if (bookId) {
-    //   await updateBookContent(bookId, {
-    //     pages: [],
-    //     summaries: [initialPage],
-    //   });
-    // }
-
     toast.success("Started from scratch", {
       description: "You can now add pages and create your summaries.",
     });
@@ -266,17 +258,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         ...newSummaries[pageIndex],
         isGeneratingImage: true,
       };
-
-      // Save updated state to API
-      if (bookId) {
-        updateBookContent(bookId, {
-          pages,
-          summaries: newSummaries,
-        }).catch((err) =>
-          console.error("Error saving generation start state:", err)
-        );
-      }
-
       return newSummaries;
     });
   };
