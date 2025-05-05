@@ -258,11 +258,13 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         ...newSummaries[pageIndex],
         isGeneratingImage: true,
       };
+
       return newSummaries;
     });
   };
 
   // Handle image generation complete
+  // Update handleImageGenerationComplete to ensure it updates the correct page
   const handleImageGenerationComplete = async (
     pageIndex: number,
     imageUrl: string
@@ -276,16 +278,30 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     }
 
     try {
-      setPageSummaries((prevSummaries) => {
-        const newSummaries = [...prevSummaries];
-        newSummaries[pageIndex] = {
-          ...newSummaries[pageIndex],
-          imageUrl: imageUrl,
-          isGeneratingImage: false,
-        };
+      // Create a new array to avoid reference issues
+      const newSummaries = [...pageSummaries];
 
-        return newSummaries;
-      });
+      // Update only the specified page index
+      newSummaries[pageIndex] = {
+        ...newSummaries[pageIndex],
+        imageUrl: imageUrl,
+        isGeneratingImage: false,
+      };
+
+      setPageSummaries(newSummaries);
+
+      // // If the specified page is the currently selected page, update the selection
+      if (pageIndex === selectedPageIndex) {
+        setSelectedPageIndex(pageIndex);
+      }
+
+      // Save changes to API
+      if (bookId) {
+        await updateBookContent(bookId, {
+          pages,
+          summaries: newSummaries,
+        });
+      }
     } catch (error) {
       console.error(
         `Error completing image generation for page ${pageIndex + 1}:`,
