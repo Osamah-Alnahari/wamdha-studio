@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, AlignLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { v4 as uuidv4 } from "uuid";
 import {
   updateBookContent,
   summarizeText as apiSummarizeText,
@@ -19,6 +20,8 @@ import { getRead } from "@/src/graphql/queries";
 import { client } from "@/lib/amplify";
 import { deleteSlidesByBook, uploadSlides } from "@/lib/actions/book.actions";
 import { getBookContent } from "@/lib/actions/slide.actions";
+import { uploadData } from "aws-amplify/storage";
+import { delay } from "@/lib/utils";
 interface DocumentSplitterProps {
   bookId?: string;
 }
@@ -185,14 +188,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     setStartedFromScratch(true);
     setViewMode("summaries"); // Switch directly to summaries view
 
-    // Save the content to API
-    // if (bookId) {
-    //   await updateBookContent(bookId, {
-    //     pages: [],
-    //     summaries: [initialPage],
-    //   });
-    // }
-
     toast.success("Started from scratch", {
       description: "You can now add pages and create your summaries.",
     });
@@ -202,7 +197,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     const maxIndex =
       viewMode === "pages" ? pages.length - 1 : pageSummaries.length - 1;
     if (index >= 0 && index <= maxIndex) {
-      console.log(`Selecting page ${index}`);
       setSelectedPageIndex(index);
     } else {
       console.warn(`Invalid page index: ${index}, max: ${maxIndex}`);
@@ -267,21 +261,12 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         isGeneratingImage: true,
       };
 
-      // Save updated state to API
-      if (bookId) {
-        updateBookContent(bookId, {
-          pages,
-          summaries: newSummaries,
-        }).catch((err) =>
-          console.error("Error saving generation start state:", err)
-        );
-      }
-
       return newSummaries;
     });
   };
 
   // Handle image generation complete
+  // Update handleImageGenerationComplete to ensure it updates the correct page
   const handleImageGenerationComplete = async (
     pageIndex: number,
     imageUrl: string
@@ -295,16 +280,30 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     }
 
     try {
-      setPageSummaries((prevSummaries) => {
-        const newSummaries = [...prevSummaries];
-        newSummaries[pageIndex] = {
-          ...newSummaries[pageIndex],
-          imageUrl: imageUrl,
-          isGeneratingImage: false,
-        };
+      // Create a new array to avoid reference issues
+      const newSummaries = [...pageSummaries];
 
-        return newSummaries;
-      });
+      // Update only the specified page index
+      newSummaries[pageIndex] = {
+        ...newSummaries[pageIndex],
+        imageUrl: imageUrl,
+        isGeneratingImage: false,
+      };
+
+      setPageSummaries(newSummaries);
+
+      // // If the specified page is the currently selected page, update the selection
+      if (pageIndex === selectedPageIndex) {
+        setSelectedPageIndex(pageIndex);
+      }
+
+      // Save changes to API
+      if (bookId) {
+        await updateBookContent(bookId, {
+          pages,
+          summaries: newSummaries,
+        });
+      }
     } catch (error) {
       console.error(
         `Error completing image generation for page ${pageIndex + 1}:`,
@@ -573,7 +572,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
   // Add a new function to generate images for all pages
   const handleGenerateAllImages = async () => {
-    // Create a copy of the summaries to track which ones need images
     const summariesToProcess = pageSummaries.filter(
       (summary) => !summary.imageUrl && !summary.isGeneratingImage
     );
@@ -586,17 +584,13 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       return;
     }
 
-    // Show toast notification with accurate count
     toast.info(`Generating ${summariesToProcess.length} images`, {
       description: "This may take a moment...",
-      duration: 5000,
     });
 
-    // Track progress
     let completedCount = 0;
     let failedCount = 0;
 
-    // Mark all pages that need images as generating
     const newSummaries = [...pageSummaries];
     summariesToProcess.forEach((_, i) => {
       const pageIndex = pageSummaries.findIndex(
@@ -614,7 +608,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     });
     setPageSummaries(newSummaries);
 
-    // Save initial state to API
     if (bookId) {
       try {
         await updateBookContent(bookId, {
@@ -626,89 +619,114 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       }
     }
 
-    // Process each page that needs an image
     const pagesToProcess = pageSummaries
       .map((summary, index) => ({ summary, index }))
       .filter(({ summary }) => !summary.imageUrl && !summary.isGeneratingImage);
 
-    // Use Promise.all with a concurrency limit of 3
     const batchSize = 3;
     for (let i = 0; i < pagesToProcess.length; i += batchSize) {
       const batch = pagesToProcess.slice(i, i + batchSize);
 
-      try {
-        await Promise.all(
-          batch.map(async ({ index }) => {
-            try {
-              // Generate a random placeholder image
+      await Promise.all(
+        batch.map(async ({ index }) => {
+          try {
+            // Generate a placeholder image
+            const width = 600;
+            const height = 400;
+            const randomId = Math.floor(Math.random() * 1000);
+            const imageUrl = `https://picsum.photos/seed/${randomId}/${width}/${height}`;
 
-              const width = 600;
-              const height = 400;
-              const randomId = Math.floor(Math.random() * 1000);
-              const generatedImageUrl = `https://picsum.photos/seed/${randomId}/${width}/${height}`;
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], "generated-image.jpg", {
+              type: blob.type,
+            });
 
-              // Update the page with the new image
-              setPageSummaries((prevSummaries) => {
-                const updatedSummaries = [...prevSummaries];
-                updatedSummaries[index] = {
-                  ...updatedSummaries[index],
-                  imageUrl: generatedImageUrl,
-                  isGeneratingImage: false,
-                };
+            const uniqueId = uuidv4();
+            const extension = file.name.split(".").pop();
+            const key = `public/${uniqueId}.${extension}`;
 
-                // Save updated summaries to API
-                if (bookId) {
-                  updateBookContent(bookId, {
-                    pages,
-                    summaries: updatedSummaries,
-                  }).catch((err) =>
-                    console.error("Error saving updated summary:", err)
+            await uploadData({
+              path: key,
+              data: file,
+              options: {
+                onProgress: ({ transferredBytes, totalBytes = 100 }) => {
+                  const percent = Math.round(
+                    (transferredBytes / totalBytes) * 100
                   );
-                }
+                  console.log(
+                    `Image upload progress (page ${index + 1}): ${percent}%`
+                  );
+                },
+              },
+            });
+            // Wait the image to be available on s3 storage
+            await delay(500);
+            setPageSummaries((prevSummaries) => {
+              const updated = [...prevSummaries];
+              updated[index] = {
+                ...updated[index],
+                imageUrl: key,
+                isGeneratingImage: false,
+              };
 
-                return updatedSummaries;
-              });
-
-              completedCount++;
-
-              // Show progress toast for every 3rd image or when all are done
-              if (
-                completedCount % 3 === 0 ||
-                completedCount + failedCount === summariesToProcess.length
-              ) {
-                toast.success(
-                  `Progress: ${completedCount}/${summariesToProcess.length} images generated`,
-                  {
-                    description: "Image generation is in progress...",
-                    duration: 3000,
-                  }
+              // Persist to backend
+              if (bookId) {
+                updateBookContent(bookId, {
+                  pages,
+                  summaries: updated,
+                }).catch((err) =>
+                  console.error("Error saving updated summary:", err)
                 );
               }
-            } catch (error) {
-              console.error(
-                `Error generating image for page ${index + 1}:`,
-                error
-              );
-              failedCount++;
 
-              // Update the page to remove the generating state
-              setPageSummaries((prevSummaries) => {
-                const updatedSummaries = [...prevSummaries];
-                updatedSummaries[index] = {
-                  ...updatedSummaries[index],
-                  isGeneratingImage: false,
-                };
-                return updatedSummaries;
-              });
+              return updated;
+            });
+            setPageSummaries((prevSummaries) => {
+              const updated = [...prevSummaries];
+              updated[index] = {
+                ...updated[index],
+                imageUrl: key,
+                isGeneratingImage: false,
+              };            
+              return updated;
+            });
+            
+
+            completedCount++;
+
+            if (
+              completedCount % 3 === 0 ||
+              completedCount + failedCount === summariesToProcess.length
+            ) {
+              toast.success(
+                `Progress: ${completedCount}/${summariesToProcess.length} images generated`,
+                {
+                  description: "Image generation is in progress...",
+                  duration: 3000,
+                }
+              );
             }
-          })
-        );
-      } catch (error) {
-        console.error("Error in batch processing:", error);
-      }
+          } catch (error) {
+            console.error(
+              `Error generating/uploading image for page ${index + 1}:`,
+              error
+            );
+            failedCount++;
+
+            setPageSummaries((prevSummaries) => {
+              const updated = [...prevSummaries];
+              updated[index] = {
+                ...updated[index],
+                isGeneratingImage: false,
+              };
+              return updated;
+            });
+          }
+        })
+      );
     }
 
-    // Final toast notification
     if (failedCount > 0) {
       toast.error(`Image generation completed with errors`, {
         description: `Generated ${completedCount} images, ${failedCount} failed.`,
