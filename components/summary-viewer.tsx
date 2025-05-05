@@ -67,6 +67,7 @@ export function SummaryViewer({
   const [imageUrl, setImageUrl] = useState<string | undefined>(
     pageSummary.imageUrl
   );
+
   const [imagePosition, setImagePosition] = useState<"top" | "bottom">(
     pageSummary.imagePosition || "bottom"
   );
@@ -81,7 +82,7 @@ export function SummaryViewer({
   const [imageDisplayUrl, setImageDisplayUrl] = useState<string | undefined>(
     pageSummary.imageUrl
   );
-  
+
   // Store the current page index to track page changes
   const currentPageIndexRef = useRef<number>(pageIndex);
 
@@ -117,7 +118,7 @@ export function SummaryViewer({
   useEffect(() => {
     // Update the ref to track page changes
     currentPageIndexRef.current = pageIndex;
-    
+    setLocalImageUrl(undefined);
     if (pageSummary) {
       setTitle(
         typeof pageSummary.title === "string"
@@ -252,26 +253,40 @@ export function SummaryViewer({
   };
 
   // Manual save function for immediate changes that should be saved right away
-  const handleImmediateSave = (changes: Partial<PageSummary>, targetPageIndex?: number) => {
+  const handleImmediateSave = (
+    changes: Partial<PageSummary>,
+    targetPageIndex?: number
+  ) => {
     // If targetPageIndex is provided and doesn't match current page,
     // notify parent to update the correct page instead of local state
-    if (targetPageIndex !== undefined && targetPageIndex !== currentPageIndexRef.current) {
+    if (
+      targetPageIndex !== undefined &&
+      targetPageIndex !== currentPageIndexRef.current
+    ) {
       // Create a merged summary for the target page
       const targetPageSummary: PageSummary = {
         title: pendingChangesRef.current.title,
         content: pendingChangesRef.current.content,
         imageUrl: changes.imageUrl || pendingChangesRef.current.imageUrl,
-        imagePosition: changes.imagePosition || pendingChangesRef.current.imagePosition,
-        isGeneratingImage: changes.isGeneratingImage !== undefined ? changes.isGeneratingImage : pendingChangesRef.current.isGeneratingImage,
+        imagePosition:
+          changes.imagePosition || pendingChangesRef.current.imagePosition,
+        isGeneratingImage:
+          changes.isGeneratingImage !== undefined
+            ? changes.isGeneratingImage
+            : pendingChangesRef.current.isGeneratingImage,
       };
-      
+
       // Directly notify parent component to update the specific page
       if (onImageGenerationComplete && changes.imageUrl) {
         onImageGenerationComplete(targetPageIndex, changes.imageUrl);
       } else {
         // Update any other changes for the specified page index
         // This would need a more general handler in the parent component
-        console.log(`Changes need to be applied to page ${targetPageIndex + 1} instead of current page`);
+        console.log(
+          `Changes need to be applied to page ${
+            targetPageIndex + 1
+          } instead of current page`
+        );
       }
       return;
     }
@@ -296,7 +311,7 @@ export function SummaryViewer({
     const file = e.target.files?.[0];
     // Store the page index at the time of upload initiation
     const targetPageIndex = currentPageIndexRef.current;
-    
+
     if (!file) return;
 
     try {
@@ -321,7 +336,7 @@ export function SummaryViewer({
 
       // Create temp URL for preview
       const tempUrl = URL.createObjectURL(file);
-      
+
       // Check if we're still on the same page
       if (targetPageIndex === currentPageIndexRef.current) {
         setLocalImageUrl(tempUrl);
@@ -348,17 +363,17 @@ export function SummaryViewer({
   const processImageFile = (file: File) => {
     // Store the page index at the time of processing
     const targetPageIndex = currentPageIndexRef.current;
-    
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const uploadedImageUrl = event.target?.result as string;
-      
+
       // Only update UI if we're still on the same page
       if (targetPageIndex === currentPageIndexRef.current) {
         setImageUrl(uploadedImageUrl);
         setHasChanges(true);
       }
-      
+
       // Save to the correct page regardless of current view
       debouncedSave({ imageUrl: uploadedImageUrl });
     };
@@ -416,7 +431,7 @@ export function SummaryViewer({
         if (currentPageIndexRef.current === targetPageIndex) {
           setIsGeneratingImage(false);
         }
-        
+
         // Always update the state for the target page
         if (onImageGenerationStart) {
           // Use parent component's handler to update the correct page's state
@@ -477,12 +492,12 @@ export function SummaryViewer({
       })
       .catch((error) => {
         console.error("Image generation failed:", error);
-        
+
         // Reset generation state for the original page
         if (currentPageIndexRef.current === targetPageIndex) {
           setIsGeneratingImage(false);
         }
-        
+
         // Always update the target page's state
         debouncedSave({ isGeneratingImage: false });
 
@@ -506,7 +521,6 @@ export function SummaryViewer({
       if (abortController) {
         abortController.abort();
       }
-
       // Clean up any pending save
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);

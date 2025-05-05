@@ -21,6 +21,7 @@ import { client } from "@/lib/amplify";
 import { deleteSlidesByBook, uploadSlides } from "@/lib/actions/book.actions";
 import { getBookContent } from "@/lib/actions/slide.actions";
 import { uploadData } from "aws-amplify/storage";
+import { delay } from "@/lib/utils";
 interface DocumentSplitterProps {
   bookId?: string;
 }
@@ -196,7 +197,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     const maxIndex =
       viewMode === "pages" ? pages.length - 1 : pageSummaries.length - 1;
     if (index >= 0 && index <= maxIndex) {
-      console.log(`Selecting page ${index}`);
       setSelectedPageIndex(index);
     } else {
       console.warn(`Invalid page index: ${index}, max: ${maxIndex}`);
@@ -586,7 +586,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
     toast.info(`Generating ${summariesToProcess.length} images`, {
       description: "This may take a moment...",
-      duration: 5000,
     });
 
     let completedCount = 0;
@@ -661,7 +660,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
                 },
               },
             });
-
+            // Wait the image to be available on s3 storage
+            await delay(500);
             setPageSummaries((prevSummaries) => {
               const updated = [...prevSummaries];
               updated[index] = {
