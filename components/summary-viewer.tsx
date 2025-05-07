@@ -28,6 +28,7 @@ import { v4 as uuidv4 } from "uuid";
 import { fetchImageUrl } from "@/lib/utils";
 import FetchKeyImage from "./FetchKeyImage";
 import { generateImageFromPrompt } from "@/lib/api-client";
+import { Input } from "./ui/input";
 
 interface PageSummary {
   title: string;
@@ -404,38 +405,37 @@ export function SummaryViewer({
     const signal = abortController.signal;
 
     // In a real app, this would call an AI image generation API
-    const generateImagePromise = new Promise<string>((resolve, reject) => {
-      try {
-        if (signal.aborted) {
-          reject(new Error("Image generation was cancelled"));
-          return;
-        }
-        // Generate a random placeholder image
-        const width = 600;
-        const height = 400;
-        const randomId = Math.floor(Math.random() * 1000);
-        const generatedImageUrl = `https://picsum.photos/seed/${randomId}/${width}/${height}`;
+    // const generateImagePromise = new Promise<string>((resolve, reject) => {
+    //   try {
+    //     if (signal.aborted) {
+    //       reject(new Error("Image generation was cancelled"));
+    //       return;
+    //     }
+    //     // Generate a random placeholder image
+    //     const width = 600;
+    //     const height = 400;
+    //     const randomId = Math.floor(Math.random() * 1000);
+    //     const generatedImageUrl = `https://picsum.photos/seed/${randomId}/${width}/${height}`;
 
-        resolve(generatedImageUrl);
-      } catch (error) {
-        reject(error);
-      }
-      // Clean up the timeout if aborted
-      signal.addEventListener("abort", () => {
-        reject(new Error("Image generation was cancelled"));
-      });
-    });
+    //     resolve(generatedImageUrl);
+    //   } catch (error) {
+    //     reject(error);
+    //   }
+    //   // Clean up the timeout if aborted
+    //   signal.addEventListener("abort", () => {
+    //     reject(new Error("Image generation was cancelled"));
+    //   });
+    // });
 
     // Call our api
-    // const generateImagePromise = (async () => {
-    //   if (signal.aborted) {
-    //     throw new Error("Image generation was cancelled");
-    //   }
-    //   console.log("Prompt:", pageSummary.title);
-    //   const { imageUrl } = await generateImageFromPrompt(pageSummary.title);
-    //   return imageUrl;
-    // })();
-
+    const generateImagePromise = (async () => {
+      if (signal.aborted) {
+        throw new Error("Image generation was cancelled");
+      }
+      console.log("Prompt:", pageSummary.title);
+      const { imageUrl } = await generateImageFromPrompt(pageSummary.title);
+      return imageUrl;
+    })();
     generateImagePromise
       .then(async (generatedImageUrl) => {
         // Reset generation status on the original page
@@ -629,7 +629,7 @@ export function SummaryViewer({
         <>
           <Card>
             {/* Disable it for now until it is enabled in the */}
-            {/* <CardHeader>
+            <CardHeader>
               <CardTitle className="text-base">Title</CardTitle>
             </CardHeader>
             <CardContent>
@@ -639,7 +639,7 @@ export function SummaryViewer({
                 placeholder="Enter a title for this summary"
                 className="mb-4"
               />
-            </CardContent> */}
+            </CardContent>
           </Card>
 
           <Card>
