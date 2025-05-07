@@ -27,6 +27,7 @@ import { uploadData } from "aws-amplify/storage";
 import { v4 as uuidv4 } from "uuid";
 import { fetchImageUrl } from "@/lib/utils";
 import FetchKeyImage from "./FetchKeyImage";
+import { generateImageFromPrompt } from "@/lib/api-client";
 
 interface PageSummary {
   title: string;
@@ -424,6 +425,16 @@ export function SummaryViewer({
         reject(new Error("Image generation was cancelled"));
       });
     });
+
+    // Call our api
+    // const generateImagePromise = (async () => {
+    //   if (signal.aborted) {
+    //     throw new Error("Image generation was cancelled");
+    //   }
+    //   console.log("Prompt:", pageSummary.title);
+    //   const { imageUrl } = await generateImageFromPrompt(pageSummary.title);
+    //   return imageUrl;
+    // })();
 
     generateImagePromise
       .then(async (generatedImageUrl) => {
