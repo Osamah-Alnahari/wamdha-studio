@@ -520,11 +520,12 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
       // Call the summarizeText function from the API client
       const result = await apiSummarizeText(pageContent);
+      // const result  = {title: "lll", summary:"LOOOOOOOOOOOOOOOOOOOOOOOOOOD"}
 
       // Validate the result data and provide fallbacks
       const validatedTitle =
-        typeof result.title === "string"
-          ? result.title
+        typeof result.imageTitle === "string"
+          ? result.imageTitle
           : `Summary ${pageIndex + 1}`;
       const validatedSummary =
         typeof result.summary === "string" ? result.summary : "";
