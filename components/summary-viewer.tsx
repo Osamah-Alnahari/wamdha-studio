@@ -4,7 +4,6 @@ import type React from "react";
 
 import { useState, useEffect, useRef } from "react";
 import {
-  Save,
   Upload,
   ImageIcon,
   Loader2,
@@ -84,6 +83,8 @@ export function SummaryViewer({
   const [imageDisplayUrl, setImageDisplayUrl] = useState<string | undefined>(
     pageSummary.imageUrl
   );
+  const [isUploading, setIsUploading] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   // Store the current page index to track page changes
   const currentPageIndexRef = useRef<number>(pageIndex);
@@ -175,13 +176,16 @@ export function SummaryViewer({
   // Function to actually perform the save
   const performSave = async () => {
     if (isSavingRef.current) {
-      // If already saving, schedule another save after a delay
+      // If already saving, schedule another save after the current one completes
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
       saveTimeoutRef.current = setTimeout(performSave, 300);
       return;
     }
+
+    // Create a local copy of the current page index to ensure we're saving to the right page
+    const currentPageIdx = currentPageIndexRef.current;
 
     try {
       isSavingRef.current = true;
@@ -196,15 +200,25 @@ export function SummaryViewer({
           typeof summaryToSave.title === "string" && summaryToSave.title.trim()
             ? summaryToSave.title
             : "Untitled Summary",
-        content: summaryToSave.content,
+        content:
+          typeof summaryToSave.content === "string"
+            ? summaryToSave.content
+            : "",
         imageUrl: summaryToSave.imageUrl,
         imagePosition: summaryToSave.imagePosition,
         isGeneratingImage: summaryToSave.isGeneratingImage,
       };
 
-      // Call the update function provided by parent
-      await onUpdateSummary(sanitizedSummary);
-      setHasChanges(false);
+      // Call the update function provided by parent, specifying the page index
+      // This ensures we're updating the correct page even if the user has navigated away
+      if (onUpdateSummary) {
+        await onUpdateSummary(sanitizedSummary);
+      }
+
+      // Only update local state if we're still on the same page
+      if (currentPageIdx === currentPageIndexRef.current) {
+        setHasChanges(false);
+      }
     } catch (error) {
       console.error("Failed to save changes:", error);
       toast.error("Failed to save changes. Please try again.");
@@ -229,8 +243,17 @@ export function SummaryViewer({
       clearTimeout(saveTimeoutRef.current);
     }
 
-    // Set a new timeout
-    saveTimeoutRef.current = setTimeout(performSave, 500);
+    // Set a new timeout with a unique identifier for this save operation
+    const saveId = Date.now();
+    saveTimeoutRef.current = setTimeout(() => {
+      // Only proceed if this is still the most recent save request
+      if (
+        saveTimeoutRef.current &&
+        saveId === Number.parseInt(saveTimeoutRef.current.toString())
+      ) {
+        performSave();
+      }
+    }, 500);
   };
 
   // Handle title change
@@ -316,6 +339,7 @@ export function SummaryViewer({
 
     if (!file) return;
 
+    setIsUploading(true);
     try {
       // Show loading state to user
       toast.loading("Uploading image...", { id: "uploadToast" });
@@ -359,6 +383,8 @@ export function SummaryViewer({
     } catch (error) {
       console.error("Upload failed:", error);
       toast.error("Failed to upload cover image.", { id: "uploadToast" });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -404,29 +430,6 @@ export function SummaryViewer({
     const abortController = new AbortController();
     const signal = abortController.signal;
 
-    // In a real app, this would call an AI image generation API
-    // const generateImagePromise = new Promise<string>((resolve, reject) => {
-    //   try {
-    //     if (signal.aborted) {
-    //       reject(new Error("Image generation was cancelled"));
-    //       return;
-    //     }
-    //     // Generate a random placeholder image
-    //     const width = 600;
-    //     const height = 400;
-    //     const randomId = Math.floor(Math.random() * 1000);
-    //     const generatedImageUrl = `https://picsum.photos/seed/${randomId}/${width}/${height}`;
-
-    //     resolve(generatedImageUrl);
-    //   } catch (error) {
-    //     reject(error);
-    //   }
-    //   // Clean up the timeout if aborted
-    //   signal.addEventListener("abort", () => {
-    //     reject(new Error("Image generation was cancelled"));
-    //   });
-    // });
-
     // Call our api
     const generateImagePromise = (async () => {
       if (signal.aborted) {
@@ -438,8 +441,11 @@ export function SummaryViewer({
     })();
     generateImagePromise
       .then(async (generatedImageUrl) => {
+        // Store the current page index to ensure we're updating the correct page
+        const targetPageIdx = targetPageIndex;
+
         // Reset generation status on the original page
-        if (currentPageIndexRef.current === targetPageIndex) {
+        if (currentPageIndexRef.current === targetPageIdx) {
           setIsGeneratingImage(false);
         }
 
@@ -477,17 +483,17 @@ export function SummaryViewer({
           // Always notify parent to update the correct page,
           // regardless of which page is currently being viewed
           if (onImageGenerationComplete) {
-            onImageGenerationComplete(targetPageIndex, key);
+            onImageGenerationComplete(targetPageIdx, key);
           }
 
           // Only update local UI state if we're still on the same page
-          if (currentPageIndexRef.current === targetPageIndex) {
+          if (currentPageIndexRef.current === targetPageIdx) {
             setLocalImageUrl(URL.createObjectURL(file));
             setImageUrl(key);
           }
 
           // Save image URL immediately to the correct page
-          handleImmediateSave({ imageUrl: key }, targetPageIndex);
+          handleImmediateSave({ imageUrl: key }, targetPageIdx);
 
           toast.success("Generated image uploaded successfully!");
         } catch (uploadError) {
@@ -497,7 +503,7 @@ export function SummaryViewer({
 
         toast.success("Image generated", {
           description: `Image for page ${
-            targetPageIndex + 1
+            targetPageIdx + 1
           } has been generated.`,
         });
       })
@@ -525,29 +531,42 @@ export function SummaryViewer({
 
   // Add a useEffect for cleanup
   useEffect(() => {
-    const abortController: AbortController | null = null;
+    const abortController = new AbortController();
 
     return () => {
       // Clean up any pending image generation when component unmounts
       if (abortController) {
         abortController.abort();
       }
+
       // Clean up any pending save
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
 
         // Perform a final save if there are pending changes
-        if (hasChanges) {
-          performSave();
+        if (hasChanges && !isSavingRef.current) {
+          // Use a synchronous approach for the final save to ensure it completes
+          const finalSummary = { ...pendingChangesRef.current };
+          onUpdateSummary(finalSummary);
         }
       }
     };
-  }, [hasChanges]);
+  }, [hasChanges, onUpdateSummary]);
 
-  const handleRemoveImage = () => {
-    setImageUrl(undefined);
-    setHasChanges(true);
-    handleImmediateSave({ imageUrl: undefined });
+  const handleRemoveImage = async () => {
+    setIsRemoving(true);
+    try {
+      setImageUrl(undefined);
+      setHasChanges(true);
+      await handleImmediateSave({ imageUrl: undefined });
+      toast.success("Image removed successfully");
+    } catch (error) {
+      console.error("Failed to remove image:", error);
+      toast.error("Failed to remove image");
+    } finally {
+      setIsRemoving(false);
+    }
   };
 
   const triggerFileInput = () => {
@@ -692,8 +711,13 @@ export function SummaryViewer({
                         size="icon"
                         className="absolute top-2 right-2"
                         onClick={handleRemoveImage}
+                        disabled={isRemoving}
                       >
-                        <X className="h-4 w-4" />
+                        {isRemoving ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <X className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   ) : (
@@ -716,9 +740,19 @@ export function SummaryViewer({
                     variant="outline"
                     onClick={triggerFileInput}
                     className="flex-1"
+                    disabled={isUploading}
                   >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Image
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload Image
+                      </>
+                    )}
                   </Button>
                   <input
                     type="file"
