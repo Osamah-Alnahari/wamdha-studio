@@ -35,8 +35,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"pages" | "summaries">("pages");
-  const [isSummarizingPages, setIsSummarizingPages] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
   const [bookInfo, setBookInfo] = useState<{
     title: string;
@@ -53,13 +53,23 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     isOwnedByUser: false,
   });
   const [startedFromScratch, setStartedFromScratch] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  // Track which pages are currently being summarized
+  const [summarizingPageIndices, setSummarizingPageIndices] = useState<
+    Set<number>
+  >(new Set());
+  const [isSummarizingAll, setIsSummarizingAll] = useState(false);
 
   // Load book info and content from API on component mount
   useEffect(() => {
-    if (!bookId) return;
+    if (!bookId) {
+      setIsLoadingData(false);
+      return;
+    }
 
     // Load book info and content
     const loadBookData = async () => {
+      setIsLoadingData(true);
       try {
         // Get book info
         const response = await client.graphql({
@@ -81,7 +91,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
               description:
                 typeof book.description === "string" ? book.description : "",
               coverImageUrl: book.thumbnailUrl,
-
               isOwnedByUser: !!book.userId,
             });
             setFileName(
@@ -119,6 +128,12 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         }
       } catch (e) {
         console.error("Error loading book data:", e);
+        toast.error("Error loading book data", {
+          description:
+            "There was a problem loading your book data. Please try again.",
+        });
+      } finally {
+        setIsLoadingData(false);
       }
     };
 
@@ -212,6 +227,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       return;
     }
 
+    setIsSaving(true);
     try {
       // Make sure we're working with valid string data
       const sanitizedSummary: PageSummary = {
@@ -226,16 +242,27 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         isGeneratingImage: !!summary.isGeneratingImage,
       };
 
+      // Create a new array to avoid reference issues
       const newSummaries = [...pageSummaries];
       newSummaries[selectedPageIndex] = sanitizedSummary;
+
+      // Update state first
       setPageSummaries(newSummaries);
 
-      // Save updated summaries to API
+      // Then save to API with proper error handling
       if (bookId) {
-        await updateBookContent(bookId, {
-          pages,
-          summaries: newSummaries,
-        });
+        try {
+          await updateBookContent(bookId, {
+            pages,
+            summaries: newSummaries,
+          });
+        } catch (error) {
+          console.error("Error saving to API:", error);
+          toast.error("Failed to save changes", {
+            description:
+              "Your changes were applied locally but couldn't be saved to the server.",
+          });
+        }
       }
     } catch (error) {
       console.error("Error updating summary:", error);
@@ -243,6 +270,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         description:
           "There was an error saving your changes. Please try again.",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -290,19 +319,31 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         isGeneratingImage: false,
       };
 
+      // Update state first
       setPageSummaries(newSummaries);
 
-      // // If the specified page is the currently selected page, update the selection
+      // If the specified page is the currently selected page, update the selection
       if (pageIndex === selectedPageIndex) {
         setSelectedPageIndex(pageIndex);
       }
 
-      // Save changes to API
+      // Save changes to API with proper error handling
       if (bookId) {
-        await updateBookContent(bookId, {
-          pages,
-          summaries: newSummaries,
-        });
+        try {
+          await updateBookContent(bookId, {
+            pages,
+            summaries: newSummaries,
+          });
+        } catch (error) {
+          console.error(
+            `Error saving image generation for page ${pageIndex + 1}:`,
+            error
+          );
+          toast.error("Failed to save generated image", {
+            description:
+              "The image was generated but couldn't be saved to the server.",
+          });
+        }
       }
     } catch (error) {
       console.error(
@@ -319,6 +360,10 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         };
         return newSummaries;
       });
+
+      toast.error("Error processing generated image", {
+        description: "There was a problem processing the generated image.",
+      });
     }
   };
 
@@ -332,6 +377,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       return;
     }
 
+    setIsSaving(true);
     try {
       // Validate each page summary
       const validatedPages = reorderedPages.map((page) => ({
@@ -343,14 +389,27 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         isGeneratingImage: !!page.isGeneratingImage,
       }));
 
+      // Update state first
       setPageSummaries(validatedPages);
 
-      // Save reordered pages to API
+      // Save reordered pages to API with proper error handling
       if (bookId) {
-        await updateBookContent(bookId, {
-          pages,
-          summaries: validatedPages,
-        });
+        try {
+          await updateBookContent(bookId, {
+            pages,
+            summaries: validatedPages,
+          });
+
+          toast.success("Pages reordered successfully", {
+            description: "The new page order has been saved.",
+          });
+        } catch (error) {
+          console.error("Error saving reordered pages to API:", error);
+          toast.error("Failed to save new page order", {
+            description:
+              "Your changes were applied locally but couldn't be saved to the server.",
+          });
+        }
       }
     } catch (error) {
       console.error("Error reordering pages:", error);
@@ -358,6 +417,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         description:
           "There was an error saving the new page order. Please try again.",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -376,6 +437,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         });
         return;
       }
+
+      setIsSaving(true);
 
       // Determine where to insert the new page
       const insertAtIndex =
@@ -457,6 +520,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       toast.error("Failed to add new page", {
         description: "There was an error adding a new page. Please try again.",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -477,98 +542,264 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
   const handleDeletePage = async (index: number) => {
     if (index >= 0 && index < pageSummaries.length) {
-      const newSummaries = [...pageSummaries];
-      newSummaries.splice(index, 1);
-      setPageSummaries(newSummaries);
+      setIsSaving(true);
+      try {
+        const newSummaries = [...pageSummaries];
+        newSummaries.splice(index, 1);
 
-      // Adjust selected page index if needed
-      if (selectedPageIndex >= newSummaries.length) {
-        setSelectedPageIndex(Math.max(0, newSummaries.length - 1));
-      } else if (selectedPageIndex === index) {
-        setSelectedPageIndex(Math.max(0, index - 1));
-      }
+        // Update state first
+        setPageSummaries(newSummaries);
 
-      // Save updated summaries to API
-      if (bookId) {
-        await updateBookContent(bookId, {
-          pages,
-          summaries: newSummaries,
+        // Adjust selected page index if needed
+        if (selectedPageIndex >= newSummaries.length) {
+          setSelectedPageIndex(Math.max(0, newSummaries.length - 1));
+        } else if (selectedPageIndex === index) {
+          setSelectedPageIndex(Math.max(0, index - 1));
+        }
+
+        // Save updated summaries to API with proper error handling
+        if (bookId) {
+          try {
+            await updateBookContent(bookId, {
+              pages,
+              summaries: newSummaries,
+            });
+
+            toast.success("Page deleted", {
+              description: `Page ${index + 1} has been removed.`,
+            });
+          } catch (error) {
+            console.error("Error saving after page deletion:", error);
+            toast.error("Failed to save after deletion", {
+              description:
+                "The page was removed locally but the changes couldn't be saved to the server.",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error deleting page:", error);
+        toast.error("Failed to delete page", {
+          description:
+            "There was an error deleting the page. Please try again.",
         });
+      } finally {
+        setIsSaving(false);
       }
-
-      toast.success("Page deleted", {
-        description: `Page ${index + 1} has been removed.`,
-      });
     }
   };
 
   // Function to generate a summary for the current page
-  const handleGenerateSummary = async (pageIndex: number) => {
+  const handleGenerateSummary = (pageIndex: number) => {
     if (pageIndex < 0 || pageIndex >= pages.length) return;
 
-    try {
-      // Mark the page as loading
-      const newSummaries = [...pageSummaries];
-      newSummaries[pageIndex] = {
-        ...newSummaries[pageIndex],
-        isLoading: true,
-      };
-      setPageSummaries(newSummaries);
+    // Create a new promise to allow async handling
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        // Add this page index to the set of summarizing pages
+        setSummarizingPageIndices((prev) => {
+          const newSet = new Set(prev);
+          newSet.add(pageIndex);
+          return newSet;
+        });
 
-      // Extract text content from HTML
-      const pageContent = pages[pageIndex].replace(/<[^>]*>/g, " ").trim();
+        // Extract text content from HTML
+        const pageContent = pages[pageIndex].replace(/<[^>]*>/g, " ").trim();
 
-      // Call the summarizeText function from the API client
-      const result = await apiSummarizeText(pageContent);
-      // const result  = {title: "lll", summary:"LOOOOOOOOOOOOOOOOOOOOOOOOOOD"}
+        // Call the summarizeText function from the API client
+        const result = await apiSummarizeText(pageContent);
 
-      // Validate the result data and provide fallbacks
-      const validatedTitle =
-        typeof result.imageTitle === "string"
-          ? result.imageTitle
-          : `Summary ${pageIndex + 1}`;
-      const validatedSummary =
-        typeof result.summary === "string" ? result.summary : "";
+        // Validate the result data and provide fallbacks
+        const validatedTitle =
+          typeof result.imageTitle === "string"
+            ? result.imageTitle
+            : `Summary ${pageIndex + 1}`;
+        const validatedSummary =
+          typeof result.summary === "string" ? result.summary : "";
 
-      // Update the summary with the validated result
-      newSummaries[pageIndex] = {
-        title: validatedTitle,
-        content: validatedSummary,
-        imageUrl: newSummaries[pageIndex].imageUrl,
-        imagePosition: newSummaries[pageIndex].imagePosition,
-        isLoading: false,
-        isGeneratingImage: newSummaries[pageIndex].isGeneratingImage,
-      };
+        // Create a new array to ensure React detects the state change
+        setPageSummaries((prevSummaries) => {
+          const updatedSummaries = [...prevSummaries];
+          updatedSummaries[pageIndex] = {
+            ...updatedSummaries[pageIndex],
+            title: validatedTitle,
+            content: validatedSummary,
+            isLoading: false, // Explicitly set loading to false
+          };
+          return updatedSummaries;
+        });
 
-      setPageSummaries(newSummaries);
+        // Save updated summaries to API
+        if (bookId) {
+          try {
+            await updateBookContent(bookId, {
+              pages,
+              summaries: pageSummaries.map((summary, idx) =>
+                idx === pageIndex
+                  ? {
+                      ...summary,
+                      title: validatedTitle,
+                      content: validatedSummary,
+                      isLoading: false,
+                    }
+                  : summary
+              ),
+            });
+          } catch (error) {
+            console.error("Error saving to API:", error);
+          }
+        }
 
-      // Save updated summaries to API
-      if (bookId) {
+        toast.success("Summary generated", {
+          description: `Summary for page ${pageIndex + 1} has been created.`,
+        });
+
+        // Remove this page index from the set of summarizing pages
+        setSummarizingPageIndices((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(pageIndex);
+          return newSet;
+        });
+
+        resolve();
+      } catch (error) {
+        console.error("Error generating summary:", error);
+
+        // Remove this page index from the set of summarizing pages
+        setSummarizingPageIndices((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(pageIndex);
+          return newSet;
+        });
+
+        toast.error("Failed to generate summary", {
+          description:
+            "There was an error generating the summary. Please try again.",
+        });
+        reject(error);
+      }
+    });
+  };
+
+  // Function to summarize all pages
+  const handleSummarizeAllPages = async () => {
+    if (pages.length === 0) {
+      toast.error("No pages to summarize", {
+        description: "Please upload a document first.",
+      });
+      return;
+    }
+
+    setIsSummarizingAll(true);
+    toast.info(`Summarizing ${pages.length} pages`, {
+      description: "This may take a moment...",
+    });
+
+    let completedCount = 0;
+    let failedCount = 0;
+
+    // Process pages in batches to avoid overwhelming the API
+    const batchSize = 3;
+    for (let i = 0; i < pages.length; i += batchSize) {
+      const batch = Array.from(
+        { length: Math.min(batchSize, pages.length - i) },
+        (_, j) => i + j
+      );
+
+      // Add all pages in this batch to the summarizing set
+      setSummarizingPageIndices((prev) => {
+        const newSet = new Set(prev);
+        batch.forEach((index) => newSet.add(index));
+        return newSet;
+      });
+
+      await Promise.all(
+        batch.map(async (pageIndex) => {
+          try {
+            // Extract text content from HTML
+            const pageContent = pages[pageIndex]
+              .replace(/<[^>]*>/g, " ")
+              .trim();
+
+            // Call the summarizeText function from the API client
+            const result = await apiSummarizeText(pageContent);
+
+            // Validate the result data and provide fallbacks
+            const validatedTitle =
+              typeof result.imageTitle === "string"
+                ? result.imageTitle
+                : `Summary ${pageIndex + 1}`;
+            const validatedSummary =
+              typeof result.summary === "string" ? result.summary : "";
+
+            // Update the state for this specific page
+            setPageSummaries((prevSummaries) => {
+              const updatedSummaries = [...prevSummaries];
+              updatedSummaries[pageIndex] = {
+                ...updatedSummaries[pageIndex],
+                title: validatedTitle,
+                content: validatedSummary,
+                isLoading: false, // Explicitly set loading to false
+              };
+              return updatedSummaries;
+            });
+
+            completedCount++;
+
+            // Show progress updates
+            if (
+              completedCount % 3 === 0 ||
+              completedCount + failedCount === pages.length
+            ) {
+              toast.success(
+                `Progress: ${completedCount}/${pages.length} pages summarized`,
+                {
+                  description: "Summarization is in progress...",
+                  duration: 3000,
+                }
+              );
+            }
+          } catch (error) {
+            console.error(`Error summarizing page ${pageIndex + 1}:`, error);
+            failedCount++;
+          } finally {
+            // Remove this page from the summarizing set regardless of success/failure
+            setSummarizingPageIndices((prev) => {
+              const newSet = new Set(prev);
+              newSet.delete(pageIndex);
+              return newSet;
+            });
+          }
+        })
+      );
+    }
+
+    // Save all summaries to API
+    if (bookId) {
+      try {
         await updateBookContent(bookId, {
           pages,
-          summaries: newSummaries,
+          summaries: pageSummaries,
         });
+      } catch (error) {
+        console.error("Error saving summaries to API:", error);
       }
+    }
 
-      toast.success("Summary generated", {
-        description: `Summary for page ${pageIndex + 1} has been created.`,
+    // Show final status
+    if (failedCount > 0) {
+      toast.error(`Summarization completed with errors`, {
+        description: `Generated ${completedCount} summaries, ${failedCount} failed.`,
       });
-    } catch (error) {
-      console.error("Error generating summary:", error);
-
-      // Reset loading state
-      const newSummaries = [...pageSummaries];
-      newSummaries[pageIndex] = {
-        ...newSummaries[pageIndex],
-        isLoading: false,
-      };
-      setPageSummaries(newSummaries);
-
-      toast.error("Failed to generate summary", {
-        description:
-          "There was an error generating the summary. Please try again.",
+    } else {
+      toast.success("All pages summarized", {
+        description: `Successfully summarized ${completedCount} pages.`,
       });
     }
+
+    setIsSummarizingAll(false);
+
+    // Switch to summaries view
+    setViewMode("summaries");
   };
 
   // Add a new function to generate images for all pages
@@ -689,10 +920,9 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
                 ...updated[index],
                 imageUrl: key,
                 isGeneratingImage: false,
-              };            
+              };
               return updated;
             });
-            
 
             completedCount++;
 
@@ -788,6 +1018,25 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
   // Render the appropriate content based on the current state
   const renderContent = () => {
+    // Show loading state
+    if (isLoadingData) {
+      return (
+        <div className="md:col-span-3 flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="relative w-16 h-16 mx-auto">
+              <div className="absolute inset-0 border-4 border-primary border-solid rounded-full animate-spin opacity-30"></div>
+              <div className="absolute inset-2 border-4 border-primary border-dashed rounded-full animate-spin animate-reverse"></div>
+              <div className="absolute inset-4 border-4 border-primary border-dotted rounded-full animate-spin animate-delay"></div>
+            </div>
+            <h3 className="mt-4 text-lg font-semibold">Loading Book Data</h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              Please wait while we load your book content...
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     // check if slides already exists
     const showDocumentUploader =
       pageSummaries.length === 0 && !startedFromScratch;
@@ -847,6 +1096,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
                   fileType={fileType || "word"}
                   selectedPageIndex={selectedPageIndex}
                   onSelectPage={handlePageSelect}
+                  onSummarizeAllPages={handleSummarizeAllPages}
                 />
               ) : (
                 <SummarizedPagesList
@@ -858,9 +1108,9 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
                   onReorderPages={handleReorderPages}
                   onAddNewPage={handleAddNewPage} // Direct call to handleAddNewPage without dialog
                   onDeletePage={handleDeletePage}
-                  isSummarizingPages={isSummarizingPages}
                   onGenerateAllImages={handleGenerateAllImages}
                   onUploadSlides={handleUploadSlides}
+                  summarizingPageIndices={summarizingPageIndices}
                 />
               )}
             </div>
@@ -872,9 +1122,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
                   page={pages[selectedPageIndex]}
                   pageIndex={selectedPageIndex}
                   fileName={fileName}
-                  onGenerateSummary={() =>
-                    handleGenerateSummary(selectedPageIndex)
-                  }
+                  onGenerateSummary={handleGenerateSummary}
+                  isSummarizing={summarizingPageIndices.has(selectedPageIndex)}
                 />
               ) : pageSummaries.length > 0 ? (
                 <SummaryViewer

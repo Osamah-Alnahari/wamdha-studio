@@ -37,7 +37,7 @@ interface PageSummary {
   isGeneratingImage?: boolean;
 }
 
-// Update the interface to include the new prop
+// Remove onSummarizeAllPages from the interface
 interface SummarizedPagesListProps {
   pageSummaries: PageSummary[];
   fileName: string;
@@ -51,12 +51,11 @@ interface SummarizedPagesListProps {
     template?: "blank" | "detailed";
   }) => void;
   onDeletePage?: (index: number) => void;
-  isSummarizingPages?: boolean;
   onGenerateAllImages?: () => void;
   onUploadSlides?: () => Promise<void>;
+  summarizingPageIndices?: Set<number>;
 }
 
-// Update the function parameters to include the new prop
 export function SummarizedPagesList({
   pageSummaries,
   fileName,
@@ -66,9 +65,9 @@ export function SummarizedPagesList({
   onReorderPages,
   onAddNewPage,
   onDeletePage,
-  isSummarizingPages = false,
-  onUploadSlides,
   onGenerateAllImages,
+  onUploadSlides,
+  summarizingPageIndices = new Set(),
 }: SummarizedPagesListProps) {
   const { toast } = useToast();
   const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
@@ -82,6 +81,8 @@ export function SummarizedPagesList({
   const isDraggingRef = useRef<boolean>(false);
   const lastClientYRef = useRef<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isAddingPage, setIsAddingPage] = useState(false);
 
   // Clean up auto-scroll interval on unmount
   useEffect(() => {
@@ -117,18 +118,20 @@ export function SummarizedPagesList({
     };
   }, []);
 
-  const downloadAllSummaries = () => {
-    const zip = require("jszip")();
-    const baseFileName = fileName.replace(/\.[^/.]+$/, "");
-    const extension = "html";
+  const downloadAllSummaries = async () => {
+    setIsDownloading(true);
+    try {
+      const zip = require("jszip")();
+      const baseFileName = fileName.replace(/\.[^/.]+$/, "");
+      const extension = "html";
 
-    const pages = pageSummaries.map((summary) => summary.content);
+      const pages = pageSummaries.map((summary) => summary.content);
 
-    pages.forEach((page, index) => {
-      zip.file(`${baseFileName}_page_${index + 1}.${extension}`, page);
-    });
+      pages.forEach((page, index) => {
+        zip.file(`${baseFileName}_page_${index + 1}.${extension}`, page);
+      });
 
-    zip.generateAsync({ type: "blob" }).then((content: Blob) => {
+      const content = await zip.generateAsync({ type: "blob" });
       const url = URL.createObjectURL(content);
       const a = document.createElement("a");
       a.href = url;
@@ -137,7 +140,18 @@ export function SummarizedPagesList({
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    });
+
+      toast.success("Download complete", {
+        description: `${pages.length} pages downloaded successfully.`,
+      });
+    } catch (error) {
+      console.error("Download failed:", error);
+      toast.error("Download failed", {
+        description: "There was a problem downloading your summaries.",
+      });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   // Handle auto-scrolling based on mouse position
@@ -309,32 +323,46 @@ export function SummarizedPagesList({
         reorderedPages.splice(insertAt, 0, removed);
 
         if (onReorderPages) {
+          // Save the current selected index to track it through reordering
+          const currentSelectedPage = pageSummaries[selectedPageIndex];
+
+          // Apply the reordering
           onReorderPages(reorderedPages);
 
-          // Update selected page index if needed
-          let newSelectedIndex = selectedPageIndex;
-          if (selectedPageIndex === draggedItemIndex) {
-            newSelectedIndex = insertAt;
-          } else if (
-            selectedPageIndex > draggedItemIndex &&
-            selectedPageIndex <= insertAt
-          ) {
-            newSelectedIndex--;
-          } else if (
-            selectedPageIndex < draggedItemIndex &&
-            selectedPageIndex >= insertAt
-          ) {
-            newSelectedIndex++;
+          // Find the new index of the previously selected page
+          const newSelectedIndex = reorderedPages.findIndex(
+            (page) =>
+              page.title === currentSelectedPage.title &&
+              page.content === currentSelectedPage.content
+          );
+
+          // If found, update the selected page index
+          if (newSelectedIndex !== -1) {
+            onSelectPage(newSelectedIndex);
+          } else {
+            // Fallback: update selected page index based on drag operation
+            let newSelectedIndex = selectedPageIndex;
+            if (selectedPageIndex === draggedItemIndex) {
+              newSelectedIndex = insertAt;
+            } else if (
+              selectedPageIndex > draggedItemIndex &&
+              selectedPageIndex <= insertAt
+            ) {
+              newSelectedIndex--;
+            } else if (
+              selectedPageIndex < draggedItemIndex &&
+              selectedPageIndex >= insertAt
+            ) {
+              newSelectedIndex++;
+            }
+
+            // Ensure the index is within bounds
+            newSelectedIndex = Math.max(
+              0,
+              Math.min(newSelectedIndex, reorderedPages.length - 1)
+            );
+            onSelectPage(newSelectedIndex);
           }
-
-          onSelectPage(newSelectedIndex);
-
-          // Fixed toast call
-          toast.success("Pages reordered", {
-            description: `Page moved from position ${
-              draggedItemIndex + 1
-            } to position ${insertAt + 1}`,
-          });
         }
       }
     }
@@ -344,17 +372,26 @@ export function SummarizedPagesList({
     setDropIndicatorPosition(null);
   };
 
-  const handleAddNewPage = (options?: {
+  const handleAddNewPage = async (options?: {
     duplicate?: boolean;
     insertAfterIndex?: number;
     template?: "blank" | "detailed";
   }) => {
     if (onAddNewPage) {
-      onAddNewPage(options);
-      // Fixed toast call
-      toast.success("New page added", {
-        description: "A new blank page has been added to your summaries.",
-      });
+      setIsAddingPage(true);
+      try {
+        await onAddNewPage(options);
+        toast.success("New page added", {
+          description: "A new blank page has been added to your summaries.",
+        });
+      } catch (error) {
+        toast.error("Failed to add page", {
+          description:
+            "There was a problem adding a new page. Please try again.",
+        });
+      } finally {
+        setIsAddingPage(false);
+      }
     }
   };
 
@@ -366,15 +403,58 @@ export function SummarizedPagesList({
 
   const confirmDelete = () => {
     if (pageToDelete !== null && onDeletePage) {
+      // Store the current selected index and total pages for reference
+      const currentSelectedIndex = selectedPageIndex;
+      const totalPages = pageSummaries.length;
+
+      // Delete the page
       onDeletePage(pageToDelete);
+
+      // Update selected page index if needed
+      if (currentSelectedIndex === pageToDelete) {
+        // If we deleted the selected page, select the previous page or the first page
+        const newIndex = Math.max(0, pageToDelete - 1);
+        onSelectPage(newIndex);
+      } else if (currentSelectedIndex > pageToDelete) {
+        // If we deleted a page before the selected page, adjust the index
+        onSelectPage(currentSelectedIndex - 1);
+      }
+
       setDeleteDialogOpen(false);
       setPageToDelete(null);
+
+      toast.success("Page deleted", {
+        description: `Page ${pageToDelete + 1} has been removed.`,
+      });
     }
   };
 
   const cancelDelete = () => {
     setDeleteDialogOpen(false);
     setPageToDelete(null);
+  };
+
+  const handleUploadSlides = async () => {
+    if (onUploadSlides) {
+      setIsUploading(true);
+      try {
+        await onUploadSlides();
+        // Note: The success toast is handled in the parent component
+      } catch (error) {
+        toast.error("Failed to upload slides", {
+          description:
+            "There was a problem uploading your slides. Please try again.",
+        });
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
+  const handleGenerateAllImages = async () => {
+    if (onGenerateAllImages) {
+      await onGenerateAllImages();
+    }
   };
 
   const renderDropIndicator = (position: number) => {
@@ -390,25 +470,6 @@ export function SummarizedPagesList({
         className="h-1.5 bg-primary rounded-full w-full my-2 transition-all duration-200 animate-pulse"
         style={{ marginTop: position === 0 ? "0" : "8px", marginBottom: "8px" }}
       />
-    );
-  };
-
-  // Loading animation for summarizing pages
-  const renderLoadingOverlay = () => {
-    if (!isSummarizingPages) return null;
-
-    return (
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-md">
-        <div className="relative w-16 h-16">
-          <div className="absolute inset-0 border-4 border-primary border-solid rounded-full animate-spin opacity-30"></div>
-          <div className="absolute inset-2 border-4 border-primary border-dashed rounded-full animate-spin animate-reverse"></div>
-          <div className="absolute inset-4 border-4 border-primary border-dotted rounded-full animate-spin animate-delay"></div>
-        </div>
-        <h3 className="mt-4 text-lg font-semibold">Summarizing Pages</h3>
-        <p className="text-sm text-muted-foreground mt-2">
-          This may take a moment...
-        </p>
-      </div>
     );
   };
 
@@ -435,9 +496,19 @@ export function SummarizedPagesList({
           size="sm"
           className="w-full"
           onClick={downloadAllSummaries}
+          disabled={isDownloading || pageSummaries.length === 0}
         >
-          <Download className="mr-2 h-4 w-4" />
-          Download All Summaries
+          {isDownloading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Downloading...
+            </>
+          ) : (
+            <>
+              <Download className="mr-2 h-4 w-4" />
+              Download All Summaries
+            </>
+          )}
         </Button>
 
         <Button
@@ -447,17 +518,24 @@ export function SummarizedPagesList({
           onClick={() => handleAddNewPage()}
           aria-label="Add new page"
           title="Add new page (Ctrl+N)"
+          disabled={isAddingPage}
         >
-          <Plus className="h-4 w-4" />
+          {isAddingPage ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
         </Button>
       </div>
+
+      {/* Removed the Summarize All Pages button */}
 
       {onGenerateAllImages && (
         <Button
           variant="outline"
           size="sm"
           className="w-full mt-2"
-          onClick={onGenerateAllImages}
+          onClick={handleGenerateAllImages}
           disabled={pageSummaries.some((summary) => summary.isGeneratingImage)}
         >
           {pageSummaries.some((summary) => summary.isGeneratingImage) ? (
@@ -474,11 +552,34 @@ export function SummarizedPagesList({
         </Button>
       )}
       <Button
-        size="sm"
-        onClick={onUploadSlides}
+        onClick={handleUploadSlides}
         disabled={isUploading || pageSummaries.length === 0}
+        className="w-full mt-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200 border-0 font-medium"
       >
-        {isUploading ? "Uploading..." : "Save Slides"}
+        {isUploading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Uploading Slides...
+          </>
+        ) : (
+          <>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2 animate-pulse"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+              />
+            </svg>
+            Save & Publish Slides
+          </>
+        )}
       </Button>
 
       <div className="space-y-2 mt-4">
@@ -487,9 +588,6 @@ export function SummarizedPagesList({
           ref={listContainerRef}
           className="space-y-3 max-h-[calc(100vh-270px)] overflow-y-auto pr-2 relative"
         >
-          {/* Loading overlay */}
-          {renderLoadingOverlay()}
-
           {/* Render drop indicator for position 0 (before first item) */}
           {renderDropIndicator(0)}
 
@@ -511,9 +609,14 @@ export function SummarizedPagesList({
                 onClick={() => onSelectPage(index)}
               >
                 {/* Loading indicator for individual page */}
-                {summary.isLoading ? (
+                {summary.isLoading || summarizingPageIndices.has(index) ? (
                   <div className="absolute inset-0 bg-background/70 backdrop-blur-[1px] flex items-center justify-center rounded-md z-10">
                     <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    {summarizingPageIndices.has(index) && (
+                      <span className="text-xs text-center mt-2">
+                        Generating summary...
+                      </span>
+                    )}
                   </div>
                 ) : null}
 
@@ -564,11 +667,6 @@ export function SummarizedPagesList({
                           className="absolute inset-0 w-full h-full object-cover"
                           alt="Page image"
                         />
-                        {/* <img
-                          src={summary.imageUrl || "/placeholder.svg"}
-                          alt=""
-                          className="absolute inset-0 w-full h-full object-cover"
-                        /> */}
                       </div>
                     </div>
                   )}
@@ -598,9 +696,19 @@ export function SummarizedPagesList({
             onClick={() => handleAddNewPage()}
             aria-label="Add new page at the end"
             title="Add new page at the end (Ctrl+N)"
+            disabled={isAddingPage}
           >
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Page
+            {isAddingPage ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Adding Page...
+              </>
+            ) : (
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                Add New Page
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -660,7 +768,7 @@ export default function SummarizedPagesListWrapper(
   props: SummarizedPagesListProps
 ) {
   const { onAddNewPage } = props;
-  useKeyboardShortcut(onAddNewPage!); // Non-null assertion is safe here
+  useKeyboardShortcut(onAddNewPage!);
 
   return <SummarizedPagesList {...props} />;
 }
