@@ -552,17 +552,33 @@ export function SummarizedPagesList({
         </Button>
       )}
       <Button
-        size="sm"
         onClick={handleUploadSlides}
         disabled={isUploading || pageSummaries.length === 0}
+        className="w-full mt-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200 border-0 font-medium"
       >
         {isUploading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Uploading...
+            Uploading Slides...
           </>
         ) : (
-          "Save Slides"
+          <>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2 animate-pulse"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+              />
+            </svg>
+            Save & Publish Slides
+          </>
         )}
       </Button>
 
