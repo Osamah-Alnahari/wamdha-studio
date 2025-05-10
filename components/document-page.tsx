@@ -44,7 +44,7 @@ export function DocumentPage({ bookId }: DocumentPageProps) {
           router.push("/books");
         }
       } catch (e) {
-        console.error("Failed to load book data:", e);
+        console.log("Failed to load book data:", e);
         router.push("/books");
       } finally {
         setIsLoading(false);

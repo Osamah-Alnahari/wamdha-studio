@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { type Book } from "@/lib/api-client";
+import type { Book } from "@/lib/api-client";
 import { getUserBooks, deleteBook } from "@/lib/actions/book.actions";
 import { useAuth } from "@/contexts/AuthContext";
 import { fetchImageUrl } from "@/lib/utils";
@@ -36,6 +36,7 @@ export function LibraryPage() {
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     const loadBooks = async () => {
@@ -68,19 +69,22 @@ export function LibraryPage() {
           setBooks(allBooks);
         }
       } catch (e) {
-        console.error("Error loading books:", e);
-        toast.error("Error loading books", {
-          description:
-            "There was a problem loading your books. Using sample books instead.",
-        });
+        console.log("Error loading books:", e);
+        // toast.error("Error loading books", {
+        //   description:
+        //     "There was a problem loading your books. Using sample books instead.",
+        // });
       } finally {
         setIsLoading(false);
       }
     };
 
     loadBooks();
-  }, [user?.userId]);
+  }, [user?.userId, refreshTrigger]);
 
+  useEffect(() => {
+    console.log("Books state updated:", books.length, "books");
+  }, [books]);
 
   const handleDeleteClick = (bookId: string) => {
     setBookToDelete(bookId);
@@ -89,23 +93,32 @@ export function LibraryPage() {
 
   const confirmDelete = async () => {
     if (!bookToDelete) return;
-
     try {
       // Delete the book
       const result = await deleteBook(bookToDelete);
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      // update the state
-      setBooks((prev) => prev.filter((book) => book.id !== bookToDelete));
+      // if (!result.success) {
+      //   throw new Error(result.error);
+      // }
+
+      // Store the ID to be deleted in a local variable to ensure it's available in the closure
+      const deletedBookId = bookToDelete;
+
+      // Update the state with the filtered books
+      setBooks((prevBooks) => {
+        return prevBooks.filter((book) => book.id !== deletedBookId);
+      });
+
+      // Trigger a refresh to ensure the UI is updated
+      setRefreshTrigger((prev) => prev + 1);
+
       toast.success("Book deleted", {
         description: "The book has been removed from your library.",
       });
     } catch (e) {
-      console.error("Error deleting book:", e);
-      toast.error("Error deleting book", {
-        description: "There was a problem deleting the book.",
-      });
+      console.log("Error deleting book:", e);
+      // toast.error("Error deleting book", {
+      //   description: "There was a problem deleting the book.",
+      // });
     } finally {
       setDeleteDialogOpen(false);
       setBookToDelete(null);

@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import FetchKeyImage from "@/components/FetchKeyImage";
+import { useRouter } from "next/navigation";
 
 interface BookInfo {
   title: string;
@@ -50,6 +51,7 @@ export function BookDetails({
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const router = useRouter();
   // Update local state when bookInfo prop changes
   useEffect(() => {
     setTitle(bookInfo.title || "");
@@ -94,6 +96,9 @@ export function BookDetails({
     onUpdateBookInfo(updatedBookInfo);
     setHasChanges(false);
 
+    if (isNew) {
+      router.push("/books");
+    }
     toast.success("Book details updated", {
       description: "Your book details have been saved.",
     });
@@ -263,12 +268,21 @@ export function BookDetails({
             )}
 
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Button
-                onClick={handleSave}
-                disabled={!hasChanges || !isOwnedByUser || !title || !author}
-              >
-                {isNew ? "Create Book" : "Save Book Details"}
-              </Button>
+              {isNew ? (
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || !isOwnedByUser || !title || !author}
+                >
+                  Create Book
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleSave}
+                  disabled={!hasChanges || !isOwnedByUser || !title || !author}
+                >
+                  Save Book Details
+                </Button>
+              )}
             </div>
           </div>
 

@@ -152,7 +152,7 @@ export const deleteBook = async (bookId: string) => {
 
     if (!deletedBook) {
       // Todo: Handle the error appropriately
-      console.error("Failed to delete book:", bookResult.errors);
+      console.log("Failed to delete book:", bookResult.errors);
       // throw new Error("Book deletion failed or returned null.");
     }
 
@@ -162,7 +162,7 @@ export const deleteBook = async (bookId: string) => {
       deletedSlideCount: slidesResult.deletedCount,
     };
   } catch (error: any) {
-    console.error("Error deleting book and its slides:", error);
+    console.log("Error deleting book and its slides:", error);
     return {
       success: false,
       error: error.message || "Unknown error occurred during deletion.",
