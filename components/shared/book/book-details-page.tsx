@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { updateBook, type Book } from "@/lib/api-client";
+import type { Book } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { client } from "@/lib/amplify";
@@ -139,11 +139,12 @@ export function BookDetailsPage({
         });
       }
     } catch (e: any) {
-      console.error("Failed to save book:", e);
-      toast.error("Error saving book", {
-        description:
-          e?.message || "There was a problem saving your book details.",
-      });
+      // handle error after fixing the backend issue
+      console.log("Failed to save book:", e);
+      // toast.error("Error saving book", {
+      //   description:
+      //     e?.message || "There was a problem saving your book details.",
+      // });
     }
   };
 
