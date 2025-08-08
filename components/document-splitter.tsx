@@ -226,9 +226,12 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
   };
 
   // Update the handleSummaryUpdate function to ensure it updates the correct page
-  const handleSummaryUpdate = async (summary: PageSummary) => {
-    if (selectedPageIndex < 0 || selectedPageIndex >= pageSummaries.length) {
-      console.error("Invalid page index for update:", selectedPageIndex);
+  const handleSummaryUpdate = async (
+    summary: PageSummary,
+    pageIndex: number
+  ) => {
+    if (pageIndex < 0 || pageIndex >= pageSummaries.length) {
+      console.error("Invalid page index for update:", pageIndex);
       return;
     }
 
@@ -247,12 +250,14 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         isGeneratingImage: !!summary.isGeneratingImage,
       };
 
-      // Create a new array to avoid reference issues
-      const newSummaries = [...pageSummaries];
-      newSummaries[selectedPageIndex] = sanitizedSummary;
-
-      // Update state first
-      setPageSummaries(newSummaries);
+      // Use functional state update to avoid race conditions
+      setPageSummaries((prevSummaries) => {
+        const newSummaries = [...prevSummaries];
+        newSummaries[pageIndex] = sanitizedSummary;
+        console.log("newSummaries", newSummaries);
+        console.log("prevSummaries", prevSummaries);
+        return newSummaries;
+      });
 
       // Note: Changes are saved when uploading slides to AWS
     } catch (error) {
@@ -300,18 +305,16 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     }
 
     try {
-      // Create a new array to avoid reference issues
-      const newSummaries = [...pageSummaries];
-
-      // Update only the specified page index
-      newSummaries[pageIndex] = {
-        ...newSummaries[pageIndex],
-        imageUrl: imageUrl,
-        isGeneratingImage: false,
-      };
-
-      // Update state first
-      setPageSummaries(newSummaries);
+      // Use functional state update to avoid race conditions
+      setPageSummaries((prevSummaries) => {
+        const newSummaries = [...prevSummaries];
+        newSummaries[pageIndex] = {
+          ...newSummaries[pageIndex],
+          imageUrl: imageUrl,
+          isGeneratingImage: false,
+        };
+        return newSummaries;
+      });
 
       // If the specified page is the currently selected page, update the selection
       if (pageIndex === selectedPageIndex) {
@@ -793,8 +796,6 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
                 isGeneratingImage: false,
               };
 
-              // Note: Changes are saved when uploading slides to AWS
-
               return updated;
             });
             setPageSummaries((prevSummaries) => {
@@ -866,12 +867,11 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     try {
       // Delete existing slides first
       const deleteResult = await deleteSlidesByBook(client, bookId);
-
       // disable it for now
-      // if (!deleteResult.success) {
-      //   throw new Error(`Deletion error: ${deleteResult.error}`);
-      // }
-
+      if (!deleteResult.success) {
+        throw new Error(`Deletion error: ${deleteResult.error}`);
+      }
+      console.log("pageSummaries", pageSummaries);
       // Proceed to upload new slides
       const uploadResult = await uploadSlides(client, bookId, pageSummaries);
 

@@ -49,7 +49,7 @@ interface SummaryViewerProps {
   pageSummary: PageSummary;
   pageIndex: number;
   bookInfo: BookInfo;
-  onUpdateSummary: (summary: PageSummary) => void;
+  onUpdateSummary: (summary: PageSummary, pageIndex: number) => void;
   onImageGenerationStart?: (pageIndex: number) => void;
   onImageGenerationComplete?: (pageIndex: number, imageUrl: string) => void;
 }
@@ -212,7 +212,7 @@ export function SummaryViewer({
       // Call the update function provided by parent, specifying the page index
       // This ensures we're updating the correct page even if the user has navigated away
       if (onUpdateSummary) {
-        await onUpdateSummary(sanitizedSummary);
+        await onUpdateSummary(sanitizedSummary, currentPageIdx);
       }
 
       // Only update local state if we're still on the same page
@@ -548,7 +548,7 @@ export function SummaryViewer({
         if (hasChanges && !isSavingRef.current) {
           // Use a synchronous approach for the final save to ensure it completes
           const finalSummary = { ...pendingChangesRef.current };
-          onUpdateSummary(finalSummary);
+          onUpdateSummary(finalSummary, currentPageIndexRef.current);
         }
       }
     };
@@ -629,18 +629,6 @@ export function SummaryViewer({
               </TabsTrigger>
             </TabsList>
           </Tabs>
-
-          {/* {viewMode === "edit" && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSave}
-              disabled={!hasChanges}
-            >
-              <Save className="mr-2 h-4 w-4" />
-              Save
-            </Button>
-          )} */}
         </div>
       </div>
 

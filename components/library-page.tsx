@@ -48,7 +48,7 @@ export function LibraryPage() {
 
         const allBooksData = await getUserBooks(client, user.userId);
         const allBooks: Book[] = await Promise.all(
-          allBooksData.map(async (item) => {
+          allBooksData.map(async (item: any) => {
             const imageUrl = item.thumbnailUrl
               ? await fetchImageUrl(item.thumbnailUrl)
               : undefined;
