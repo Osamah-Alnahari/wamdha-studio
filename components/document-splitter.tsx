@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
-  updateBookContent,
   summarizeText as apiSummarizeText,
   type PageSummary,
 } from "@/lib/api-client";
@@ -255,21 +254,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       // Update state first
       setPageSummaries(newSummaries);
 
-      // Then save to API with proper error handling
-      if (bookId) {
-        try {
-          await updateBookContent(bookId, {
-            pages,
-            summaries: newSummaries,
-          });
-        } catch (error) {
-          console.error("Error saving to API:", error);
-          toast.error("Failed to save changes", {
-            description:
-              "Your changes were applied locally but couldn't be saved to the server.",
-          });
-        }
-      }
+      // Note: Changes are saved when uploading slides to AWS
     } catch (error) {
       console.error("Error updating summary:", error);
       toast.error("Failed to save summary", {
@@ -333,24 +318,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         setSelectedPageIndex(pageIndex);
       }
 
-      // Save changes to API with proper error handling
-      if (bookId) {
-        try {
-          await updateBookContent(bookId, {
-            pages,
-            summaries: newSummaries,
-          });
-        } catch (error) {
-          console.error(
-            `Error saving image generation for page ${pageIndex + 1}:`,
-            error
-          );
-          toast.error("Failed to save generated image", {
-            description:
-              "The image was generated but couldn't be saved to the server.",
-          });
-        }
-      }
+      // Note: Changes are saved when uploading slides to AWS
     } catch (error) {
       console.error(
         `Error completing image generation for page ${pageIndex + 1}:`,
@@ -398,25 +366,10 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       // Update state first
       setPageSummaries(validatedPages);
 
-      // Save reordered pages to API with proper error handling
-      if (bookId) {
-        try {
-          await updateBookContent(bookId, {
-            pages,
-            summaries: validatedPages,
-          });
-
-          toast.success("Pages reordered successfully", {
-            description: "The new page order has been saved.",
-          });
-        } catch (error) {
-          console.error("Error saving reordered pages to API:", error);
-          toast.error("Failed to save new page order", {
-            description:
-              "Your changes were applied locally but couldn't be saved to the server.",
-          });
-        }
-      }
+      // Note: Changes are saved when uploading slides to AWS
+      toast.success("Pages reordered successfully", {
+        description: "The new page order has been applied locally.",
+      });
     } catch (error) {
       console.error("Error reordering pages:", error);
       toast.error("Failed to reorder pages", {
@@ -501,22 +454,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       // Select the newly added page
       setSelectedPageIndex(insertAtIndex);
 
-      // Save updated summaries to API with proper error handling
-      if (bookId) {
-        try {
-          await updateBookContent(bookId, {
-            pages,
-            summaries: newSummaries,
-          });
-        } catch (error) {
-          console.error("Failed to save new page to API:", error);
-          toast.error("Error saving page", {
-            description:
-              "Your new page was created but couldn't be saved to the server. Please try again later.",
-          });
-          // Continue execution since the page was added to the UI
-        }
-      }
+      // Note: Changes are saved when uploading slides to AWS
 
       toast.success("New page added", {
         description: "A new page has been added to your summaries.",
@@ -563,25 +501,10 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
           setSelectedPageIndex(Math.max(0, index - 1));
         }
 
-        // Save updated summaries to API with proper error handling
-        if (bookId) {
-          try {
-            await updateBookContent(bookId, {
-              pages,
-              summaries: newSummaries,
-            });
-
-            toast.success("Page deleted", {
-              description: `Page ${index + 1} has been removed.`,
-            });
-          } catch (error) {
-            console.error("Error saving after page deletion:", error);
-            toast.error("Failed to save after deletion", {
-              description:
-                "The page was removed locally but the changes couldn't be saved to the server.",
-            });
-          }
-        }
+        // Note: Changes are saved when uploading slides to AWS
+        toast.success("Page deleted", {
+          description: `Page ${index + 1} has been removed.`,
+        });
       } catch (error) {
         console.error("Error deleting page:", error);
         toast.error("Failed to delete page", {
@@ -634,26 +557,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
           return updatedSummaries;
         });
 
-        // Save updated summaries to API
-        if (bookId) {
-          try {
-            await updateBookContent(bookId, {
-              pages,
-              summaries: pageSummaries.map((summary, idx) =>
-                idx === pageIndex
-                  ? {
-                      ...summary,
-                      title: validatedTitle,
-                      content: validatedSummary,
-                      isLoading: false,
-                    }
-                  : summary
-              ),
-            });
-          } catch (error) {
-            console.error("Error saving to API:", error);
-          }
-        }
+        // Note: Changes are saved when uploading slides to AWS
 
         toast.success("Summary generated", {
           description: `Summary for page ${pageIndex + 1} has been created.`,
@@ -779,17 +683,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       );
     }
 
-    // Save all summaries to API
-    if (bookId) {
-      try {
-        await updateBookContent(bookId, {
-          pages,
-          summaries: pageSummaries,
-        });
-      } catch (error) {
-        console.error("Error saving summaries to API:", error);
-      }
-    }
+    // Note: Changes are saved when uploading slides to AWS
 
     // Show final status
     if (failedCount > 0) {
@@ -846,16 +740,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     });
     setPageSummaries(newSummaries);
 
-    if (bookId) {
-      try {
-        await updateBookContent(bookId, {
-          pages,
-          summaries: newSummaries,
-        });
-      } catch (error) {
-        console.error("Error saving initial generation state:", error);
-      }
-    }
+    // Note: Changes are saved when uploading slides to AWS
 
     const pagesToProcess = pageSummaries
       .map((summary, index) => ({ summary, index }))
@@ -908,15 +793,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
                 isGeneratingImage: false,
               };
 
-              // Persist to backend
-              if (bookId) {
-                updateBookContent(bookId, {
-                  pages,
-                  summaries: updated,
-                }).catch((err) =>
-                  console.error("Error saving updated summary:", err)
-                );
-              }
+              // Note: Changes are saved when uploading slides to AWS
 
               return updated;
             });
