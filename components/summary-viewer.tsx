@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Upload,
   ImageIcon,
@@ -89,14 +89,8 @@ export function SummaryViewer({
   // Store the current page index to track page changes
   const currentPageIndexRef = useRef<number>(pageIndex);
 
-  // Pending changes queue
-  const pendingChangesRef = useRef<PageSummary>({
-    title: pageSummary.title,
-    content: pageSummary.content,
-    imageUrl: pageSummary.imageUrl,
-    imagePosition: pageSummary.imagePosition || "bottom",
-    isGeneratingImage: !!pageSummary.isGeneratingImage,
-  });
+  // Pending changes queue - now using a more robust structure
+  const pendingChangesRef = useRef<Map<number, PageSummary>>(new Map());
 
   // Save timeout reference
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -104,6 +98,9 @@ export function SummaryViewer({
   // Save lock to prevent concurrent saves
   const isSavingRef = useRef(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Track the latest save operation to prevent stale saves
+  const saveOperationIdRef = useRef<number>(0);
 
   // Ensure bookInfo properties are strings
   const safeBookInfo = {
@@ -117,11 +114,53 @@ export function SummaryViewer({
     isOwnedByUser: !!bookInfo.isOwnedByUser,
   };
 
+  // Helper function to sanitize summary data
+  const sanitizeSummary = useCallback(
+    (summary: Partial<PageSummary>): PageSummary => {
+      return {
+        title:
+          typeof summary.title === "string" && summary.title.trim()
+            ? summary.title
+            : "Untitled Summary",
+        content: typeof summary.content === "string" ? summary.content : "",
+        imageUrl: summary.imageUrl,
+        imagePosition: summary.imagePosition || "bottom",
+        isGeneratingImage: !!summary.isGeneratingImage,
+      };
+    },
+    []
+  );
+
+  // Helper function to get current pending changes for a page
+  const getPendingChanges = useCallback(
+    (pageIdx: number): PageSummary => {
+      const pending = pendingChangesRef.current.get(pageIdx);
+      if (pending) {
+        return { ...pending };
+      }
+
+      // Return current page summary if no pending changes
+      return {
+        title:
+          typeof pageSummary.title === "string"
+            ? pageSummary.title
+            : `Summary ${pageIdx + 1}`,
+        content:
+          typeof pageSummary.content === "string" ? pageSummary.content : "",
+        imageUrl: pageSummary.imageUrl,
+        imagePosition: pageSummary.imagePosition || "bottom",
+        isGeneratingImage: !!pageSummary.isGeneratingImage,
+      };
+    },
+    [pageSummary]
+  );
+
   // Update local state when the selected page changes
   useEffect(() => {
     // Update the ref to track page changes
     currentPageIndexRef.current = pageIndex;
     setLocalImageUrl(undefined);
+
     if (pageSummary) {
       setTitle(
         typeof pageSummary.title === "string"
@@ -136,18 +175,20 @@ export function SummaryViewer({
       setIsGeneratingImage(!!pageSummary.isGeneratingImage);
       setHasChanges(false);
 
-      // Reset pending changes reference
-      pendingChangesRef.current = {
-        title:
-          typeof pageSummary.title === "string"
-            ? pageSummary.title
-            : `Summary ${pageIndex + 1}`,
-        content:
-          typeof pageSummary.content === "string" ? pageSummary.content : "",
-        imageUrl: pageSummary.imageUrl,
-        imagePosition: pageSummary.imagePosition || "bottom",
-        isGeneratingImage: !!pageSummary.isGeneratingImage,
-      };
+      // Initialize pending changes for this page if not exists
+      if (!pendingChangesRef.current.has(pageIndex)) {
+        pendingChangesRef.current.set(pageIndex, {
+          title:
+            typeof pageSummary.title === "string"
+              ? pageSummary.title
+              : `Summary ${pageIndex + 1}`,
+          content:
+            typeof pageSummary.content === "string" ? pageSummary.content : "",
+          imageUrl: pageSummary.imageUrl,
+          imagePosition: pageSummary.imagePosition || "bottom",
+          isGeneratingImage: !!pageSummary.isGeneratingImage,
+        });
+      }
     }
 
     // Clear any pending save timeout
@@ -164,7 +205,7 @@ export function SummaryViewer({
           setImageDisplayUrl(displayUrl);
         } catch (err) {
           console.error("Failed to fetch display image:", err);
-          setImageDisplayUrl(undefined); // or a fallback image URL
+          setImageDisplayUrl(undefined);
         }
       } else {
         setImageDisplayUrl(undefined);
@@ -174,87 +215,103 @@ export function SummaryViewer({
   }, [pageSummary, pageIndex, pageSummary?.imageUrl]);
 
   // Function to actually perform the save
-  const performSave = async () => {
-    if (isSavingRef.current) {
-      // If already saving, schedule another save after the current one completes
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
+  const performSave = useCallback(
+    async (targetPageIndex?: number) => {
+      const pageIdx = targetPageIndex ?? currentPageIndexRef.current;
+      const operationId = ++saveOperationIdRef.current;
+
+      if (isSavingRef.current) {
+        // Queue this save for later execution
+        setTimeout(() => {
+          if (operationId === saveOperationIdRef.current) {
+            performSave(targetPageIndex);
+          }
+        }, 100);
+        return;
       }
-      saveTimeoutRef.current = setTimeout(performSave, 300);
-      return;
-    }
 
-    // Create a local copy of the current page index to ensure we're saving to the right page
-    const currentPageIdx = currentPageIndexRef.current;
-
-    try {
       isSavingRef.current = true;
       setIsSaving(true);
 
-      // Create a copy of the pending changes
-      const summaryToSave = { ...pendingChangesRef.current };
+      try {
+        const pendingChanges = getPendingChanges(pageIdx);
+        const sanitizedSummary = sanitizeSummary(pendingChanges);
 
-      // Sanitize the data
-      const sanitizedSummary: PageSummary = {
-        title:
-          typeof summaryToSave.title === "string" && summaryToSave.title.trim()
-            ? summaryToSave.title
-            : "Untitled Summary",
-        content:
-          typeof summaryToSave.content === "string"
-            ? summaryToSave.content
-            : "",
-        imageUrl: summaryToSave.imageUrl,
-        imagePosition: summaryToSave.imagePosition,
-        isGeneratingImage: summaryToSave.isGeneratingImage,
-      };
+        if (onUpdateSummary) {
+          await onUpdateSummary(sanitizedSummary, pageIdx);
+        }
 
-      // Call the update function provided by parent, specifying the page index
-      // This ensures we're updating the correct page even if the user has navigated away
-      if (onUpdateSummary) {
-        await onUpdateSummary(sanitizedSummary, currentPageIdx);
+        // Only update UI state if this is still the current page
+        if (pageIdx === currentPageIndexRef.current) {
+          setHasChanges(false);
+        }
+
+        // Clear pending changes for this page after successful save
+        pendingChangesRef.current.delete(pageIdx);
+      } catch (error) {
+        console.error("Failed to save changes:", error);
+        toast.error("Failed to save changes. Please try again.");
+
+        // Don't clear pending changes on error - they can be retried
+      } finally {
+        isSavingRef.current = false;
+        setIsSaving(false);
       }
-
-      // Only update local state if we're still on the same page
-      if (currentPageIdx === currentPageIndexRef.current) {
-        setHasChanges(false);
-      }
-    } catch (error) {
-      console.error("Failed to save changes:", error);
-      toast.error("Failed to save changes. Please try again.");
-    } finally {
-      isSavingRef.current = false;
-      setIsSaving(false);
-    }
-  };
+    },
+    [getPendingChanges, sanitizeSummary, onUpdateSummary, toast]
+  );
 
   // Debounced save function
-  const debouncedSave = (changes: Partial<PageSummary>) => {
-    // Update pending changes
-    pendingChangesRef.current = {
-      ...pendingChangesRef.current,
-      ...changes,
-    };
+  const debouncedSave = useCallback(
+    (changes: Partial<PageSummary>, targetPageIndex?: number) => {
+      const pageIdx = targetPageIndex ?? currentPageIndexRef.current;
 
-    setHasChanges(true);
+      // Get current pending changes and merge with new changes
+      const currentPending = getPendingChanges(pageIdx);
+      const updatedPending = { ...currentPending, ...changes };
 
-    // Clear any existing timeout
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
+      // Store updated pending changes
+      pendingChangesRef.current.set(pageIdx, updatedPending);
 
-    // Set a new timeout with a unique identifier for this save operation
-    const saveId = Date.now();
-    saveTimeoutRef.current = setTimeout(() => {
-      // Only proceed if this is still the most recent save request
-      if (
-        saveTimeoutRef.current &&
-        saveId === Number.parseInt(saveTimeoutRef.current.toString())
-      ) {
-        performSave();
+      // Only update hasChanges if this is the current page
+      if (pageIdx === currentPageIndexRef.current) {
+        setHasChanges(true);
       }
-    }, 500);
-  };
+
+      // Clear existing timeout
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+
+      // Set new timeout
+      saveTimeoutRef.current = setTimeout(() => {
+        performSave(pageIdx);
+      }, 500);
+    },
+    [getPendingChanges, performSave]
+  );
+
+  // Immediate save function
+  const handleImmediateSave = useCallback(
+    async (changes: Partial<PageSummary>, targetPageIndex?: number) => {
+      const pageIdx = targetPageIndex ?? currentPageIndexRef.current;
+
+      // Merge changes into pending changes
+      const currentPending = getPendingChanges(pageIdx);
+      const updatedPending = { ...currentPending, ...changes };
+      pendingChangesRef.current.set(pageIdx, updatedPending);
+
+      // Clear any pending debounced save
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+
+      // Perform save immediately
+      await performSave(pageIdx);
+    },
+    [getPendingChanges, performSave]
+  );
 
   // Handle title change
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -277,78 +334,20 @@ export function SummaryViewer({
     debouncedSave({ imagePosition: newPosition });
   };
 
-  // Manual save function for immediate changes that should be saved right away
-  const handleImmediateSave = (
-    changes: Partial<PageSummary>,
-    targetPageIndex?: number
-  ) => {
-    // If targetPageIndex is provided and doesn't match current page,
-    // notify parent to update the correct page instead of local state
-    if (
-      targetPageIndex !== undefined &&
-      targetPageIndex !== currentPageIndexRef.current
-    ) {
-      // Create a merged summary for the target page
-      const targetPageSummary: PageSummary = {
-        title: pendingChangesRef.current.title,
-        content: pendingChangesRef.current.content,
-        imageUrl: changes.imageUrl || pendingChangesRef.current.imageUrl,
-        imagePosition:
-          changes.imagePosition || pendingChangesRef.current.imagePosition,
-        isGeneratingImage:
-          changes.isGeneratingImage !== undefined
-            ? changes.isGeneratingImage
-            : pendingChangesRef.current.isGeneratingImage,
-      };
-
-      // Directly notify parent component to update the specific page
-      if (onImageGenerationComplete && changes.imageUrl) {
-        onImageGenerationComplete(targetPageIndex, changes.imageUrl);
-      } else {
-        // Update any other changes for the specified page index
-        // This would need a more general handler in the parent component
-        console.log(
-          `Changes need to be applied to page ${
-            targetPageIndex + 1
-          } instead of current page`
-        );
-      }
-      return;
-    }
-
-    // Update pending changes for current page
-    pendingChangesRef.current = {
-      ...pendingChangesRef.current,
-      ...changes,
-    };
-
-    // Clear any existing timeout
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-      saveTimeoutRef.current = null;
-    }
-
-    // Perform save immediately
-    performSave();
-  };
-
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    // Store the page index at the time of upload initiation
     const targetPageIndex = currentPageIndexRef.current;
 
     if (!file) return;
 
     setIsUploading(true);
     try {
-      // Show loading state to user
       toast.loading("Uploading image...", { id: "uploadToast" });
 
       const uniqueId = uuidv4();
       const extension = file.name.split(".").pop();
       const key = `public/${uniqueId}.${extension}`;
 
-      // Upload and wait for complete response
       await uploadData({
         path: key,
         data: file,
@@ -363,20 +362,19 @@ export function SummaryViewer({
       // Create temp URL for preview
       const tempUrl = URL.createObjectURL(file);
 
-      // Check if we're still on the same page
+      // Update UI if still on the same page
       if (targetPageIndex === currentPageIndexRef.current) {
         setLocalImageUrl(tempUrl);
         setImageUrl(key);
         setHasChanges(true);
       }
 
-      // ensure the image became available in s3
+      // Ensure the image is available in S3
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Save image URL immediately to the correct page
-      handleImmediateSave({ imageUrl: key }, targetPageIndex);
+      await handleImmediateSave({ imageUrl: key }, targetPageIndex);
 
-      // Update the toast
       toast.success("Cover image uploaded successfully!", {
         id: "uploadToast",
       });
@@ -389,7 +387,6 @@ export function SummaryViewer({
   };
 
   const processImageFile = (file: File) => {
-    // Store the page index at the time of processing
     const targetPageIndex = currentPageIndexRef.current;
 
     const reader = new FileReader();
@@ -402,35 +399,30 @@ export function SummaryViewer({
         setHasChanges(true);
       }
 
-      // Save to the correct page regardless of current view
-      debouncedSave({ imageUrl: uploadedImageUrl });
+      // Save to the correct page
+      debouncedSave({ imageUrl: uploadedImageUrl }, targetPageIndex);
     };
-    // triggers the onload event
     reader.readAsDataURL(file);
   };
 
   // Modify the handleGenerateImage function to be more robust
   const handleGenerateImage = () => {
-    // Don't allow generating a new image if one is already being generated
     if (isGeneratingImage) return;
 
-    // Store the current page index to ensure the image is applied to the correct page
     const targetPageIndex = currentPageIndexRef.current;
 
     // Update UI state if still on the same page
     setIsGeneratingImage(true);
-    debouncedSave({ isGeneratingImage: true });
+    debouncedSave({ isGeneratingImage: true }, targetPageIndex);
 
-    // Notify parent component that image generation has started
+    // Notify parent component
     if (onImageGenerationStart) {
       onImageGenerationStart(targetPageIndex);
     }
 
-    // Create an abort controller to handle cancellation
     const abortController = new AbortController();
     const signal = abortController.signal;
 
-    // Call our api
     const generateImagePromise = (async () => {
       if (signal.aborted) {
         throw new Error("Image generation was cancelled");
@@ -439,9 +431,9 @@ export function SummaryViewer({
       const { imageUrl } = await generateImageFromPrompt(pageSummary.title);
       return imageUrl;
     })();
+
     generateImagePromise
       .then(async (generatedImageUrl) => {
-        // Store the current page index to ensure we're updating the correct page
         const targetPageIdx = targetPageIndex;
 
         // Reset generation status on the original page
@@ -449,11 +441,8 @@ export function SummaryViewer({
           setIsGeneratingImage(false);
         }
 
-        // Always update the state for the target page
-        if (onImageGenerationStart) {
-          // Use parent component's handler to update the correct page's state
-          debouncedSave({ isGeneratingImage: false });
-        }
+        // Update the state for the target page
+        debouncedSave({ isGeneratingImage: false }, targetPageIdx);
 
         // Upload generated image to S3
         try {
@@ -480,8 +469,7 @@ export function SummaryViewer({
             },
           });
 
-          // Always notify parent to update the correct page,
-          // regardless of which page is currently being viewed
+          // Notify parent to update the correct page
           if (onImageGenerationComplete) {
             onImageGenerationComplete(targetPageIdx, key);
           }
@@ -493,7 +481,7 @@ export function SummaryViewer({
           }
 
           // Save image URL immediately to the correct page
-          handleImmediateSave({ imageUrl: key }, targetPageIdx);
+          await handleImmediateSave({ imageUrl: key }, targetPageIdx);
 
           toast.success("Generated image uploaded successfully!");
         } catch (uploadError) {
@@ -516,7 +504,7 @@ export function SummaryViewer({
         }
 
         // Always update the target page's state
-        debouncedSave({ isGeneratingImage: false });
+        debouncedSave({ isGeneratingImage: false }, targetPageIndex);
 
         if (!signal.aborted) {
           toast.error("Failed to generate image", {
@@ -525,11 +513,10 @@ export function SummaryViewer({
         }
       });
 
-    // Return the abort controller so it can be used for cleanup
     return abortController;
   };
 
-  // Add a useEffect for cleanup
+  // Cleanup effect
   useEffect(() => {
     const abortController = new AbortController();
 
@@ -544,15 +531,18 @@ export function SummaryViewer({
         clearTimeout(saveTimeoutRef.current);
         saveTimeoutRef.current = null;
 
-        // Perform a final save if there are pending changes
-        if (hasChanges && !isSavingRef.current) {
+        // Perform a final save if there are pending changes for the current page
+        const currentPageIdx = currentPageIndexRef.current;
+        const pendingChanges = pendingChangesRef.current.get(currentPageIdx);
+
+        if (pendingChanges && !isSavingRef.current) {
           // Use a synchronous approach for the final save to ensure it completes
-          const finalSummary = { ...pendingChangesRef.current };
-          onUpdateSummary(finalSummary, currentPageIndexRef.current);
+          const finalSummary = sanitizeSummary(pendingChanges);
+          onUpdateSummary(finalSummary, currentPageIdx);
         }
       }
     };
-  }, [hasChanges, onUpdateSummary]);
+  }, [sanitizeSummary, onUpdateSummary]);
 
   const handleRemoveImage = async () => {
     setIsRemoving(true);
