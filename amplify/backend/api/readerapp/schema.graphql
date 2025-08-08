@@ -4,7 +4,7 @@
 
 type Read @model
   @auth(rules: [
-    { allow: public, operations: [read] },
+    { allow: private, operations: [read] },
     { allow: owner, identityClaim: "sub", operations: [create, read, update, delete] }
   ]) {
   id: ID!
@@ -22,7 +22,7 @@ type Read @model
 
 type Slide @model
   @auth(rules: [
-    { allow: public, operations: [read] },
+    { allow: private, operations: [read] },
     { allow: owner, identityClaim: "sub", operations: [create, read, update, delete] }
   ]) {
   id: ID!

@@ -1,4 +1,10 @@
 {
+  "analytics": {
+    "readerapp": {
+      "providerPlugin": "awscloudformation",
+      "service": "Pinpoint"
+    }
+  },
   "api": {
     "readerapp": {
       "dependsOn": [

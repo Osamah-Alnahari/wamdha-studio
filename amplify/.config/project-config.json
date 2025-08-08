@@ -10,8 +10,8 @@
     "config": {
       "SourceDir": "app",
       "DistributionDir": "build",
-      "BuildCommand": "npm run build",
-      "StartCommand": "npm run dev"
+      "BuildCommand": "npm run-script build",
+      "StartCommand": "npm run-script start"
     }
   }
 }
