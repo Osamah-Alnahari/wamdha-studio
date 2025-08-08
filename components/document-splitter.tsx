@@ -1,32 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { DocumentUploader } from "@/components/document-uploader";
 import { PagesList } from "@/components/pages-list";
 import { SummarizedPagesList } from "@/components/summarized-pages-list";
 import { PageViewer } from "@/components/page-viewer";
 import { SummaryViewer } from "@/components/summary-viewer";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, AlignLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { v4 as uuidv4 } from "uuid";
 import {
   updateBookContent,
   summarizeText as apiSummarizeText,
   type PageSummary,
 } from "@/lib/api-client";
 import { getRead } from "@/src/graphql/queries";
-import { client } from "@/lib/amplify";
+import { useAmplifyClient } from "@/hooks/use-amplify-client";
 import { deleteSlidesByBook, uploadSlides } from "@/lib/actions/book.actions";
 import { getBookContent } from "@/lib/actions/slide.actions";
 import { uploadData } from "aws-amplify/storage";
 import { delay } from "@/lib/utils";
+import { FileText, AlignLeft } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 interface DocumentSplitterProps {
   bookId?: string;
 }
 
 export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
+  const { client, isLoading: clientLoading } = useAmplifyClient();
   const [pages, setPages] = useState<string[]>([]);
   const [pageSummaries, setPageSummaries] = useState<PageSummary[]>([]);
   const [fileName, setFileName] = useState<string>("");
@@ -67,6 +69,10 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       return;
     }
 
+    if (clientLoading || !client) {
+      return;
+    }
+
     // Load book info and content
     const loadBookData = async () => {
       setIsLoadingData(true);
@@ -78,7 +84,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
           authMode: "userPool",
         });
 
-        if (response.data?.getRead) {
+        if (response?.data?.getRead) {
           const book = response.data.getRead;
           if (book) {
             setBookInfo({
@@ -99,7 +105,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
             // To do: Handle slides data if exits
             // Get book content
-            const content = await getBookContent(bookId);
+            const content = await getBookContent(client, bookId);
             if (content) {
               // ToDo: handle title and imagePosition when they exist on DB
               const summaries: PageSummary[] = content.map((slide: any) => {
@@ -138,7 +144,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     };
 
     loadBookData();
-  }, [bookId]);
+  }, [bookId, client, clientLoading]);
 
   // Function to handle document processing and update state
   const handleDocumentProcessed = async (
@@ -982,7 +988,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
     try {
       // Delete existing slides first
-      const deleteResult = await deleteSlidesByBook(bookId);
+      const deleteResult = await deleteSlidesByBook(client, bookId);
 
       // disable it for now
       // if (!deleteResult.success) {
@@ -990,7 +996,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       // }
 
       // Proceed to upload new slides
-      const uploadResult = await uploadSlides(bookId, pageSummaries);
+      const uploadResult = await uploadSlides(client, bookId, pageSummaries);
 
       if (uploadResult.success) {
         toast.success("Slides replaced successfully!", {
@@ -1018,6 +1024,25 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
   // Render the appropriate content based on the current state
   const renderContent = () => {
+    // Show client loading state
+    if (clientLoading) {
+      return (
+        <div className="md:col-span-3 flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="relative w-16 h-16 mx-auto">
+              <div className="absolute inset-0 border-4 border-primary border-solid rounded-full animate-spin opacity-30"></div>
+              <div className="absolute inset-2 border-4 border-primary border-dashed rounded-full animate-spin animate-reverse"></div>
+              <div className="absolute inset-4 border-4 border-primary border-dotted rounded-full animate-spin animate-delay"></div>
+            </div>
+            <h3 className="mt-4 text-lg font-semibold">Connecting to Server</h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              Please wait while we establish a connection...
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     // Show loading state
     if (isLoadingData) {
       return (

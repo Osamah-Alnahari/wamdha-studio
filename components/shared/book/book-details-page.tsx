@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import type { Book } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { client } from "@/lib/amplify";
+import { useAmplifyClient } from "@/hooks/use-amplify-client";
 import { createRead, updateRead } from "@/src/graphql/mutations";
 import { getRead } from "@/src/graphql/queries";
 
@@ -23,6 +23,7 @@ export function BookDetailsPage({
   isNew = false,
 }: BookDetailsPageProps) {
   const router = useRouter();
+  const { client, isLoading: clientLoading } = useAmplifyClient();
   const [bookInfo, setBookInfo] = useState<Book>({
     id: bookId || `book-${Date.now()}`,
     title: "",
@@ -49,18 +50,27 @@ export function BookDetailsPage({
         createdAt: Date.now(),
       });
       return;
-    } else {
-      loadBookData();
     }
 
     if (!isNew && !bookId) {
       router.push("/books");
       return;
     }
+
+    if (clientLoading || !client) {
+      return;
+    }
+
     setIsLoading(true);
-  }, [bookId, isNew, router]);
+    loadBookData();
+  }, [bookId, isNew, router, client, clientLoading]);
+
   const loadBookData = async () => {
     try {
+      if (!client) {
+        throw new Error("Client not available");
+      }
+
       // Get book info
       const response = await client.graphql({
         query: getRead,
@@ -98,6 +108,11 @@ export function BookDetailsPage({
         });
         return;
       }
+
+      if (!client) {
+        throw new Error("Client not available");
+      }
+
       if (isNew) {
         const response = await client.graphql({
           query: createRead,
@@ -147,6 +162,18 @@ export function BookDetailsPage({
       // });
     }
   };
+
+  if (clientLoading) {
+    return (
+      <div className="container mx-auto py-8 px-4 md:px-6">
+        <div className="animate-pulse space-y-8">
+          <div className="h-10 bg-muted rounded w-1/3"></div>
+          <div className="h-6 bg-muted rounded w-2/3"></div>
+          <div className="h-[400px] bg-muted rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

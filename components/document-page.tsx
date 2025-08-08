@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getRead } from "@/src/graphql/queries";
-import { client } from "@/lib/amplify";
+import { useAmplifyClient } from "@/hooks/use-amplify-client";
 
 interface DocumentPageProps {
   bookId?: string;
@@ -15,12 +15,17 @@ interface DocumentPageProps {
 
 export function DocumentPage({ bookId }: DocumentPageProps) {
   const router = useRouter();
+  const { client, isLoading: clientLoading } = useAmplifyClient();
   const [bookTitle, setBookTitle] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!bookId) {
       router.push("/books");
+      return;
+    }
+
+    if (clientLoading || !client) {
       return;
     }
 
@@ -52,9 +57,9 @@ export function DocumentPage({ bookId }: DocumentPageProps) {
     };
 
     loadBookData();
-  }, [bookId, router]);
+  }, [bookId, router, client, clientLoading]);
 
-  if (isLoading) {
+  if (clientLoading || isLoading) {
     return (
       <div className="container mx-auto py-8 px-4 md:px-6">
         <div className="animate-pulse space-y-8">

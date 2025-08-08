@@ -1,9 +1,9 @@
 import { createSlide, deleteSlide, deleteRead } from "@/src/graphql/mutations";
 import { getRead, listReads, listSlides } from "@/src/graphql/queries";
-import { client } from "@/lib/amplify";
 import { PageSummary } from "../api-client";
 
 export const uploadSlides = async (
+  client: any,
   readId: string,
   pageSummaries: PageSummary[]
 ) => {
@@ -11,7 +11,7 @@ export const uploadSlides = async (
     const uploadPromises = pageSummaries.map((page, index) => {
       const input = {
         readId,
-        slideNumber: index + 1, // Slide numbers start from 1
+        slideNumber: index + 1,
         text: page.content,
         imageUrl: page.imageUrl || "",
       };
@@ -44,7 +44,7 @@ export const uploadSlides = async (
 };
 
 // Name need to be changed
-export const deleteSlidesByBook = async (readId: string) => {
+export const deleteSlidesByBook = async (client: any, readId: string) => {
   try {
     // Fetch all slides associated with this book
     const slidesResponse = await client.graphql({
@@ -66,7 +66,7 @@ export const deleteSlidesByBook = async (readId: string) => {
     }
 
     // Delete each slide individually
-    const deletePromises = slides.map((slide) =>
+    const deletePromises = slides.map((slide: any) =>
       client.graphql({
         query: deleteSlide,
         variables: { input: { id: slide.id } },
@@ -89,7 +89,7 @@ export const deleteSlidesByBook = async (readId: string) => {
   }
 };
 
-export const getUserBooks = async (userId: string) => {
+export const getUserBooks = async (client: any, userId: string) => {
   try {
     const response = await client.graphql({
       query: listReads,
@@ -100,21 +100,14 @@ export const getUserBooks = async (userId: string) => {
       authMode: "userPool",
     });
 
-    const books = response.data?.listReads?.items || [];
-
-    // Sort books by createdAt date (newest first)
-    books.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-    return books;
-  } catch (error) {
-    console.log("Error fetching books:", error);
-    throw error;
+    return response.data?.listReads?.items || [];
+  } catch (error: any) {
+    console.log("Error fetching user books:", error);
+    return [];
   }
 };
 
-export const getBookById = async (bookId: string) => {
+export const getBookById = async (client: any, bookId: string) => {
   try {
     const response = await client.graphql({
       query: getRead,
@@ -122,16 +115,17 @@ export const getBookById = async (bookId: string) => {
       authMode: "userPool",
     });
 
-    return response;
-  } catch (error) {
-    console.log("Error fetching books:", error);
+    return response.data?.getRead || null;
+  } catch (error: any) {
+    console.log("Error fetching book by ID:", error);
+    return null;
   }
 };
 
-export const deleteBook = async (bookId: string) => {
+export const deleteBook = async (client: any, bookId: string) => {
   try {
     // Step 1: Delete all associated slides
-    const slidesResult = await deleteSlidesByBook(bookId);
+    const slidesResult = await deleteSlidesByBook(client, bookId);
 
     if (!slidesResult.success) {
       // Todo: Handle the error appropriately
