@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
@@ -11,7 +11,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { fetchAuthSession, resendSignUpCode, signIn } from "@aws-amplify/auth";
+import {
+  AuthUser,
+  fetchAuthSession,
+  getCurrentUser,
+  resendSignUpCode,
+  signIn,
+  signInWithRedirect,
+} from "@aws-amplify/auth";
+import { Hub } from "aws-amplify/utils";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -19,6 +27,8 @@ export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [customState, setCustomState] = useState<string | null>(null);
   const { setUser } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
@@ -42,6 +52,40 @@ export function LoginForm() {
       setErrors((prev) => ({ ...prev, form: "" }));
     }
   };
+
+  const getUser = async (): Promise<void> => {
+    try {
+      const currentUser = await getCurrentUser();
+      setCurrentUser(currentUser);
+      console.log("Current user:", currentUser);
+    } catch (error) {
+      console.log("Not signed in");
+    }
+  };
+  useEffect(() => {
+    console.log("starting1");
+    const unsubscribe = Hub.listen("auth", ({ payload }) => {
+      console.log("starting2");
+
+      switch (payload.event) {
+        case "signInWithRedirect":
+          getUser();
+          break;
+        case "signInWithRedirect_failure":
+          console.log("Sign in with redirect failed:", payload.data);
+          toast.error("Google sign-in failed. Please try again.");
+          setIsLoading(false);
+          break;
+        case "customOAuthState":
+          setCustomState(payload.data);
+          break;
+      }
+    });
+
+    getUser();
+
+    return unsubscribe;
+  }, []);
 
   const validateForm = () => {
     let valid = true;
@@ -268,6 +312,19 @@ export function LoginForm() {
               type="button"
               disabled={isLoading}
               className="flex items-center justify-center"
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  await signInWithRedirect({
+                    provider: "Google",
+                    customState: "/",
+                  });
+                } catch (error) {
+                  console.error("Google sign-in error:", error);
+                  toast.error("Failed to initiate Google sign-in");
+                  setIsLoading(false);
+                }
+              }}
             >
               <svg
                 className="mr-2 h-4 w-4"
