@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Upload,
@@ -54,6 +53,27 @@ interface SummaryViewerProps {
   onImageGenerationComplete?: (pageIndex: number, imageUrl: string) => void;
 }
 
+interface EditorState {
+  title: string;
+  content: string;
+  imagePosition: "top" | "bottom";
+  viewMode: "edit" | "preview";
+}
+
+interface ImageState {
+  imageUrl?: string;
+  localImageUrl?: string;
+  imageDisplayUrl?: string;
+  isDragging: boolean;
+}
+
+interface LoadingState {
+  isGeneratingImage: boolean;
+  isUploading: boolean;
+  isRemoving: boolean;
+  isSaving: boolean;
+}
+
 export function SummaryViewer({
   pageSummary,
   pageIndex,
@@ -63,44 +83,35 @@ export function SummaryViewer({
   onImageGenerationComplete,
 }: SummaryViewerProps) {
   const { toast } = useToast();
-  const [title, setTitle] = useState(pageSummary.title);
-  const [content, setContent] = useState(pageSummary.content);
-  const [imageUrl, setImageUrl] = useState<string | undefined>(
-    pageSummary.imageUrl
-  );
-
-  const [imagePosition, setImagePosition] = useState<"top" | "bottom">(
-    pageSummary.imagePosition || "bottom"
-  );
-  const [localImageUrl, setLocalImageUrl] = useState<string | undefined>(
-    undefined
-  );
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
-  const [viewMode, setViewMode] = useState<"edit" | "preview">("edit");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageDisplayUrl, setImageDisplayUrl] = useState<string | undefined>(
-    pageSummary.imageUrl
-  );
-  const [isUploading, setIsUploading] = useState(false);
-  const [isRemoving, setIsRemoving] = useState(false);
-
-  // Store the current page index to track page changes
   const currentPageIndexRef = useRef<number>(pageIndex);
-
-  // Pending changes queue - now using a more robust structure
   const pendingChangesRef = useRef<Map<number, PageSummary>>(new Map());
-
-  // Save timeout reference
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Save lock to prevent concurrent saves
   const isSavingRef = useRef(false);
-  const [isSaving, setIsSaving] = useState(false);
-
-  // Track the latest save operation to prevent stale saves
   const saveOperationIdRef = useRef<number>(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Consolidated state objects
+  const [editorState, setEditorState] = useState<EditorState>({
+    title: pageSummary.title,
+    content: pageSummary.content,
+    imagePosition: pageSummary.imagePosition || "bottom",
+    viewMode: "edit",
+  });
+
+  const [imageState, setImageState] = useState<ImageState>({
+    imageUrl: pageSummary.imageUrl,
+    localImageUrl: undefined,
+    imageDisplayUrl: pageSummary.imageUrl,
+    isDragging: false,
+  });
+
+  const [loadingState, setLoadingState] = useState<LoadingState>({
+    isGeneratingImage: !!pageSummary.isGeneratingImage,
+    isUploading: false,
+    isRemoving: false,
+    isSaving: false,
+  });
 
   // Ensure bookInfo properties are strings
   const safeBookInfo = {
@@ -114,24 +125,33 @@ export function SummaryViewer({
     isOwnedByUser: !!bookInfo.isOwnedByUser,
   };
 
-  // Helper function to sanitize summary data
+  // Helper functions
+  const updateEditorState = useCallback((updates: Partial<EditorState>) => {
+    setEditorState((prev) => ({ ...prev, ...updates }));
+  }, []);
+
+  const updateImageState = useCallback((updates: Partial<ImageState>) => {
+    setImageState((prev) => ({ ...prev, ...updates }));
+  }, []);
+
+  const updateLoadingState = useCallback((updates: Partial<LoadingState>) => {
+    setLoadingState((prev) => ({ ...prev, ...updates }));
+  }, []);
+
   const sanitizeSummary = useCallback(
-    (summary: Partial<PageSummary>): PageSummary => {
-      return {
-        title:
-          typeof summary.title === "string" && summary.title.trim()
-            ? summary.title
-            : "Untitled Summary",
-        content: typeof summary.content === "string" ? summary.content : "",
-        imageUrl: summary.imageUrl,
-        imagePosition: summary.imagePosition || "bottom",
-        isGeneratingImage: !!summary.isGeneratingImage,
-      };
-    },
+    (summary: Partial<PageSummary>): PageSummary => ({
+      title:
+        typeof summary.title === "string" && summary.title.trim()
+          ? summary.title
+          : "Untitled Summary",
+      content: typeof summary.content === "string" ? summary.content : "",
+      imageUrl: summary.imageUrl,
+      imagePosition: summary.imagePosition || "bottom",
+      isGeneratingImage: !!summary.isGeneratingImage,
+    }),
     []
   );
 
-  // Helper function to get current pending changes for a page
   const getPendingChanges = useCallback(
     (pageIdx: number): PageSummary => {
       const pending = pendingChangesRef.current.get(pageIdx);
@@ -139,7 +159,6 @@ export function SummaryViewer({
         return { ...pending };
       }
 
-      // Return current page summary if no pending changes
       return {
         title:
           typeof pageSummary.title === "string"
@@ -157,23 +176,28 @@ export function SummaryViewer({
 
   // Update local state when the selected page changes
   useEffect(() => {
-    // Update the ref to track page changes
     currentPageIndexRef.current = pageIndex;
-    setLocalImageUrl(undefined);
+    updateImageState({ localImageUrl: undefined });
 
     if (pageSummary) {
-      setTitle(
-        typeof pageSummary.title === "string"
-          ? pageSummary.title
-          : `Summary ${pageIndex + 1}`
-      );
-      setContent(
-        typeof pageSummary.content === "string" ? pageSummary.content : ""
-      );
-      setImageUrl(pageSummary.imageUrl);
-      setImagePosition(pageSummary.imagePosition || "bottom");
-      setIsGeneratingImage(!!pageSummary.isGeneratingImage);
-      setHasChanges(false);
+      updateEditorState({
+        title:
+          typeof pageSummary.title === "string"
+            ? pageSummary.title
+            : `Summary ${pageIndex + 1}`,
+        content:
+          typeof pageSummary.content === "string" ? pageSummary.content : "",
+        imagePosition: pageSummary.imagePosition || "bottom",
+      });
+
+      updateImageState({
+        imageUrl: pageSummary.imageUrl,
+        imageDisplayUrl: pageSummary.imageUrl,
+      });
+
+      updateLoadingState({
+        isGeneratingImage: !!pageSummary.isGeneratingImage,
+      });
 
       // Initialize pending changes for this page if not exists
       if (!pendingChangesRef.current.has(pageIndex)) {
@@ -202,17 +226,24 @@ export function SummaryViewer({
       if (pageSummary.imageUrl) {
         try {
           const displayUrl = await fetchImageUrl(pageSummary.imageUrl);
-          setImageDisplayUrl(displayUrl);
+          updateImageState({ imageDisplayUrl: displayUrl });
         } catch (err) {
           console.error("Failed to fetch display image:", err);
-          setImageDisplayUrl(undefined);
+          updateImageState({ imageDisplayUrl: undefined });
         }
       } else {
-        setImageDisplayUrl(undefined);
+        updateImageState({ imageDisplayUrl: undefined });
       }
     };
     loadDisplayImage();
-  }, [pageSummary, pageIndex, pageSummary?.imageUrl]);
+  }, [
+    pageSummary,
+    pageIndex,
+    pageSummary?.imageUrl,
+    updateEditorState,
+    updateImageState,
+    updateLoadingState,
+  ]);
 
   // Function to actually perform the save
   const performSave = useCallback(
@@ -221,7 +252,6 @@ export function SummaryViewer({
       const operationId = ++saveOperationIdRef.current;
 
       if (isSavingRef.current) {
-        // Queue this save for later execution
         setTimeout(() => {
           if (operationId === saveOperationIdRef.current) {
             performSave(targetPageIndex);
@@ -231,7 +261,7 @@ export function SummaryViewer({
       }
 
       isSavingRef.current = true;
-      setIsSaving(true);
+      updateLoadingState({ isSaving: true });
 
       try {
         const pendingChanges = getPendingChanges(pageIdx);
@@ -241,24 +271,23 @@ export function SummaryViewer({
           await onUpdateSummary(sanitizedSummary, pageIdx);
         }
 
-        // Only update UI state if this is still the current page
-        if (pageIdx === currentPageIndexRef.current) {
-          setHasChanges(false);
-        }
-
         // Clear pending changes for this page after successful save
         pendingChangesRef.current.delete(pageIdx);
       } catch (error) {
         console.error("Failed to save changes:", error);
         toast.error("Failed to save changes. Please try again.");
-
-        // Don't clear pending changes on error - they can be retried
       } finally {
         isSavingRef.current = false;
-        setIsSaving(false);
+        updateLoadingState({ isSaving: false });
       }
     },
-    [getPendingChanges, sanitizeSummary, onUpdateSummary, toast]
+    [
+      getPendingChanges,
+      sanitizeSummary,
+      onUpdateSummary,
+      toast,
+      updateLoadingState,
+    ]
   );
 
   // Debounced save function
@@ -272,11 +301,6 @@ export function SummaryViewer({
 
       // Store updated pending changes
       pendingChangesRef.current.set(pageIdx, updatedPending);
-
-      // Only update hasChanges if this is the current page
-      if (pageIdx === currentPageIndexRef.current) {
-        setHasChanges(true);
-      }
 
       // Clear existing timeout
       if (saveTimeoutRef.current) {
@@ -316,21 +340,21 @@ export function SummaryViewer({
   // Handle title change
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
-    setTitle(newTitle);
+    updateEditorState({ title: newTitle });
     debouncedSave({ title: newTitle });
   };
 
   // Handle content change
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
-    setContent(newContent);
+    updateEditorState({ content: newContent });
     debouncedSave({ content: newContent });
   };
 
   // Handle image position change
   const handleImagePositionChange = (checked: boolean) => {
     const newPosition = checked ? "top" : "bottom";
-    setImagePosition(newPosition);
+    updateEditorState({ imagePosition: newPosition });
     debouncedSave({ imagePosition: newPosition });
   };
 
@@ -340,7 +364,7 @@ export function SummaryViewer({
 
     if (!file) return;
 
-    setIsUploading(true);
+    updateLoadingState({ isUploading: true });
     try {
       toast.loading("Uploading image...", { id: "uploadToast" });
 
@@ -364,9 +388,7 @@ export function SummaryViewer({
 
       // Update UI if still on the same page
       if (targetPageIndex === currentPageIndexRef.current) {
-        setLocalImageUrl(tempUrl);
-        setImageUrl(key);
-        setHasChanges(true);
+        updateImageState({ localImageUrl: tempUrl, imageUrl: key });
       }
 
       // Ensure the image is available in S3
@@ -382,7 +404,7 @@ export function SummaryViewer({
       console.error("Upload failed:", error);
       toast.error("Failed to upload cover image.", { id: "uploadToast" });
     } finally {
-      setIsUploading(false);
+      updateLoadingState({ isUploading: false });
     }
   };
 
@@ -395,8 +417,7 @@ export function SummaryViewer({
 
       // Only update UI if we're still on the same page
       if (targetPageIndex === currentPageIndexRef.current) {
-        setImageUrl(uploadedImageUrl);
-        setHasChanges(true);
+        updateImageState({ imageUrl: uploadedImageUrl });
       }
 
       // Save to the correct page
@@ -407,12 +428,12 @@ export function SummaryViewer({
 
   // Modify the handleGenerateImage function to be more robust
   const handleGenerateImage = () => {
-    if (isGeneratingImage) return;
+    if (loadingState.isGeneratingImage) return;
 
     const targetPageIndex = currentPageIndexRef.current;
 
     // Update UI state if still on the same page
-    setIsGeneratingImage(true);
+    updateLoadingState({ isGeneratingImage: true });
     debouncedSave({ isGeneratingImage: true }, targetPageIndex);
 
     // Notify parent component
@@ -438,7 +459,7 @@ export function SummaryViewer({
 
         // Reset generation status on the original page
         if (currentPageIndexRef.current === targetPageIdx) {
-          setIsGeneratingImage(false);
+          updateLoadingState({ isGeneratingImage: false });
         }
 
         // Update the state for the target page
@@ -476,8 +497,10 @@ export function SummaryViewer({
 
           // Only update local UI state if we're still on the same page
           if (currentPageIndexRef.current === targetPageIdx) {
-            setLocalImageUrl(URL.createObjectURL(file));
-            setImageUrl(key);
+            updateImageState({
+              localImageUrl: URL.createObjectURL(file),
+              imageUrl: key,
+            });
           }
 
           // Save image URL immediately to the correct page
@@ -500,7 +523,7 @@ export function SummaryViewer({
 
         // Reset generation state for the original page
         if (currentPageIndexRef.current === targetPageIndex) {
-          setIsGeneratingImage(false);
+          updateLoadingState({ isGeneratingImage: false });
         }
 
         // Always update the target page's state
@@ -545,17 +568,16 @@ export function SummaryViewer({
   }, [sanitizeSummary, onUpdateSummary]);
 
   const handleRemoveImage = async () => {
-    setIsRemoving(true);
+    updateLoadingState({ isRemoving: true });
     try {
-      setImageUrl(undefined);
-      setHasChanges(true);
+      updateImageState({ imageUrl: undefined });
       await handleImmediateSave({ imageUrl: undefined });
       toast.success("Image removed successfully");
     } catch (error) {
       console.error("Failed to remove image:", error);
       toast.error("Failed to remove image");
     } finally {
-      setIsRemoving(false);
+      updateLoadingState({ isRemoving: false });
     }
   };
 
@@ -567,13 +589,13 @@ export function SummaryViewer({
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragging(true);
+    updateImageState({ isDragging: true });
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragging(false);
+    updateImageState({ isDragging: false });
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -584,7 +606,7 @@ export function SummaryViewer({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragging(false);
+    updateImageState({ isDragging: false });
 
     const files = e.dataTransfer.files;
     if (files.length > 0) {
@@ -605,8 +627,10 @@ export function SummaryViewer({
         <h2 className="text-xl font-semibold">Page {pageIndex + 1} Summary</h2>
         <div className="flex items-center gap-2">
           <Tabs
-            value={viewMode}
-            onValueChange={(value) => setViewMode(value as "edit" | "preview")}
+            value={editorState.viewMode}
+            onValueChange={(value) =>
+              updateEditorState({ viewMode: value as "edit" | "preview" })
+            }
           >
             <TabsList>
               <TabsTrigger value="edit">
@@ -622,16 +646,15 @@ export function SummaryViewer({
         </div>
       </div>
 
-      {viewMode === "edit" ? (
+      {editorState.viewMode === "edit" ? (
         <>
           <Card>
-            {/* Disable it for now until it is enabled in the */}
             <CardHeader>
               <CardTitle className="text-base">Title</CardTitle>
             </CardHeader>
             <CardContent>
               <Input
-                value={title}
+                value={editorState.title}
                 onChange={handleTitleChange}
                 placeholder="Enter a title for this summary"
                 className="mb-4"
@@ -645,7 +668,7 @@ export function SummaryViewer({
             </CardHeader>
             <CardContent>
               <Textarea
-                value={content}
+                value={editorState.content}
                 onChange={handleContentChange}
                 placeholder="Enter your summary here..."
                 className="min-h-[250px]"
@@ -662,9 +685,9 @@ export function SummaryViewer({
                 <div
                   className={cn(
                     "border rounded-md overflow-hidden transition-colors",
-                    isDragging
+                    imageState.isDragging
                       ? "border-primary bg-primary/5"
-                      : imageUrl
+                      : imageState.imageUrl
                       ? ""
                       : "border-dashed"
                   )}
@@ -673,13 +696,15 @@ export function SummaryViewer({
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                 >
-                  {imageUrl ? (
+                  {imageState.imageUrl ? (
                     <div className="relative">
                       {/* Mobile-sized image preview container */}
                       <div className="mx-auto max-w-[366px] rounded-md overflow-hidden">
                         <FetchKeyImage
-                          imageKey={localImageUrl || imageUrl}
-                          tempUrl={localImageUrl !== undefined}
+                          imageKey={
+                            imageState.localImageUrl || imageState.imageUrl
+                          }
+                          tempUrl={imageState.localImageUrl !== undefined}
                           className="w-full h-auto object-cover"
                           alt="Summary illustration"
                         />
@@ -689,9 +714,9 @@ export function SummaryViewer({
                         size="icon"
                         className="absolute top-2 right-2"
                         onClick={handleRemoveImage}
-                        disabled={isRemoving}
+                        disabled={loadingState.isRemoving}
                       >
-                        {isRemoving ? (
+                        {loadingState.isRemoving ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           <X className="h-4 w-4" />
@@ -705,7 +730,7 @@ export function SummaryViewer({
                     >
                       <ImageIcon className="h-10 w-10 mb-2" />
                       <p>
-                        {isDragging
+                        {imageState.isDragging
                           ? "Drop image here"
                           : "Drag & drop an image or click to upload"}
                       </p>
@@ -718,9 +743,9 @@ export function SummaryViewer({
                     variant="outline"
                     onClick={triggerFileInput}
                     className="flex-1"
-                    disabled={isUploading}
+                    disabled={loadingState.isUploading}
                   >
-                    {isUploading ? (
+                    {loadingState.isUploading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Uploading...
@@ -742,10 +767,10 @@ export function SummaryViewer({
                   <Button
                     variant="outline"
                     onClick={handleGenerateImage}
-                    disabled={isGeneratingImage}
+                    disabled={loadingState.isGeneratingImage}
                     className="flex-1"
                   >
-                    {isGeneratingImage ? (
+                    {loadingState.isGeneratingImage ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Generating...
@@ -759,11 +784,11 @@ export function SummaryViewer({
                   </Button>
                 </div>
 
-                {imageUrl && (
+                {imageState.imageUrl && (
                   <div className="flex items-center justify-between mt-4 p-3 border rounded-md bg-muted/20">
                     <div className="flex items-center gap-3">
                       <div className="flex flex-col items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                        {imagePosition === "top" ? (
+                        {editorState.imagePosition === "top" ? (
                           <ArrowUp className="h-5 w-5 text-primary" />
                         ) : (
                           <ArrowDown className="h-5 w-5 text-primary" />
@@ -772,7 +797,7 @@ export function SummaryViewer({
                       <div>
                         <p className="font-medium">Image Position</p>
                         <p className="text-sm text-muted-foreground">
-                          {imagePosition === "top"
+                          {editorState.imagePosition === "top"
                             ? "Image shown below title"
                             : "Image shown below content"}
                         </p>
@@ -784,7 +809,7 @@ export function SummaryViewer({
                       </Label>
                       <Switch
                         id="image-position"
-                        checked={imagePosition === "top"}
+                        checked={editorState.imagePosition === "top"}
                         onCheckedChange={handleImagePositionChange}
                       />
                     </div>
@@ -796,10 +821,10 @@ export function SummaryViewer({
         </>
       ) : (
         <MobilePreview
-          title={title}
-          content={content}
-          imageUrl={imageDisplayUrl}
-          imagePosition={imagePosition}
+          title={editorState.title}
+          content={editorState.content}
+          imageUrl={imageState.imageDisplayUrl}
+          imagePosition={editorState.imagePosition}
           bookTitle={safeBookInfo.title}
           author={safeBookInfo.author}
           description={safeBookInfo.description}
