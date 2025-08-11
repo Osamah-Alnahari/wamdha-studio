@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Trash2, Edit, BookOpen } from "lucide-react";
+import { Plus, Search, Trash2, Edit, BookOpen, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -33,6 +33,7 @@ export function LibraryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const loadBooks = async () => {
@@ -93,6 +94,7 @@ export function LibraryPage() {
 
   const confirmDelete = async () => {
     if (!bookToDelete || !client) return;
+    setIsDeleting(true);
     try {
       // Delete the book
       const result = await deleteBook(client, bookToDelete);
@@ -122,6 +124,7 @@ export function LibraryPage() {
     } finally {
       setDeleteDialogOpen(false);
       setBookToDelete(null);
+      setIsDeleting(false);
     }
   };
 
@@ -293,8 +296,16 @@ export function LibraryPage() {
             <AlertDialogAction
               onClick={confirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isDeleting}
             >
-              Delete
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

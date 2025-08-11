@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { BookDetails } from "@/components/shared/book/book-details";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { FileText } from "lucide-react";
+import { FileText, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Book } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -34,6 +34,8 @@ export function BookDetailsPage({
     createdAt: Date.now(),
   });
   const [isLoading, setIsLoading] = useState(!isNew);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isNavigatingToContent, setIsNavigatingToContent] = useState(false);
   const { user } = useAuth();
 
   // Load book info from API on component mount
@@ -100,6 +102,7 @@ export function BookDetailsPage({
     }
   };
   const handleBookInfoUpdate = async (info: Omit<Book, "id" | "createdAt">) => {
+    setIsSaving(true);
     try {
       if (!user?.userId) {
         console.error("User not found. Cannot create a book.");
@@ -152,6 +155,8 @@ export function BookDetailsPage({
         toast.success("Book details updated", {
           description: "Your book details have been saved.",
         });
+        // Redirect to books page after successful save
+        router.push("/books");
       }
     } catch (e: any) {
       // handle error after fixing the backend issue
@@ -160,7 +165,14 @@ export function BookDetailsPage({
       //   description:
       //     e?.message || "There was a problem saving your book details.",
       // });
+    } finally {
+      setIsSaving(false);
     }
+  };
+
+  const handleNavigateToContent = () => {
+    setIsNavigatingToContent(true);
+    router.push(`/books/${bookInfo.id}/content`);
   };
 
   if (clientLoading) {
@@ -202,12 +214,22 @@ export function BookDetailsPage({
               </Button>
             </Link>
             {!isNew && (
-              <Link href={`/books/${bookInfo.id}/content`}>
-                <Button>
-                  <FileText className="mr-2 h-4 w-4" />
-                  Go to Content Management
-                </Button>
-              </Link>
+              <Button
+                onClick={handleNavigateToContent}
+                disabled={isNavigatingToContent}
+              >
+                {isNavigatingToContent ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Content Management...
+                  </>
+                ) : (
+                  <>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Go to Content Management
+                  </>
+                )}
+              </Button>
             )}
           </div>
         </div>
@@ -222,6 +244,7 @@ export function BookDetailsPage({
           bookInfo={bookInfo}
           onUpdateBookInfo={handleBookInfoUpdate}
           isNew={isNew}
+          isSaving={isSaving}
         />
       </div>
     </div>

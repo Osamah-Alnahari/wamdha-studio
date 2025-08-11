@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import FetchKeyImage from "@/components/FetchKeyImage";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 interface BookInfo {
   title: string;
@@ -28,12 +29,14 @@ interface BookDetailsProps {
   bookInfo: BookInfo;
   onUpdateBookInfo: (info: BookInfo) => void;
   isNew?: boolean;
+  isSaving?: boolean;
 }
 
 export function BookDetails({
   bookInfo,
   onUpdateBookInfo,
   isNew = false,
+  isSaving = false,
 }: BookDetailsProps) {
   const [title, setTitle] = useState(bookInfo.title);
   const [author, setAuthor] = useState(bookInfo.author);
@@ -271,16 +274,42 @@ export function BookDetails({
               {isNew ? (
                 <Button
                   onClick={handleSave}
-                  disabled={!hasChanges || !isOwnedByUser || !title || !author}
+                  disabled={
+                    !hasChanges ||
+                    !isOwnedByUser ||
+                    !title ||
+                    !author ||
+                    isSaving
+                  }
                 >
-                  Create Book
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating Book...
+                    </>
+                  ) : (
+                    "Create Book"
+                  )}
                 </Button>
               ) : (
                 <Button
                   onClick={handleSave}
-                  disabled={!hasChanges || !isOwnedByUser || !title || !author}
+                  disabled={
+                    !hasChanges ||
+                    !isOwnedByUser ||
+                    !title ||
+                    !author ||
+                    isSaving
+                  }
                 >
-                  Save Book Details
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Book Details"
+                  )}
                 </Button>
               )}
             </div>

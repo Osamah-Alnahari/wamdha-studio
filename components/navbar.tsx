@@ -1,7 +1,15 @@
 "use client";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Book, FileText, LogOut, Menu, X, PlusCircle } from "lucide-react";
+import {
+  Book,
+  FileText,
+  LogOut,
+  Menu,
+  X,
+  PlusCircle,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
@@ -14,6 +22,7 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { user, setUser } = useAuth();
 
   if (
@@ -25,15 +34,23 @@ export function Navbar() {
   }
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     try {
+      // Sign out from Amplify
       await signOut();
+
+      // Clear user state
+      setUser(null);
+      setIsMenuOpen(false);
+
+      // Force redirect to login page
+      window.location.href = "/login";
     } catch (error) {
-      console.log(getErrorMessage(error));
+      console.log("Error during logout:", getErrorMessage(error));
+      toast.error("Error during logout. Please try again.");
+    } finally {
+      setIsLoggingOut(false);
     }
-    setUser(null);
-    setIsMenuOpen(false);
-    toast.success("Logged out successfully");
-    window.location.href = "/login";
   };
 
   const handleNavigation = (path: string) => {
@@ -92,8 +109,17 @@ export function Navbar() {
                   {user.email}
                 </span>
               </div>
-              <Button variant="ghost" size="icon" onClick={handleLogout}>
-                <LogOut className="h-5 w-5" />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+              >
+                {isLoggingOut ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <LogOut className="h-5 w-5" />
+                )}
                 <span className="sr-only">Log out</span>
               </Button>
             </div>
@@ -169,8 +195,17 @@ export function Navbar() {
                       {user.email}
                     </span>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={handleLogout}>
-                    <LogOut className="h-5 w-5" />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                  >
+                    {isLoggingOut ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <LogOut className="h-5 w-5" />
+                    )}
                     <span className="sr-only">Log out</span>
                   </Button>
                 </div>
