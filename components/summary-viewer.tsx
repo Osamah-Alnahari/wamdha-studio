@@ -27,15 +27,15 @@ import { fetchImageUrl } from "@/lib/utils";
 import FetchKeyImage from "./FetchKeyImage";
 import { generateImageFromPrompt } from "@/lib/api-client";
 import { Input } from "./ui/input";
-
 import {
-  PageSummary,
-  BookInfo,
-  SummaryViewerProps,
-  EditorState,
-  ImageState,
-  SummaryViewerLoadingState,
-} from "@/types";
+  useDocumentStore,
+  useEditorState,
+  useImageState,
+  useLoadingState,
+  useDocumentActions,
+} from "@/stores/document-store";
+
+import { PageSummary, BookInfo, SummaryViewerProps } from "@/types";
 
 export function SummaryViewer({
   pageSummary,
@@ -54,27 +54,16 @@ export function SummaryViewer({
   const saveOperationIdRef = useRef<number>(0);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Consolidated state objects
-  const [editorState, setEditorState] = useState<EditorState>({
-    title: pageSummary.title,
-    content: pageSummary.content,
-    imagePosition: pageSummary.imagePosition || "bottom",
-    viewMode: "edit",
-  });
-
-  const [imageState, setImageState] = useState<ImageState>({
-    imageUrl: pageSummary.imageUrl,
-    localImageUrl: undefined,
-    imageDisplayUrl: pageSummary.imageUrl,
-    isDragging: false,
-  });
-
-  const [loadingState, setLoadingState] = useState<SummaryViewerLoadingState>({
-    isGeneratingImage: !!pageSummary.isGeneratingImage,
-    isUploading: false,
-    isRemoving: false,
-    isSaving: false,
-  });
+  // Use document store state and actions
+  const editorState = useEditorState();
+  const imageState = useImageState();
+  const loadingState = useLoadingState();
+  const {
+    updateEditorState,
+    updateImageState,
+    updateLoadingState,
+    updatePageSummary,
+  } = useDocumentActions();
 
   // Ensure bookInfo properties are strings
   const safeBookInfo = {
@@ -87,22 +76,6 @@ export function SummaryViewer({
     coverImageUrl: bookInfo.coverImageUrl,
     isOwnedByUser: !!bookInfo.isOwnedByUser,
   };
-
-  // Helper functions
-  const updateEditorState = useCallback((updates: Partial<EditorState>) => {
-    setEditorState((prev) => ({ ...prev, ...updates }));
-  }, []);
-
-  const updateImageState = useCallback((updates: Partial<ImageState>) => {
-    setImageState((prev) => ({ ...prev, ...updates }));
-  }, []);
-
-  const updateLoadingState = useCallback(
-    (updates: Partial<SummaryViewerLoadingState>) => {
-      setLoadingState((prev) => ({ ...prev, ...updates }));
-    },
-    []
-  );
 
   const sanitizeSummary = useCallback(
     (summary: Partial<PageSummary>): PageSummary => ({
@@ -233,6 +206,10 @@ export function SummaryViewer({
         const pendingChanges = getPendingChanges(pageIdx);
         const sanitizedSummary = sanitizeSummary(pendingChanges);
 
+        // Use store action to update page summary
+        updatePageSummary(sanitizedSummary, pageIdx);
+
+        // Also call the original callback if provided (for backward compatibility)
         if (onUpdateSummary) {
           await onUpdateSummary(sanitizedSummary, pageIdx);
         }
@@ -250,6 +227,7 @@ export function SummaryViewer({
     [
       getPendingChanges,
       sanitizeSummary,
+      updatePageSummary,
       onUpdateSummary,
       toast,
       updateLoadingState,
@@ -276,7 +254,7 @@ export function SummaryViewer({
       // Set new timeout
       saveTimeoutRef.current = setTimeout(() => {
         performSave(pageIdx);
-      }, 500);
+      }, 300);
     },
     [getPendingChanges, performSave]
   );
@@ -527,11 +505,14 @@ export function SummaryViewer({
         if (pendingChanges && !isSavingRef.current) {
           // Use a synchronous approach for the final save to ensure it completes
           const finalSummary = sanitizeSummary(pendingChanges);
-          onUpdateSummary(finalSummary, currentPageIdx);
+          updatePageSummary(finalSummary, currentPageIdx);
+          if (onUpdateSummary) {
+            onUpdateSummary(finalSummary, currentPageIdx);
+          }
         }
       }
     };
-  }, [sanitizeSummary, onUpdateSummary]);
+  }, [sanitizeSummary, updatePageSummary, onUpdateSummary]);
 
   const handleRemoveImage = async () => {
     updateLoadingState({ isRemoving: true });
