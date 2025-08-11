@@ -1,12 +1,6 @@
 import { fetchImageUrl } from "@/lib/utils";
 import { useEffect, useState } from "react";
-
-interface FetchKeyImageProps {
-  imageKey?: string;
-  className?: string;
-  tempUrl?: boolean;
-  alt?: string;
-}
+import { FetchKeyImageProps } from "@/types";
 
 const FetchKeyImage = ({
   imageKey,

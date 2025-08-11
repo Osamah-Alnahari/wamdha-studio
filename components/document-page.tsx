@@ -8,10 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getRead } from "@/src/graphql/queries";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
-
-interface DocumentPageProps {
-  bookId?: string;
-}
+import { DocumentPageProps } from "@/types";
 
 export function DocumentPage({ bookId }: DocumentPageProps) {
   const router = useRouter();

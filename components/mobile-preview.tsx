@@ -1,14 +1,6 @@
-"use client"
+"use client";
 
-interface MobilePreviewProps {
-  title: string
-  content: string
-  imageUrl?: string
-  imagePosition?: "top" | "bottom"
-  bookTitle: string
-  author: string
-  description: string
-}
+import { MobilePreviewProps } from "@/types";
 
 export function MobilePreview({
   title,
@@ -20,17 +12,19 @@ export function MobilePreview({
   description,
 }: MobilePreviewProps) {
   // Current time for the status bar
-  const now = new Date()
-  const hours = now.getHours()
-  const minutes = now.getMinutes()
-  const formattedTime = `${hours}:${minutes < 10 ? "0" + minutes : minutes}`
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const formattedTime = `${hours}:${minutes < 10 ? "0" + minutes : minutes}`;
 
   // Ensure all text props are strings with fallbacks
-  const safeTitle = typeof title === "string" ? title : "Title"
-  const safeContent = typeof content === "string" ? content : "No content available."
-  const safeBookTitle = typeof bookTitle === "string" ? bookTitle : "Book Title"
-  const safeAuthor = typeof author === "string" ? author : "Author"
-  const safeDescription = typeof description === "string" ? description : ""
+  const safeTitle = typeof title === "string" ? title : "Title";
+  const safeContent =
+    typeof content === "string" ? content : "No content available.";
+  const safeBookTitle =
+    typeof bookTitle === "string" ? bookTitle : "Book Title";
+  const safeAuthor = typeof author === "string" ? author : "Author";
+  const safeDescription = typeof description === "string" ? description : "";
 
   return (
     <div className="flex justify-center py-4">
@@ -56,7 +50,9 @@ export function MobilePreview({
         <div className="h-[720px] overflow-y-auto bg-white text-black">
           {/* Mobile app header */}
           <div className="sticky top-0 bg-white border-b p-4 z-10 shadow-sm">
-            <h1 className="text-lg font-bold truncate text-black">{safeBookTitle}</h1>
+            <h1 className="text-lg font-bold truncate text-black">
+              {safeBookTitle}
+            </h1>
           </div>
 
           {/* Content */}
@@ -67,17 +63,27 @@ export function MobilePreview({
             {/* Image at top position (below title) */}
             {imageUrl && imagePosition === "top" && (
               <div className="rounded-lg overflow-hidden shadow-md transition-all duration-500 transform">
-                <img src={imageUrl || "/placeholder.svg"} alt={safeTitle} className="w-full h-auto object-cover" />
+                <img
+                  src={imageUrl || "/placeholder.svg"}
+                  alt={safeTitle}
+                  className="w-full h-auto object-cover"
+                />
               </div>
             )}
 
             {/* Summary content */}
-            <div className="text-sm leading-relaxed text-gray-700 whitespace-pre-line">{safeContent}</div>
+            <div className="text-sm leading-relaxed text-gray-700 whitespace-pre-line">
+              {safeContent}
+            </div>
 
             {/* Image at bottom position (below content) */}
             {imageUrl && imagePosition === "bottom" && (
               <div className="rounded-lg overflow-hidden shadow-md mt-4 transition-all duration-500 transform">
-                <img src={imageUrl || "/placeholder.svg"} alt={safeTitle} className="w-full h-auto object-cover" />
+                <img
+                  src={imageUrl || "/placeholder.svg"}
+                  alt={safeTitle}
+                  className="w-full h-auto object-cover"
+                />
               </div>
             )}
           </div>
@@ -89,5 +95,5 @@ export function MobilePreview({
         </div>
       </div>
     </div>
-  )
+  );
 }

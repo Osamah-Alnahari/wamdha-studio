@@ -9,10 +9,7 @@ import { PageViewer } from "@/components/page-viewer";
 import { SummaryViewer } from "@/components/summary-viewer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import {
-  summarizeText as apiSummarizeText,
-  type PageSummary,
-} from "@/lib/api-client";
+import { summarizeText as apiSummarizeText } from "@/lib/api-client";
 import { getRead } from "@/src/graphql/queries";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
 import { deleteSlidesByBook, uploadSlides } from "@/lib/actions/book.actions";
@@ -22,41 +19,14 @@ import { delay } from "@/lib/utils";
 import { FileText, AlignLeft } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
-interface DocumentSplitterProps {
-  bookId?: string;
-}
-
-interface BookInfo {
-  title: string;
-  author: string;
-  description: string;
-  coverImageUrl?: string;
-  isOwnedByUser: boolean;
-  id?: string;
-}
-
-interface DocumentState {
-  pages: string[];
-  pageSummaries: PageSummary[];
-  fileName: string;
-  fileType: "word" | "pdf" | null;
-  selectedPageIndex: number;
-  viewMode: "pages" | "summaries";
-  startedFromScratch: boolean;
-}
-
-interface LoadingState {
-  isProcessing: boolean;
-  isLoadingData: boolean;
-  isUploading: boolean;
-  isSaving: boolean;
-  isSummarizingAll: boolean;
-}
-
-interface ProcessingState {
-  summarizingPageIndices: Set<number>;
-  error: string | null;
-}
+import {
+  DocumentSplitterProps,
+  BookInfo,
+  DocumentState,
+  LoadingState,
+  ProcessingState,
+  PageSummary,
+} from "@/types";
 
 export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
   const { client, isLoading: clientLoading } = useAmplifyClient();
@@ -87,6 +57,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     isUploading: false,
     isSaving: false,
     isSummarizingAll: false,
+    isRemoving: false,
+    isGeneratingImage: false,
   });
 
   const [processingState, setProcessingState] = useState<ProcessingState>({

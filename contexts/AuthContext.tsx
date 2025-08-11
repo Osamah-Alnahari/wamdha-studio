@@ -8,18 +8,7 @@ import {
   ReactNode,
 } from "react";
 import { fetchAuthSession } from "aws-amplify/auth";
-
-interface User {
-  email: string;
-  name?: string;
-  userId?: string;
-  isLoggedIn: boolean;
-}
-
-interface AuthContextType {
-  user: User | null;
-  setUser: (user: User | null) => void;
-}
+import { User, AuthContextType } from "@/types";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

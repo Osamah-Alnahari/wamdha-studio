@@ -28,51 +28,14 @@ import FetchKeyImage from "./FetchKeyImage";
 import { generateImageFromPrompt } from "@/lib/api-client";
 import { Input } from "./ui/input";
 
-interface PageSummary {
-  title: string;
-  content: string;
-  imageUrl?: string;
-  imagePosition?: "top" | "bottom";
-  isGeneratingImage?: boolean;
-}
-
-interface BookInfo {
-  title: string;
-  author: string;
-  description: string;
-  coverImageUrl?: string;
-  isOwnedByUser: boolean;
-}
-
-interface SummaryViewerProps {
-  pageSummary: PageSummary;
-  pageIndex: number;
-  bookInfo: BookInfo;
-  onUpdateSummary: (summary: PageSummary, pageIndex: number) => void;
-  onImageGenerationStart?: (pageIndex: number) => void;
-  onImageGenerationComplete?: (pageIndex: number, imageUrl: string) => void;
-}
-
-interface EditorState {
-  title: string;
-  content: string;
-  imagePosition: "top" | "bottom";
-  viewMode: "edit" | "preview";
-}
-
-interface ImageState {
-  imageUrl?: string;
-  localImageUrl?: string;
-  imageDisplayUrl?: string;
-  isDragging: boolean;
-}
-
-interface LoadingState {
-  isGeneratingImage: boolean;
-  isUploading: boolean;
-  isRemoving: boolean;
-  isSaving: boolean;
-}
+import {
+  PageSummary,
+  BookInfo,
+  SummaryViewerProps,
+  EditorState,
+  ImageState,
+  SummaryViewerLoadingState,
+} from "@/types";
 
 export function SummaryViewer({
   pageSummary,
@@ -106,7 +69,7 @@ export function SummaryViewer({
     isDragging: false,
   });
 
-  const [loadingState, setLoadingState] = useState<LoadingState>({
+  const [loadingState, setLoadingState] = useState<SummaryViewerLoadingState>({
     isGeneratingImage: !!pageSummary.isGeneratingImage,
     isUploading: false,
     isRemoving: false,
@@ -134,9 +97,12 @@ export function SummaryViewer({
     setImageState((prev) => ({ ...prev, ...updates }));
   }, []);
 
-  const updateLoadingState = useCallback((updates: Partial<LoadingState>) => {
-    setLoadingState((prev) => ({ ...prev, ...updates }));
-  }, []);
+  const updateLoadingState = useCallback(
+    (updates: Partial<SummaryViewerLoadingState>) => {
+      setLoadingState((prev) => ({ ...prev, ...updates }));
+    },
+    []
+  );
 
   const sanitizeSummary = useCallback(
     (summary: Partial<PageSummary>): PageSummary => ({

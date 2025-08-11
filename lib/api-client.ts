@@ -1,33 +1,16 @@
-export interface Book {
-  id: string;
-  title: string;
-  author: string;
-  description: string;
-  coverImageUrl?: string;
-  isOwnedByUser: boolean;
-  createdAt: number;
-}
+import {
+  Book,
+  BookContent,
+  PageSummary,
+  SummarizeResponse,
+  GenerateImageResponse,
+} from "@/types";
 
-// Content type definition
-export interface BookContent {
-  pages: string[];
-  summaries: PageSummary[];
-}
-
-export interface PageSummary {
-  title: string;
-  content: string;
-  imageUrl?: string;
-  imagePosition?: "top" | "bottom";
-  isLoading?: boolean;
-  isGeneratingImage?: boolean;
-}
+// Re-export types for use in other modules
+export type { Book, BookContent, PageSummary, SummarizeResponse, GenerateImageResponse };
 
 // Summarize text
-export async function summarizeText(text: string): Promise<{
-  imageTitle: string;
-  summary: string;
-}> {
+export async function summarizeText(text: string): Promise<SummarizeResponse> {
   // Validate input text
   if (!text || typeof text !== "string" || text.trim().length === 0) {
     throw new Error("Input text must be a non-empty string");
@@ -106,9 +89,9 @@ export async function summarizeText(text: string): Promise<{
 }
 
 // Generate image
-export async function generateImageFromPrompt(prompt: string): Promise<{
-  imageUrl: string;
-}> {
+export async function generateImageFromPrompt(
+  prompt: string
+): Promise<GenerateImageResponse> {
   // Validate input prompt
   if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
     throw new Error("Input prompt must be a non-empty string");

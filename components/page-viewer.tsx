@@ -5,14 +5,7 @@ import { Copy, Eye, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-
-interface PageViewerProps {
-  page: string;
-  pageIndex: number;
-  fileName: string;
-  onGenerateSummary?: (pageIndex: number) => Promise<void> | undefined;
-  isSummarizing?: boolean; // Add this prop to track if this specific page is being summarized
-}
+import { PageViewerProps } from "@/types";
 
 export function PageViewer({
   page,

@@ -1,27 +1,26 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { Loader2 } from "lucide-react"
+import { useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { CodeEditorProps } from "@/types";
 
-interface CodeEditorProps {
-  value: string
-  onChange: (value: string) => void
-  language?: string
-  height?: string
-}
-
-export function CodeEditor({ value, onChange, language = "html", height = "300px" }: CodeEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null)
-  const monacoRef = useRef<any>(null)
-  const editorInstanceRef = useRef<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export function CodeEditor({
+  value,
+  onChange,
+  language = "html",
+  height = "300px",
+}: CodeEditorProps) {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const monacoRef = useRef<any>(null);
+  const editorInstanceRef = useRef<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Load Monaco Editor dynamically
     import("monaco-editor")
       .then((monaco) => {
-        monacoRef.current = monaco
+        monacoRef.current = monaco;
 
         if (editorRef.current && !editorInstanceRef.current) {
           // Configure Monaco
@@ -32,7 +31,7 @@ export function CodeEditor({ value, onChange, language = "html", height = "300px
             colors: {
               "editor.background": "#f9fafb",
             },
-          })
+          });
 
           // Create editor instance
           editorInstanceRef.current = monaco.editor.create(editorRef.current, {
@@ -46,37 +45,40 @@ export function CodeEditor({ value, onChange, language = "html", height = "300px
             folding: true,
             lineDecorationsWidth: 10,
             automaticLayout: true,
-          })
+          });
 
           // Set up change event handler
           editorInstanceRef.current.onDidChangeModelContent(() => {
-            onChange(editorInstanceRef.current.getValue())
-          })
+            onChange(editorInstanceRef.current.getValue());
+          });
 
-          setIsLoading(false)
+          setIsLoading(false);
         }
       })
       .catch((err) => {
-        console.error("Failed to load Monaco Editor:", err)
-        setError("Failed to load code editor. Using fallback textarea.")
-        setIsLoading(false)
-      })
+        console.error("Failed to load Monaco Editor:", err);
+        setError("Failed to load code editor. Using fallback textarea.");
+        setIsLoading(false);
+      });
 
     // Cleanup
     return () => {
       if (editorInstanceRef.current) {
-        editorInstanceRef.current.dispose()
-        editorInstanceRef.current = null
+        editorInstanceRef.current.dispose();
+        editorInstanceRef.current = null;
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // Update editor content when value prop changes
   useEffect(() => {
-    if (editorInstanceRef.current && value !== editorInstanceRef.current.getValue()) {
-      editorInstanceRef.current.setValue(value)
+    if (
+      editorInstanceRef.current &&
+      value !== editorInstanceRef.current.getValue()
+    ) {
+      editorInstanceRef.current.setValue(value);
     }
-  }, [value])
+  }, [value]);
 
   // Fallback textarea if Monaco fails to load
   if (error) {
@@ -87,7 +89,7 @@ export function CodeEditor({ value, onChange, language = "html", height = "300px
         className="w-full h-full min-h-[300px] font-mono text-sm p-4 border rounded-md"
         style={{ height }}
       />
-    )
+    );
   }
 
   return (
@@ -97,7 +99,10 @@ export function CodeEditor({ value, onChange, language = "html", height = "300px
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       )}
-      <div ref={editorRef} className="w-full h-full border rounded-md overflow-hidden" />
+      <div
+        ref={editorRef}
+        className="w-full h-full border rounded-md overflow-hidden"
+      />
     </div>
-  )
+  );
 }

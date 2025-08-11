@@ -3,10 +3,7 @@
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
-
-interface AmplifyErrorBoundaryProps {
-  children: React.ReactNode;
-}
+import { AmplifyErrorBoundaryProps } from "@/types";
 
 export function AmplifyErrorBoundary({ children }: AmplifyErrorBoundaryProps) {
   const { error: clientError, isLoading: clientLoading } = useAmplifyClient();

@@ -27,34 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import FetchKeyImage from "./FetchKeyImage";
 
-// Define types for our drag and drop functionality
-interface PageSummary {
-  title: string;
-  content: string;
-  imageUrl?: string;
-  imagePosition?: "top" | "bottom";
-  isLoading?: boolean;
-  isGeneratingImage?: boolean;
-}
-
-// Remove onSummarizeAllPages from the interface
-interface SummarizedPagesListProps {
-  pageSummaries: PageSummary[];
-  fileName: string;
-  fileType: "word" | "pdf";
-  selectedPageIndex: number;
-  onSelectPage: (index: number) => void;
-  onReorderPages?: (reorderedPages: PageSummary[]) => void;
-  onAddNewPage?: (options?: {
-    duplicate?: boolean;
-    insertAfterIndex?: number;
-    template?: "blank" | "detailed";
-  }) => void;
-  onDeletePage?: (index: number) => void;
-  onGenerateAllImages?: () => void;
-  onUploadSlides?: () => Promise<void>;
-  summarizingPageIndices?: Set<number>;
-}
+import { PageSummary, SummarizedPagesListProps } from "@/types";
 
 export function SummarizedPagesList({
   pageSummaries,

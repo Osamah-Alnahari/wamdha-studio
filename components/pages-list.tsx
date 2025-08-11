@@ -5,15 +5,7 @@ import { FileText, Download, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-
-interface PagesListProps {
-  pages: string[];
-  fileName: string;
-  fileType: "word" | "pdf";
-  selectedPageIndex: number;
-  onSelectPage: (index: number) => void;
-  onSummarizeAllPages?: () => Promise<void>;
-}
+import { PagesListProps } from "@/types";
 
 export function PagesList({
   pages,
