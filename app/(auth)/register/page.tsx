@@ -1,11 +1,20 @@
 "use client";
 import { RegisterForm } from "@/components/auth/register-form";
 import { useAuth } from "@/contexts/AuthContext";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function RegisterPage() {
-  if (useAuth()?.user?.isLoggedIn) {
-    redirect("/books");
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    if (!isLoading && user?.isLoggedIn) {
+      router.push("/books");
+    }
+  }, [user?.isLoggedIn, isLoading, router]);
+
+  if (user?.isLoggedIn) {
+    return null;
   }
   return <RegisterForm />;
 }
