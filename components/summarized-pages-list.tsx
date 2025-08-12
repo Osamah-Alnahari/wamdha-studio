@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   FileText,
   Download,
@@ -27,35 +28,52 @@ import {
 } from "@/components/ui/alert-dialog";
 import FetchKeyImage from "./FetchKeyImage";
 
-import { PageSummary, SummarizedPagesListProps } from "@/types";
+import { PageSummary } from "@/types";
+import {
+  useDocumentState,
+  useUIState,
+  useProcessingState,
+  useDocumentActions,
+} from "@/stores/document-store";
+import { useAmplifyClient } from "@/hooks/use-amplify-client";
+import { deleteSlidesByBook, uploadSlides } from "@/lib/actions/book.actions";
+import { toast } from "sonner";
 
-export function SummarizedPagesList({
-  pageSummaries,
-  fileName,
-  fileType,
-  selectedPageIndex,
-  onSelectPage,
-  onReorderPages,
-  onAddNewPage,
-  onDeletePage,
-  onGenerateAllImages,
-  onUploadSlides,
-  summarizingPageIndices = new Set(),
-}: SummarizedPagesListProps) {
-  const { toast } = useToast();
-  const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
-  const [dropIndicatorPosition, setDropIndicatorPosition] = useState<
-    number | null
-  >(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [pageToDelete, setPageToDelete] = useState<number | null>(null);
+export function SummarizedPagesList({ bookId }: { bookId?: string }) {
+  const { toast: toastHook } = useToast();
+  const router = useRouter();
+  const { client } = useAmplifyClient();
+
+  // Get state from document store
+  const { pageSummaries, fileName, fileType, selectedPageIndex } =
+    useDocumentState();
+
+  const {
+    draggedItemIndex,
+    dropIndicatorPosition,
+    deleteDialogOpen,
+    pageToDelete,
+    isDownloading,
+    isAddingPage,
+    isUploading,
+  } = useUIState();
+
+  const { summarizingPageIndices } = useProcessingState();
+
+  // Get actions from document store
+  const {
+    setSelectedPage,
+    updateUIState,
+    deletePageSummary,
+    reorderPageSummaries,
+    addNewPage,
+    generateAllImages,
+  } = useDocumentActions();
+
   const listContainerRef = useRef<HTMLDivElement>(null);
   const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isDraggingRef = useRef<boolean>(false);
   const lastClientYRef = useRef<number | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [isAddingPage, setIsAddingPage] = useState(false);
 
   // Clean up auto-scroll interval on unmount
   useEffect(() => {
@@ -92,7 +110,7 @@ export function SummarizedPagesList({
   }, []);
 
   const downloadAllSummaries = async () => {
-    setIsDownloading(true);
+    updateUIState({ isDownloading: true });
     try {
       const zip = require("jszip")();
       const baseFileName = fileName.replace(/\.[^/.]+$/, "");
@@ -114,16 +132,16 @@ export function SummarizedPagesList({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast.success("Download complete", {
+      toastHook.success("Download complete", {
         description: `${pages.length} pages downloaded successfully.`,
       });
     } catch (error) {
       console.error("Download failed:", error);
-      toast.error("Download failed", {
+      toastHook.error("Download failed", {
         description: "There was a problem downloading your summaries.",
       });
     } finally {
-      setIsDownloading(false);
+      updateUIState({ isDownloading: false });
     }
   };
 
@@ -238,13 +256,13 @@ export function SummarizedPagesList({
       // Ensure the position is within bounds
       newPosition = Math.max(0, Math.min(newPosition, pageSummaries.length));
 
-      setDropIndicatorPosition(newPosition);
+      updateUIState({ dropIndicatorPosition: newPosition });
     }
   };
 
   // Manual implementation of drag and drop functionality
   const handleDragStart = (index: number) => {
-    setDraggedItemIndex(index);
+    updateUIState({ draggedItemIndex: index });
     isDraggingRef.current = true;
   };
 
@@ -268,7 +286,7 @@ export function SummarizedPagesList({
     const newPosition = y < height / 2 ? index : index + 1;
 
     if (newPosition !== dropIndicatorPosition) {
-      setDropIndicatorPosition(newPosition);
+      updateUIState({ dropIndicatorPosition: newPosition });
     }
   };
 
@@ -284,65 +302,26 @@ export function SummarizedPagesList({
         dropIndicatorPosition !== draggedItemIndex &&
         dropIndicatorPosition !== draggedItemIndex + 1
       ) {
-        const reorderedPages = [...pageSummaries];
-        const [removed] = reorderedPages.splice(draggedItemIndex, 1);
-
-        // Adjust the insertion index if needed
+        // Calculate the actual insertion index
         let insertAt = dropIndicatorPosition;
         if (dropIndicatorPosition > draggedItemIndex) {
           insertAt--;
         }
 
-        reorderedPages.splice(insertAt, 0, removed);
+        // Use the store's reorder function
+        reorderPageSummaries(draggedItemIndex, insertAt);
 
-        if (onReorderPages) {
-          // Save the current selected index to track it through reordering
-          const currentSelectedPage = pageSummaries[selectedPageIndex];
-
-          // Apply the reordering
-          onReorderPages(reorderedPages);
-
-          // Find the new index of the previously selected page
-          const newSelectedIndex = reorderedPages.findIndex(
-            (page) =>
-              page.title === currentSelectedPage.title &&
-              page.content === currentSelectedPage.content
-          );
-
-          // If found, update the selected page index
-          if (newSelectedIndex !== -1) {
-            onSelectPage(newSelectedIndex);
-          } else {
-            // Fallback: update selected page index based on drag operation
-            let newSelectedIndex = selectedPageIndex;
-            if (selectedPageIndex === draggedItemIndex) {
-              newSelectedIndex = insertAt;
-            } else if (
-              selectedPageIndex > draggedItemIndex &&
-              selectedPageIndex <= insertAt
-            ) {
-              newSelectedIndex--;
-            } else if (
-              selectedPageIndex < draggedItemIndex &&
-              selectedPageIndex >= insertAt
-            ) {
-              newSelectedIndex++;
-            }
-
-            // Ensure the index is within bounds
-            newSelectedIndex = Math.max(
-              0,
-              Math.min(newSelectedIndex, reorderedPages.length - 1)
-            );
-            onSelectPage(newSelectedIndex);
-          }
-        }
+        toastHook.success("Pages reordered successfully", {
+          description: "The new page order has been applied.",
+        });
       }
     }
 
     // Reset drag state
-    setDraggedItemIndex(null);
-    setDropIndicatorPosition(null);
+    updateUIState({
+      draggedItemIndex: null,
+      dropIndicatorPosition: null,
+    });
   };
 
   const handleAddNewPage = async (options?: {
@@ -350,83 +329,100 @@ export function SummarizedPagesList({
     insertAfterIndex?: number;
     template?: "blank" | "detailed";
   }) => {
-    if (onAddNewPage) {
-      setIsAddingPage(true);
-      try {
-        await onAddNewPage(options);
-        toast.success("New page added", {
-          description: "A new blank page has been added to your summaries.",
-        });
-      } catch (error) {
-        toast.error("Failed to add page", {
-          description:
-            "There was a problem adding a new page. Please try again.",
-        });
-      } finally {
-        setIsAddingPage(false);
-      }
+    updateUIState({ isAddingPage: true });
+    try {
+      addNewPage(options);
+      toastHook.success("New page added", {
+        description: "A new blank page has been added to your summaries.",
+      });
+    } catch (error) {
+      toastHook.error("Failed to add page", {
+        description: "There was a problem adding a new page. Please try again.",
+      });
+    } finally {
+      updateUIState({ isAddingPage: false });
     }
   };
 
   const handleDeleteClick = (index: number, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent selecting the page
-    setPageToDelete(index);
-    setDeleteDialogOpen(true);
+    updateUIState({
+      pageToDelete: index,
+      deleteDialogOpen: true,
+    });
   };
 
   const confirmDelete = () => {
-    if (pageToDelete !== null && onDeletePage) {
-      // Store the current selected index and total pages for reference
-      const currentSelectedIndex = selectedPageIndex;
-      const totalPages = pageSummaries.length;
+    if (pageToDelete !== null) {
+      // Use the store's delete function
+      deletePageSummary(pageToDelete);
 
-      // Delete the page
-      onDeletePage(pageToDelete);
+      updateUIState({
+        deleteDialogOpen: false,
+        pageToDelete: null,
+      });
 
-      // Update selected page index if needed
-      if (currentSelectedIndex === pageToDelete) {
-        // If we deleted the selected page, select the previous page or the first page
-        const newIndex = Math.max(0, pageToDelete - 1);
-        onSelectPage(newIndex);
-      } else if (currentSelectedIndex > pageToDelete) {
-        // If we deleted a page before the selected page, adjust the index
-        onSelectPage(currentSelectedIndex - 1);
-      }
-
-      setDeleteDialogOpen(false);
-      setPageToDelete(null);
-
-      toast.success("Page deleted", {
+      toastHook.success("Page deleted", {
         description: `Page ${pageToDelete + 1} has been removed.`,
       });
     }
   };
 
   const cancelDelete = () => {
-    setDeleteDialogOpen(false);
-    setPageToDelete(null);
+    updateUIState({
+      deleteDialogOpen: false,
+      pageToDelete: null,
+    });
   };
 
   const handleUploadSlides = async () => {
-    if (onUploadSlides) {
-      setIsUploading(true);
-      try {
-        await onUploadSlides();
-        // Note: The success toast is handled in the parent component
-      } catch (error) {
-        toast.error("Failed to upload slides", {
-          description:
-            "There was a problem uploading your slides. Please try again.",
+    updateUIState({ isUploading: true });
+    try {
+      if (!bookId) {
+        toastHook.error("Book ID not found", {
+          description: "Could not find the book ID. Please ensure it's passed.",
         });
-      } finally {
-        setIsUploading(false);
+        return;
       }
+
+      // First delete existing slides
+      const deleteResult = await deleteSlidesByBook(client, bookId);
+      if (!deleteResult.success) {
+        throw new Error(`Deletion error: ${deleteResult.error}`);
+      }
+
+      // Then upload new slides
+      const uploadResult = await uploadSlides(client, bookId, pageSummaries);
+
+      if (uploadResult.success) {
+        toastHook.success("Slides uploaded successfully", {
+          description: `${uploadResult.uploadedCount} slides uploaded.`,
+        });
+        router.push("/books");
+      } else {
+        throw new Error(`Upload error: ${uploadResult.error}`);
+      }
+    } catch (error) {
+      console.error("Failed to upload slides:", error);
+      toastHook.error("Failed to upload slides", {
+        description:
+          "There was a problem uploading your slides. Please try again.",
+      });
+    } finally {
+      updateUIState({ isUploading: false });
     }
   };
 
   const handleGenerateAllImages = async () => {
-    if (onGenerateAllImages) {
-      await onGenerateAllImages();
+    try {
+      const count = await generateAllImages();
+      toastHook.info(`Generating ${count} images`, {
+        description: "This may take a moment...",
+      });
+    } catch (error) {
+      toastHook.error("Failed to generate images", {
+        description: "There was a problem generating images. Please try again.",
+      });
     }
   };
 
@@ -501,29 +497,26 @@ export function SummarizedPagesList({
         </Button>
       </div>
 
-      {/* Removed the Summarize All Pages button */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-full mt-2"
+        onClick={handleGenerateAllImages}
+        disabled={pageSummaries.some((summary) => summary.isGeneratingImage)}
+      >
+        {pageSummaries.some((summary) => summary.isGeneratingImage) ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Generating Images...
+          </>
+        ) : (
+          <>
+            <ImageIcon className="mr-2 h-4 w-4" />
+            Generate All Images
+          </>
+        )}
+      </Button>
 
-      {onGenerateAllImages && (
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full mt-2"
-          onClick={handleGenerateAllImages}
-          disabled={pageSummaries.some((summary) => summary.isGeneratingImage)}
-        >
-          {pageSummaries.some((summary) => summary.isGeneratingImage) ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating Images...
-            </>
-          ) : (
-            <>
-              <ImageIcon className="mr-2 h-4 w-4" />
-              Generate All Images
-            </>
-          )}
-        </Button>
-      )}
       <Button
         onClick={handleUploadSlides}
         disabled={isUploading || pageSummaries.length === 0}
@@ -579,7 +572,7 @@ export function SummarizedPagesList({
                     : "hover:bg-muted/50",
                   draggedItemIndex === index ? "opacity-50" : ""
                 )}
-                onClick={() => onSelectPage(index)}
+                onClick={() => setSelectedPage(index)}
               >
                 {/* Loading indicator for individual page */}
                 {summary.isLoading || summarizingPageIndices.has(index) ? (
@@ -687,7 +680,10 @@ export function SummarizedPagesList({
       </div>
 
       {/* Delete confirmation dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => updateUIState({ deleteDialogOpen: open })}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Page</AlertDialogTitle>
@@ -712,21 +708,15 @@ export function SummarizedPagesList({
 }
 
 // Add keyboard shortcut for adding new page
-function useKeyboardShortcut(
-  onAddNewPage: (options?: {
-    duplicate?: boolean;
-    insertAfterIndex?: number;
-    template?: "blank" | "detailed";
-  }) => void
-) {
+function useKeyboardShortcut() {
+  const { addNewPage } = useDocumentActions();
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ctrl+N or Cmd+N to add new page
       if ((e.ctrlKey || e.metaKey) && e.key === "n") {
         e.preventDefault(); // Prevent browser's "New Window" action
-        if (onAddNewPage) {
-          onAddNewPage();
-        }
+        addNewPage();
       }
     };
 
@@ -734,14 +724,11 @@ function useKeyboardShortcut(
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onAddNewPage]);
+  }, [addNewPage]);
 }
 
-export default function SummarizedPagesListWrapper(
-  props: SummarizedPagesListProps
-) {
-  const { onAddNewPage } = props;
-  useKeyboardShortcut(onAddNewPage!);
+export default function SummarizedPagesListWrapper() {
+  useKeyboardShortcut();
 
-  return <SummarizedPagesList {...props} />;
+  return <SummarizedPagesList />;
 }

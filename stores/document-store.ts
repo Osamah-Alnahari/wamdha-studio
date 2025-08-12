@@ -9,6 +9,7 @@ import {
   EditorState,
   ImageState,
   UIState,
+  PageSummary,
 } from "@/types";
 
 // Initial states
@@ -270,6 +271,87 @@ export const useDocumentStore = create<DocumentStore>()(
         }
       },
 
+      // Additional actions for component functionality
+      addNewPage: (options?: {
+        duplicate?: boolean;
+        insertAfterIndex?: number;
+        template?: "blank" | "detailed";
+      }) => {
+        const { documentState } = get();
+        const MAX_PAGES = 100;
+
+        if (documentState.pageSummaries.length >= MAX_PAGES) {
+          throw new Error(`Maximum page limit reached: ${MAX_PAGES}`);
+        }
+
+        const insertAtIndex =
+          options?.insertAfterIndex !== undefined
+            ? options.insertAfterIndex + 1
+            : documentState.pageSummaries.length;
+
+        let newPage: PageSummary;
+
+        if (
+          options?.duplicate &&
+          insertAtIndex > 0 &&
+          insertAtIndex <= documentState.pageSummaries.length
+        ) {
+          const sourcePage =
+            documentState.pageSummaries[
+              options.insertAfterIndex || documentState.selectedPageIndex
+            ];
+          newPage = {
+            title: `${sourcePage.title} (Copy)`,
+            content: sourcePage.content,
+            imageUrl: sourcePage.imageUrl,
+            imagePosition: sourcePage.imagePosition,
+            isGeneratingImage: false,
+          };
+        } else {
+          if (options?.template === "detailed") {
+            newPage = {
+              title: `New Page ${documentState.pageSummaries.length + 1}`,
+              content:
+                "# Summary Heading\n\nAdd your detailed summary here...\n\n## Key Points\n\n- First point\n- Second point\n- Third point\n\n## Conclusion\n\nSummarize your main points here.",
+              imageUrl: undefined,
+              imagePosition: "bottom",
+              isGeneratingImage: false,
+            };
+          } else {
+            newPage = {
+              title: `New Page ${documentState.pageSummaries.length + 1}`,
+              content: "Add your summary content here...",
+              imageUrl: undefined,
+              imagePosition: "bottom",
+              isGeneratingImage: false,
+            };
+          }
+        }
+
+        get().addPageSummary(newPage, insertAtIndex);
+      },
+
+      generateAllImages: async () => {
+        const { documentState } = get();
+        const summariesToProcess = documentState.pageSummaries.filter(
+          (summary) => !summary.imageUrl && !summary.isGeneratingImage
+        );
+
+        if (summariesToProcess.length === 0) {
+          throw new Error("No pages need images");
+        }
+
+        // Set all pages to generating state
+        documentState.pageSummaries.forEach((summary, index) => {
+          if (!summary.imageUrl && !summary.isGeneratingImage) {
+            const updatedSummary = { ...summary, isGeneratingImage: true };
+            get().updatePageSummary(updatedSummary, index);
+          }
+        });
+
+        return summariesToProcess.length;
+      },
+
       // Reset functions
       resetDocumentState: () =>
         set(
@@ -329,6 +411,8 @@ export const useDocumentActions = () => {
     updatePageSummary: store.updatePageSummary,
     deletePageSummary: store.deletePageSummary,
     reorderPageSummaries: store.reorderPageSummaries,
+    addNewPage: store.addNewPage,
+    generateAllImages: store.generateAllImages,
     resetDocumentState: store.resetDocumentState,
     resetAllState: store.resetAllState,
   };
