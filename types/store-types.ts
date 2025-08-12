@@ -36,6 +36,14 @@ export interface DocumentStore {
   deletePageSummary: (index: number) => void;
   reorderPageSummaries: (fromIndex: number, toIndex: number) => void;
 
+  // Additional actions for component functionality
+  addNewPage: (options?: {
+    duplicate?: boolean;
+    insertAfterIndex?: number;
+    template?: "blank" | "detailed";
+  }) => void;
+  generateAllImages: () => Promise<number>;
+
   // Reset functions
   resetDocumentState: () => void;
   resetAllState: () => void;

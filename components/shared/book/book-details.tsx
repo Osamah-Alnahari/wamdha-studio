@@ -99,9 +99,9 @@ export function BookDetails({
     onUpdateBookInfo(updatedBookInfo);
     setHasChanges(false);
 
-    if (isNew) {
-      router.push("/books");
-    }
+    // Redirect to books page after saving
+    router.push("/books");
+
     toast.success("Book details updated", {
       description: "Your book details have been saved.",
     });
