@@ -57,6 +57,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
           : "Untitled Summary",
       content: typeof summary.content === "string" ? summary.content : "",
       imageUrl: summary.imageUrl,
+      localImageUrl: summary.localImageUrl,
       imagePosition: summary.imagePosition || "bottom",
       isLoading: !!summary.isLoading,
       isGeneratingImage: !!summary.isGeneratingImage,

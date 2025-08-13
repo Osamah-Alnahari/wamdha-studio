@@ -84,6 +84,7 @@ export function SummaryViewer({
           : "Untitled Summary",
       content: typeof summary.content === "string" ? summary.content : "",
       imageUrl: summary.imageUrl,
+      localImageUrl: summary.localImageUrl,
       imagePosition: summary.imagePosition || "bottom",
       isGeneratingImage: !!summary.isGeneratingImage,
     }),

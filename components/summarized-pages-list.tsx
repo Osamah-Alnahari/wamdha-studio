@@ -632,7 +632,7 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
                           imageKey={summary.localImageUrl || summary.imageUrl}
                           className="absolute inset-0 w-full h-full object-cover"
                           alt="Page image"
-                          tempUrl={!!summary.localImageUrl}
+                          tempUrl={Boolean(summary.localImageUrl)}
                         />
                       </div>
                     </div>
