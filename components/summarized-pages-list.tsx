@@ -625,13 +625,14 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  {summary.imageUrl && (
+                  {(summary.imageUrl || summary.localImageUrl) && (
                     <div className="flex-shrink-0">
                       <div className="relative w-16 h-16 rounded-md overflow-hidden">
                         <FetchKeyImage
-                          imageKey={summary.imageUrl}
+                          imageKey={summary.localImageUrl || summary.imageUrl}
                           className="absolute inset-0 w-full h-full object-cover"
                           alt="Page image"
+                          tempUrl={!!summary.localImageUrl}
                         />
                       </div>
                     </div>
@@ -641,7 +642,7 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
                       ? summary.content
                       : "No content available"}
                   </p>
-                  {summary.imageUrl && (
+                  {(summary.imageUrl || summary.localImageUrl) && (
                     <div className="flex-shrink-0 mt-1">
                       <ImageIcon className="h-4 w-4 text-muted-foreground" />
                     </div>

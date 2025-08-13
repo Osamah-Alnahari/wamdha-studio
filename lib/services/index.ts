@@ -69,7 +69,6 @@ export {
   uploadFile,
   getFileUrl,
   deleteFile,
-  generateFileKey,
   validateFile,
   type UploadOptions,
   type UploadResult,
