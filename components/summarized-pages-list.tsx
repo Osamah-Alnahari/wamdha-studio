@@ -36,7 +36,7 @@ import {
   useDocumentActions,
 } from "@/stores/document-store";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
-import { deleteSlidesByBook, uploadSlides } from "@/lib/actions/book.actions";
+import { deleteSlidesByBook, uploadSlides } from "@/lib/services/book.service";
 import { toast } from "sonner";
 
 export function SummarizedPagesList({ bookId }: { bookId?: string }) {

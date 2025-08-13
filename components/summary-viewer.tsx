@@ -25,7 +25,7 @@ import { uploadData } from "aws-amplify/storage";
 import { v4 as uuidv4 } from "uuid";
 import { fetchImageUrl } from "@/lib/utils";
 import FetchKeyImage from "./FetchKeyImage";
-import { generateImageFromPrompt } from "@/lib/api-client";
+import { generateImageFromPrompt } from "@/lib/services/ai.service";
 import { Input } from "./ui/input";
 import {
   useDocumentStore,

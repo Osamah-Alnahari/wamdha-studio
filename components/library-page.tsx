@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import type { Book } from "@/lib/api-client";
-import { getUserBooks, deleteBook } from "@/lib/actions/book.actions";
+import { getUserBooks, deleteBook } from "@/lib/services/book.service";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
 import { fetchImageUrl } from "@/lib/utils";

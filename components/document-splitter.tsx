@@ -9,15 +9,11 @@ import { PageViewer } from "@/components/page-viewer";
 import { SummaryViewer } from "@/components/summary-viewer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { summarizeText as apiSummarizeText } from "@/lib/api-client";
+import { summarizeText as apiSummarizeText } from "@/lib/services/ai.service";
 import { getRead } from "@/src/graphql/queries";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
-import { deleteSlidesByBook, uploadSlides } from "@/lib/actions/book.actions";
-import { getBookContent } from "@/lib/actions/slide.actions";
-import { uploadData } from "aws-amplify/storage";
-import { delay } from "@/lib/utils";
+import { getBookContent } from "@/lib/services/slide.service";
 import { FileText, AlignLeft } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
 
 import { DocumentSplitterProps, BookInfo, PageSummary } from "@/types";
 import {
