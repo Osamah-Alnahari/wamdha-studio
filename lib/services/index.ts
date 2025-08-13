@@ -43,3 +43,23 @@ export {
   sanitizeTextForAI,
   truncateTextForAI,
 } from "./ai.service";
+
+// Auth Service
+export {
+  signInUser,
+  signUpUser,
+  confirmSignUpUser,
+  resendConfirmationCode,
+  signOutUser,
+  getCurrentUserInfo,
+  getCurrentSession,
+  getUserAttributes,
+  extractUserFromSession,
+  getCurrentUserSession,
+  listenToAuthEvents,
+  isAuthenticated,
+  type SignInCredentials,
+  type SignUpData,
+  type ConfirmSignUpData,
+  type UserSession,
+} from "./auth.service";

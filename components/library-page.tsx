@@ -110,9 +110,6 @@ export function LibraryPage() {
         return prevBooks.filter((book) => book.id !== deletedBookId);
       });
 
-      // Trigger a refresh to ensure the UI is updated
-      setRefreshTrigger((prev) => prev + 1);
-
       toast.success("Book deleted", {
         description: "The book has been removed from your library.",
       });

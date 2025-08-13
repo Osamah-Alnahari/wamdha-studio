@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getErrorMessage } from "@/utils/get-error-message";
-import { signUp } from "@aws-amplify/auth";
+import { signUpUser } from "@/lib/services";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -91,16 +91,13 @@ export function RegisterForm() {
     setIsLoading(true);
 
     try {
-      const { isSignUpComplete, userId, nextStep } = await signUp({
+      const { isSignUpComplete, userId, nextStep } = await signUpUser({
         username: String(formData.email),
         password: String(formData.password),
-        options: {
-          userAttributes: {
-            email: String(formData.email),
-            preferred_username: String(formData.name),
-            given_name: String(formData.name),
-          },
-          autoSignIn: true,
+        userAttributes: {
+          email: String(formData.email),
+          preferred_username: String(formData.name),
+          given_name: String(formData.name),
         },
       });
       router.push("/confirm-signup?email=" + formData.email);

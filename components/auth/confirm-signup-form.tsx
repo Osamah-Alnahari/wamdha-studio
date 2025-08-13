@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { confirmSignUp, resendSignUpCode } from "@aws-amplify/auth";
 import { getErrorMessage } from "@/utils/get-error-message";
+import { confirmSignUpUser, resendConfirmationCode } from "@/lib/services";
 
 export function ConfirmSignupForm() {
   const router = useRouter();
@@ -41,7 +41,7 @@ export function ConfirmSignupForm() {
 
     setIsLoading(true);
     try {
-      const { isSignUpComplete, nextStep } = await confirmSignUp({
+      const { isSignUpComplete, nextStep } = await confirmSignUpUser({
         username: String(email),
         confirmationCode: String(code),
       });
@@ -61,9 +61,7 @@ export function ConfirmSignupForm() {
     setIsResending(true);
 
     try {
-      await resendSignUpCode({
-        username: String(email),
-      });
+      await resendConfirmationCode(String(email));
       toast.success("Verification code resent", {
         description: "Please check your email for the new code.",
       });

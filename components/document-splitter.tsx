@@ -10,9 +10,8 @@ import { SummaryViewer } from "@/components/summary-viewer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { summarizeText as apiSummarizeText } from "@/lib/services/ai.service";
-import { getRead } from "@/src/graphql/queries";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
-import { getBookContent } from "@/lib/services/slide.service";
+import { getBookContent, getBookById } from "@/lib/services";
 import { FileText, AlignLeft } from "lucide-react";
 
 import { DocumentSplitterProps, BookInfo, PageSummary } from "@/types";
@@ -77,14 +76,9 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     const loadBookData = async () => {
       updateLoadingState({ isLoadingData: true });
       try {
-        const response = await client.graphql({
-          query: getRead,
-          variables: { id: bookId },
-          authMode: "userPool",
-        });
+        const book = await getBookById(client, bookId);
 
-        if (response?.data?.getRead) {
-          const book = response.data.getRead;
+        if (book) {
           const newBookInfo: BookInfo = {
             title:
               typeof book.title === "string" ? book.title : "Untitled Book",

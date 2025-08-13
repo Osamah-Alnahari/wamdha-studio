@@ -8,7 +8,7 @@ import {
   ReactNode,
   useRef,
 } from "react";
-import { fetchAuthSession } from "aws-amplify/auth";
+import { getCurrentSession, extractUserFromSession } from "@/lib/services";
 import { User, AuthContextType } from "@/types";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,18 +24,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function loadUser() {
       try {
-        const session = await fetchAuthSession();
-        const idToken = session.tokens?.idToken?.toString();
-        if (idToken && mountedRef.current) {
-          const payload = JSON.parse(atob(idToken.split(".")[1]));
-          const email = payload.email || "";
-          const name = payload.name || "";
-          const userId = payload.sub || "";
-          setUser({ email, name, userId, isLoggedIn: true });
+        const session = await getCurrentSession();
+        if (session) {
+          const userInfo = extractUserFromSession(session);
+          if (userInfo && mountedRef.current) {
+            setUser(userInfo);
+          } else if (mountedRef.current) {
+            setUser(null); // Not logged in
+          }
         } else if (mountedRef.current) {
-          setUser(null); // Not logged in
+          setUser(null); // No session found
         }
       } catch (error) {
+        console.log("Error loading user:", error);
         if (mountedRef.current) {
           setUser(null); // Not logged in
         }

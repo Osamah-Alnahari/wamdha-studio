@@ -11,17 +11,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import {
-  AuthUser,
-  fetchAuthSession,
-  getCurrentUser,
-  resendSignUpCode,
-  signIn,
-  signInWithRedirect,
-} from "@aws-amplify/auth";
-import { Hub } from "aws-amplify/utils";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  signInUser,
+  resendConfirmationCode,
+  getCurrentSession,
+  extractUserFromSession,
+  getCurrentUserInfo,
+  listenToAuthEvents,
+} from "@/lib/services";
+import { signInWithRedirect } from "@aws-amplify/auth";
+import type { AuthUser } from "@aws-amplify/auth";
 
 export function LoginForm() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export function LoginForm() {
 
   const getUser = async (): Promise<void> => {
     try {
-      const currentUser = await getCurrentUser();
+      const currentUser = await getCurrentUserInfo();
       setCurrentUser(currentUser);
       console.log("Current user:", currentUser);
     } catch (error) {
@@ -64,7 +65,7 @@ export function LoginForm() {
   };
   useEffect(() => {
     console.log("starting1");
-    const unsubscribe = Hub.listen("auth", ({ payload }) => {
+    const unsubscribe = listenToAuthEvents(({ payload }) => {
       console.log("starting2");
 
       switch (payload.event) {
@@ -119,7 +120,7 @@ export function LoginForm() {
     let redirectLink = "/library";
 
     try {
-      const result = await signIn({
+      const result = await signInUser({
         username: String(formData.email),
         password: String(formData.password),
       });
@@ -127,28 +128,16 @@ export function LoginForm() {
       const { isSignedIn, nextStep } = result;
 
       if (nextStep.signInStep === "CONFIRM_SIGN_UP") {
-        await resendSignUpCode({
-          username: String(formData.email),
-        });
+        await resendConfirmationCode(String(formData.email));
         redirectLink = "/confirm-signup?email=" + formData.email;
       } else if (isSignedIn) {
-        const session = await fetchAuthSession();
-        const idToken = session.tokens?.idToken?.toString();
-
-        if (idToken) {
-          const payload = JSON.parse(atob(idToken.split(".")[1]));
-
-          const email = payload.email || "";
-          const name = payload.name || "";
-          const userId = payload.sub || "";
-
-          console.log("User ID:", userId);
-          setUser({
-            email,
-            name,
-            userId,
-            isLoggedIn: true,
-          });
+        const session = await getCurrentSession();
+        if (session) {
+          const userInfo = extractUserFromSession(session);
+          if (userInfo) {
+            console.log("User ID:", userInfo.userId);
+            setUser(userInfo);
+          }
         }
       }
 
