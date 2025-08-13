@@ -63,3 +63,14 @@ export {
   type ConfirmSignUpData,
   type UserSession,
 } from "./auth.service";
+
+// Storage Service
+export {
+  uploadFile,
+  getFileUrl,
+  deleteFile,
+  generateFileKey,
+  validateFile,
+  type UploadOptions,
+  type UploadResult,
+} from "./storage.service";

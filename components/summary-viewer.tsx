@@ -21,9 +21,8 @@ import { cn } from "@/lib/utils";
 import { MobilePreview } from "@/components/mobile-preview";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { uploadData } from "aws-amplify/storage";
-import { v4 as uuidv4 } from "uuid";
-import { fetchImageUrl } from "@/lib/utils";
+import { uploadFile } from "@/lib/services";
+import { getFileUrl } from "@/lib/services";
 import FetchKeyImage from "./FetchKeyImage";
 import { generateImageFromPrompt } from "@/lib/services/ai.service";
 import { Input } from "./ui/input";
@@ -164,7 +163,7 @@ export function SummaryViewer({
     const loadDisplayImage = async () => {
       if (pageSummary.imageUrl) {
         try {
-          const displayUrl = await fetchImageUrl(pageSummary.imageUrl);
+          const displayUrl = await getFileUrl(pageSummary.imageUrl);
           updateImageState({ imageDisplayUrl: displayUrl });
         } catch (err) {
           console.error("Failed to fetch display image:", err);
@@ -312,18 +311,10 @@ export function SummaryViewer({
     try {
       toast.loading("Uploading image...", { id: "uploadToast" });
 
-      const uniqueId = uuidv4();
-      const extension = file.name.split(".").pop();
-      const key = `public/${uniqueId}.${extension}`;
-
-      await uploadData({
-        path: key,
-        data: file,
-        options: {
-          onProgress: ({ transferredBytes, totalBytes = 100 }) => {
-            const percent = Math.round((transferredBytes / totalBytes) * 100);
-            console.log(`Upload progress: ${percent}%`);
-          },
+      const result = await uploadFile(file, "public", {
+        onProgress: ({ transferredBytes, totalBytes = 100 }) => {
+          const percent = Math.round((transferredBytes / totalBytes) * 100);
+          console.log(`Upload progress: ${percent}%`);
         },
       });
 
@@ -332,14 +323,14 @@ export function SummaryViewer({
 
       // Update UI if still on the same page
       if (targetPageIndex === currentPageIndexRef.current) {
-        updateImageState({ localImageUrl: tempUrl, imageUrl: key });
+        updateImageState({ localImageUrl: tempUrl, imageUrl: result.key });
       }
 
       // Ensure the image is available in S3
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Save image URL immediately to the correct page
-      await handleImmediateSave({ imageUrl: key }, targetPageIndex);
+      await handleImmediateSave({ imageUrl: result.key }, targetPageIndex);
 
       toast.success("Cover image uploaded successfully!", {
         id: "uploadToast",
@@ -392,7 +383,6 @@ export function SummaryViewer({
       if (signal.aborted) {
         throw new Error("Image generation was cancelled");
       }
-      console.log("Prompt:", pageSummary.title);
       const { imageUrl } = await generateImageFromPrompt(pageSummary.title);
       return imageUrl;
     })();
@@ -417,38 +407,28 @@ export function SummaryViewer({
             type: blob.type,
           });
 
-          const uniqueId = uuidv4();
-          const extension = file.name.split(".").pop();
-          const key = `public/${uniqueId}.${extension}`;
-
-          await uploadData({
-            path: key,
-            data: file,
-            options: {
-              onProgress: ({ transferredBytes, totalBytes = 100 }) => {
-                const percent = Math.round(
-                  (transferredBytes / totalBytes) * 100
-                );
-                console.log(`Generated image upload progress: ${percent}%`);
-              },
+          const result = await uploadFile(file, "public", {
+            onProgress: ({ transferredBytes, totalBytes = 100 }) => {
+              const percent = Math.round((transferredBytes / totalBytes) * 100);
+              console.log(`Generated image upload progress: ${percent}%`);
             },
           });
 
           // Notify parent to update the correct page
           if (onImageGenerationComplete) {
-            onImageGenerationComplete(targetPageIdx, key);
+            onImageGenerationComplete(targetPageIdx, result.key);
           }
 
           // Only update local UI state if we're still on the same page
           if (currentPageIndexRef.current === targetPageIdx) {
             updateImageState({
               localImageUrl: URL.createObjectURL(file),
-              imageUrl: key,
+              imageUrl: result.key,
             });
           }
 
           // Save image URL immediately to the correct page
-          await handleImmediateSave({ imageUrl: key }, targetPageIdx);
+          await handleImmediateSave({ imageUrl: result.key }, targetPageIdx);
 
           toast.success("Generated image uploaded successfully!");
         } catch (uploadError) {

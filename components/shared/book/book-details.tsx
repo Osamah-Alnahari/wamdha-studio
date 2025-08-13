@@ -1,7 +1,6 @@
 "use client";
-import { uploadData } from "aws-amplify/storage";
+import { uploadFile } from "@/lib/services";
 import type React from "react";
-import { v4 as uuidv4 } from "uuid";
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -113,25 +112,15 @@ export function BookDetails({
     if (!file) return;
 
     try {
-      // is this approach better?
-      // const key = `public/${Date.now()}-${file.name}`; // Dynamic unique filename
-
-      const uniqueId = uuidv4(); // Generate a new UUID
-      const extension = file.name.split(".").pop(); // Get the file extension
-      const key = `public/${uniqueId}.${extension}`;
-      await uploadData({
-        path: key,
-        data: file,
-        options: {
-          onProgress: ({ transferredBytes, totalBytes = 100 }) => {
-            const percent = Math.round((transferredBytes / totalBytes) * 100);
-            console.log(`Upload progress: ${percent}%`);
-          },
+      const result = await uploadFile(file, "public", {
+        onProgress: ({ transferredBytes, totalBytes = 100 }) => {
+          const percent = Math.round((transferredBytes / totalBytes) * 100);
+          console.log(`Upload progress: ${percent}%`);
         },
       });
 
       // immediate preview:
-      setCoverImageUrl(key);
+      setCoverImageUrl(result.key);
       setLocalImageUrl(URL.createObjectURL(file));
       setHasChanges(true);
       toast.success("Cover image uploaded successfully!");
