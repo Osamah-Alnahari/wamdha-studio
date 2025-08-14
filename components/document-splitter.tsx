@@ -9,15 +9,10 @@ import { PageViewer } from "@/components/page-viewer";
 import { SummaryViewer } from "@/components/summary-viewer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { summarizeText as apiSummarizeText } from "@/lib/api-client";
-import { getRead } from "@/src/graphql/queries";
+import { summarizeText as apiSummarizeText } from "@/lib/services/ai.service";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
-import { deleteSlidesByBook, uploadSlides } from "@/lib/actions/book.actions";
-import { getBookContent } from "@/lib/actions/slide.actions";
-import { uploadData } from "aws-amplify/storage";
-import { delay } from "@/lib/utils";
+import { getBookContent, getBookById } from "@/lib/services";
 import { FileText, AlignLeft } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
 
 import { DocumentSplitterProps, BookInfo, PageSummary } from "@/types";
 import {
@@ -62,6 +57,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
           : "Untitled Summary",
       content: typeof summary.content === "string" ? summary.content : "",
       imageUrl: summary.imageUrl,
+      localImageUrl: summary.localImageUrl,
       imagePosition: summary.imagePosition || "bottom",
       isLoading: !!summary.isLoading,
       isGeneratingImage: !!summary.isGeneratingImage,
@@ -81,14 +77,9 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     const loadBookData = async () => {
       updateLoadingState({ isLoadingData: true });
       try {
-        const response = await client.graphql({
-          query: getRead,
-          variables: { id: bookId },
-          authMode: "userPool",
-        });
+        const book = await getBookById(client, bookId);
 
-        if (response?.data?.getRead) {
-          const book = response.data.getRead;
+        if (book) {
           const newBookInfo: BookInfo = {
             title:
               typeof book.title === "string" ? book.title : "Untitled Book",

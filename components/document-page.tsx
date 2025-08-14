@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { getRead } from "@/src/graphql/queries";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
+import { getBookById } from "@/lib/services";
 import { DocumentPageProps } from "@/types";
 
 export function DocumentPage({ bookId }: DocumentPageProps) {
@@ -29,14 +29,9 @@ export function DocumentPage({ bookId }: DocumentPageProps) {
     // Load book data to get the title
     const loadBookData = async () => {
       try {
-        const response = await client.graphql({
-          query: getRead,
-          variables: { id: bookId },
-          authMode: "userPool",
-        });
+        const book = await getBookById(client, bookId);
 
-        if (response.data?.getRead) {
-          const book = response.data.getRead;
+        if (book) {
           // console.log("Book data:", book);
           setBookTitle(
             typeof book.title === "string" ? book.title : "Book Details"

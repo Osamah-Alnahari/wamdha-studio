@@ -21,11 +21,10 @@ import { cn } from "@/lib/utils";
 import { MobilePreview } from "@/components/mobile-preview";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { uploadData } from "aws-amplify/storage";
-import { v4 as uuidv4 } from "uuid";
-import { fetchImageUrl } from "@/lib/utils";
+import { uploadFile } from "@/lib/services";
+import { getFileUrl } from "@/lib/services";
 import FetchKeyImage from "./FetchKeyImage";
-import { generateImageFromPrompt } from "@/lib/api-client";
+import { generateImageFromPrompt } from "@/lib/services/ai.service";
 import { Input } from "./ui/input";
 import {
   useDocumentStore,
@@ -85,6 +84,7 @@ export function SummaryViewer({
           : "Untitled Summary",
       content: typeof summary.content === "string" ? summary.content : "",
       imageUrl: summary.imageUrl,
+      localImageUrl: summary.localImageUrl,
       imagePosition: summary.imagePosition || "bottom",
       isGeneratingImage: !!summary.isGeneratingImage,
     }),
@@ -106,6 +106,7 @@ export function SummaryViewer({
         content:
           typeof pageSummary.content === "string" ? pageSummary.content : "",
         imageUrl: pageSummary.imageUrl,
+        localImageUrl: pageSummary.localImageUrl,
         imagePosition: pageSummary.imagePosition || "bottom",
         isGeneratingImage: !!pageSummary.isGeneratingImage,
       };
@@ -116,7 +117,6 @@ export function SummaryViewer({
   // Update local state when the selected page changes
   useEffect(() => {
     currentPageIndexRef.current = pageIndex;
-    updateImageState({ localImageUrl: undefined });
 
     if (pageSummary) {
       updateEditorState({
@@ -131,7 +131,8 @@ export function SummaryViewer({
 
       updateImageState({
         imageUrl: pageSummary.imageUrl,
-        imageDisplayUrl: pageSummary.imageUrl,
+        localImageUrl: pageSummary.localImageUrl,
+        imageDisplayUrl: pageSummary.localImageUrl || pageSummary.imageUrl,
       });
 
       updateLoadingState({
@@ -148,6 +149,7 @@ export function SummaryViewer({
           content:
             typeof pageSummary.content === "string" ? pageSummary.content : "",
           imageUrl: pageSummary.imageUrl,
+          localImageUrl: pageSummary.localImageUrl,
           imagePosition: pageSummary.imagePosition || "bottom",
           isGeneratingImage: !!pageSummary.isGeneratingImage,
         });
@@ -160,25 +162,28 @@ export function SummaryViewer({
       saveTimeoutRef.current = null;
     }
 
-    // Load display image
-    const loadDisplayImage = async () => {
-      if (pageSummary.imageUrl) {
-        try {
-          const displayUrl = await fetchImageUrl(pageSummary.imageUrl);
-          updateImageState({ imageDisplayUrl: displayUrl });
-        } catch (err) {
-          console.error("Failed to fetch display image:", err);
+    // Load display image only if we don't have a local image URL
+    if (!pageSummary.localImageUrl) {
+      const loadDisplayImage = async () => {
+        if (pageSummary.imageUrl) {
+          try {
+            const displayUrl = await getFileUrl(pageSummary.imageUrl);
+            updateImageState({ imageDisplayUrl: displayUrl });
+          } catch (err) {
+            console.error("Failed to fetch display image:", err);
+            updateImageState({ imageDisplayUrl: undefined });
+          }
+        } else {
           updateImageState({ imageDisplayUrl: undefined });
         }
-      } else {
-        updateImageState({ imageDisplayUrl: undefined });
-      }
-    };
-    loadDisplayImage();
+      };
+      loadDisplayImage();
+    }
   }, [
     pageSummary,
     pageIndex,
     pageSummary?.imageUrl,
+    pageSummary?.localImageUrl,
     updateEditorState,
     updateImageState,
     updateLoadingState,
@@ -312,18 +317,10 @@ export function SummaryViewer({
     try {
       toast.loading("Uploading image...", { id: "uploadToast" });
 
-      const uniqueId = uuidv4();
-      const extension = file.name.split(".").pop();
-      const key = `public/${uniqueId}.${extension}`;
-
-      await uploadData({
-        path: key,
-        data: file,
-        options: {
-          onProgress: ({ transferredBytes, totalBytes = 100 }) => {
-            const percent = Math.round((transferredBytes / totalBytes) * 100);
-            console.log(`Upload progress: ${percent}%`);
-          },
+      const result = await uploadFile(file, "public", {
+        onProgress: ({ transferredBytes, totalBytes = 100 }) => {
+          const percent = Math.round((transferredBytes / totalBytes) * 100);
+          console.log(`Upload progress: ${percent}%`);
         },
       });
 
@@ -332,14 +329,20 @@ export function SummaryViewer({
 
       // Update UI if still on the same page
       if (targetPageIndex === currentPageIndexRef.current) {
-        updateImageState({ localImageUrl: tempUrl, imageUrl: key });
+        updateImageState({ localImageUrl: tempUrl, imageUrl: result.key });
       }
 
       // Ensure the image is available in S3
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Save image URL immediately to the correct page
-      await handleImmediateSave({ imageUrl: key }, targetPageIndex);
+      // Save both S3 key and local URL immediately to the correct page
+      await handleImmediateSave(
+        {
+          imageUrl: result.key,
+          localImageUrl: tempUrl,
+        },
+        targetPageIndex
+      );
 
       toast.success("Cover image uploaded successfully!", {
         id: "uploadToast",
@@ -361,11 +364,20 @@ export function SummaryViewer({
 
       // Only update UI if we're still on the same page
       if (targetPageIndex === currentPageIndexRef.current) {
-        updateImageState({ imageUrl: uploadedImageUrl });
+        updateImageState({
+          imageUrl: uploadedImageUrl,
+          localImageUrl: uploadedImageUrl,
+        });
       }
 
-      // Save to the correct page
-      debouncedSave({ imageUrl: uploadedImageUrl }, targetPageIndex);
+      // Save to the correct page with local URL
+      debouncedSave(
+        {
+          imageUrl: uploadedImageUrl,
+          localImageUrl: uploadedImageUrl,
+        },
+        targetPageIndex
+      );
     };
     reader.readAsDataURL(file);
   };
@@ -392,7 +404,6 @@ export function SummaryViewer({
       if (signal.aborted) {
         throw new Error("Image generation was cancelled");
       }
-      console.log("Prompt:", pageSummary.title);
       const { imageUrl } = await generateImageFromPrompt(pageSummary.title);
       return imageUrl;
     })();
@@ -417,38 +428,37 @@ export function SummaryViewer({
             type: blob.type,
           });
 
-          const uniqueId = uuidv4();
-          const extension = file.name.split(".").pop();
-          const key = `public/${uniqueId}.${extension}`;
-
-          await uploadData({
-            path: key,
-            data: file,
-            options: {
-              onProgress: ({ transferredBytes, totalBytes = 100 }) => {
-                const percent = Math.round(
-                  (transferredBytes / totalBytes) * 100
-                );
-                console.log(`Generated image upload progress: ${percent}%`);
-              },
+          const result = await uploadFile(file, "public", {
+            onProgress: ({ transferredBytes, totalBytes = 100 }) => {
+              const percent = Math.round((transferredBytes / totalBytes) * 100);
+              console.log(`Generated image upload progress: ${percent}%`);
             },
           });
 
           // Notify parent to update the correct page
           if (onImageGenerationComplete) {
-            onImageGenerationComplete(targetPageIdx, key);
+            onImageGenerationComplete(targetPageIdx, result.key);
           }
+
+          // Create local URL once
+          const localUrl = URL.createObjectURL(file);
 
           // Only update local UI state if we're still on the same page
           if (currentPageIndexRef.current === targetPageIdx) {
             updateImageState({
-              localImageUrl: URL.createObjectURL(file),
-              imageUrl: key,
+              localImageUrl: localUrl,
+              imageUrl: result.key,
             });
           }
 
           // Save image URL immediately to the correct page
-          await handleImmediateSave({ imageUrl: key }, targetPageIdx);
+          await handleImmediateSave(
+            {
+              imageUrl: result.key,
+              localImageUrl: localUrl,
+            },
+            targetPageIdx
+          );
 
           toast.success("Generated image uploaded successfully!");
         } catch (uploadError) {
@@ -517,8 +527,11 @@ export function SummaryViewer({
   const handleRemoveImage = async () => {
     updateLoadingState({ isRemoving: true });
     try {
-      updateImageState({ imageUrl: undefined });
-      await handleImmediateSave({ imageUrl: undefined });
+      updateImageState({ imageUrl: undefined, localImageUrl: undefined });
+      await handleImmediateSave({
+        imageUrl: undefined,
+        localImageUrl: undefined,
+      });
       toast.success("Image removed successfully");
     } catch (error) {
       console.error("Failed to remove image:", error);

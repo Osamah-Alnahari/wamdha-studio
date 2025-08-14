@@ -10,8 +10,7 @@ import type { Book } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
-import { createRead, updateRead } from "@/src/graphql/mutations";
-import { getRead } from "@/src/graphql/queries";
+import { createBook, updateBook, getBookById } from "@/lib/services";
 
 interface BookDetailsPageProps {
   bookId?: string;
@@ -74,25 +73,18 @@ export function BookDetailsPage({
       }
 
       // Get book info
-      const response = await client.graphql({
-        query: getRead,
-        variables: { id: bookId! },
-        authMode: "userPool",
-      });
-      if (response.data?.getRead) {
-        const book = response.data.getRead;
-        if (book) {
-          setBookInfo({
-            id: book.id,
-            title: book.title,
-            author: book.AuthorName,
-            description:
-              typeof book.description === "string" ? book.description : "",
-            coverImageUrl: book.thumbnailUrl,
-            isOwnedByUser: book.userId === user?.userId,
-            createdAt: new Date(book.createdAt).getTime(),
-          });
-        }
+      const book = await getBookById(client, bookId!);
+      if (book) {
+        setBookInfo({
+          id: book.id,
+          title: book.title,
+          author: book.AuthorName,
+          description:
+            typeof book.description === "string" ? book.description : "",
+          coverImageUrl: book.thumbnailUrl,
+          isOwnedByUser: book.userId === user?.userId,
+          createdAt: new Date(book.createdAt).getTime(),
+        });
       }
     } catch (e) {
       console.error("Failed to load book data:", e);
@@ -117,40 +109,26 @@ export function BookDetailsPage({
       }
 
       if (isNew) {
-        const response = await client.graphql({
-          query: createRead,
-          variables: {
-            input: {
-              title: info.title,
-              AuthorName: info.author,
-              description: info.description,
-              thumbnailUrl: info.coverImageUrl ?? "",
-              userId: user.userId,
-            },
-          },
-          authMode: "userPool",
+        const newBook = await createBook(client, {
+          title: info.title,
+          AuthorName: info.author,
+          description: info.description,
+          thumbnailUrl: info.coverImageUrl ?? "",
+          userId: user.userId,
         });
-        if (response && "data" in response && response.data?.createRead) {
-          const newBook = response.data.createRead;
-
+        if (newBook) {
           router.push(`/books/${newBook.id}/content`);
         } else {
-          console.error("Failed to create book:", response);
+          console.error("Failed to create book:", newBook);
           throw new Error("Failed to create book.");
         }
       } else {
-        const response = await client.graphql({
-          query: updateRead,
-          variables: {
-            input: {
-              id: bookId!,
-              title: info.title,
-              AuthorName: info.author,
-              description: info.description,
-              thumbnailUrl: info.coverImageUrl ?? "",
-            },
-          },
-          authMode: "userPool",
+        const updatedBook = await updateBook(client, {
+          id: bookId!,
+          title: info.title,
+          AuthorName: info.author,
+          description: info.description,
+          thumbnailUrl: info.coverImageUrl ?? "",
         });
         toast.success("Book details updated", {
           description: "Your book details have been saved.",

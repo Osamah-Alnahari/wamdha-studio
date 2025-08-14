@@ -304,6 +304,7 @@ export const useDocumentStore = create<DocumentStore>()(
             title: `${sourcePage.title} (Copy)`,
             content: sourcePage.content,
             imageUrl: sourcePage.imageUrl,
+            localImageUrl: sourcePage.localImageUrl,
             imagePosition: sourcePage.imagePosition,
             isGeneratingImage: false,
           };

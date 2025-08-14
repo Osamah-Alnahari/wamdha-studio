@@ -3,6 +3,7 @@ export interface PageSummary {
   title: string;
   content: string;
   imageUrl?: string;
+  localImageUrl?: string;
   imagePosition?: "top" | "bottom";
   isLoading?: boolean;
   isGeneratingImage?: boolean;

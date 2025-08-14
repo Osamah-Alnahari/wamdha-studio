@@ -1,4 +1,4 @@
-import { fetchImageUrl } from "@/lib/utils";
+import { getFileUrl } from "@/lib/services";
 import { useEffect, useState } from "react";
 import { FetchKeyImageProps } from "@/types";
 
@@ -16,7 +16,7 @@ const FetchKeyImage = ({
         return;
       }
       try {
-        const url = await fetchImageUrl(imageKey);
+        const url = await getFileUrl(imageKey);
         setSrc(url);
       } catch (err) {
         console.error("Image fetch failed:", err);

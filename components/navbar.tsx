@@ -14,9 +14,9 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { signOut } from "aws-amplify/auth";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { useAuth } from "@/contexts/AuthContext";
+import { signOutUser } from "@/lib/services";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -37,7 +37,7 @@ export function Navbar() {
     setIsLoggingOut(true);
     try {
       // Sign out from Amplify
-      await signOut();
+      await signOutUser();
 
       // Clear user state
       setUser(null);

@@ -18,10 +18,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import type { Book } from "@/lib/api-client";
-import { getUserBooks, deleteBook } from "@/lib/actions/book.actions";
+import { getUserBooks, deleteBook } from "@/lib/services/book.service";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
-import { fetchImageUrl } from "@/lib/utils";
+import { getFileUrl } from "@/lib/services";
 
 export function LibraryPage() {
   const router = useRouter();
@@ -51,7 +51,7 @@ export function LibraryPage() {
         const allBooks: Book[] = await Promise.all(
           allBooksData.map(async (item: any) => {
             const imageUrl = item.thumbnailUrl
-              ? await fetchImageUrl(item.thumbnailUrl)
+              ? await getFileUrl(item.thumbnailUrl)
               : undefined;
 
             return {
@@ -109,9 +109,6 @@ export function LibraryPage() {
       setBooks((prevBooks) => {
         return prevBooks.filter((book) => book.id !== deletedBookId);
       });
-
-      // Trigger a refresh to ensure the UI is updated
-      setRefreshTrigger((prev) => prev + 1);
 
       toast.success("Book deleted", {
         description: "The book has been removed from your library.",
