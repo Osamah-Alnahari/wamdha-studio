@@ -4,14 +4,6 @@ import { PageSummary, BookInfo } from "./document-types";
 export interface AmplifyErrorBoundaryProps {
   children: React.ReactNode;
 }
-
-export interface CodeEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-  language?: string;
-  height?: string;
-}
-
 export interface DocumentUploaderProps {
   onDocumentProcessed: (
     pages: string[],
