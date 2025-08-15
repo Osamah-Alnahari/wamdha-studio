@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
 import { createBook, updateBook, getBookById } from "@/lib/services";
+import BookDetailsSkeleton from "@/components/skeletons/BookDetailsSkeleton";
 
 interface BookDetailsPageProps {
   bookId?: string;
@@ -22,7 +23,7 @@ export function BookDetailsPage({
   isNew = false,
 }: BookDetailsPageProps) {
   const router = useRouter();
-  const { client, isLoading: clientLoading } = useAmplifyClient();
+  const { client } = useAmplifyClient();
   const [bookInfo, setBookInfo] = useState<Book>({
     id: bookId || `book-${Date.now()}`,
     title: "",
@@ -32,9 +33,9 @@ export function BookDetailsPage({
     isOwnedByUser: false,
     createdAt: Date.now(),
   });
-  const [isLoading, setIsLoading] = useState(!isNew);
   const [isSaving, setIsSaving] = useState(false);
   const [isNavigatingToContent, setIsNavigatingToContent] = useState(false);
+  const [hasLoadedData, setHasLoadedData] = useState(false);
   const { user } = useAuth();
 
   // Load book info from API on component mount
@@ -50,6 +51,8 @@ export function BookDetailsPage({
         isOwnedByUser: false,
         createdAt: Date.now(),
       });
+
+      setHasLoadedData(true);
       return;
     }
 
@@ -58,13 +61,12 @@ export function BookDetailsPage({
       return;
     }
 
-    if (clientLoading || !client) {
+    if (!client) {
       return;
     }
 
-    setIsLoading(true);
     loadBookData();
-  }, [bookId, isNew, router, client, clientLoading]);
+  }, [bookId, isNew, router, client]);
 
   const loadBookData = async () => {
     try {
@@ -88,9 +90,8 @@ export function BookDetailsPage({
       }
     } catch (e) {
       console.error("Failed to load book data:", e);
-      setIsLoading(false);
     } finally {
-      setIsLoading(false);
+      setHasLoadedData(true);
     }
   };
   const handleBookInfoUpdate = async (info: Omit<Book, "id" | "createdAt">) => {
@@ -153,28 +154,9 @@ export function BookDetailsPage({
     router.push(`/books/${bookInfo.id}/content`);
   };
 
-  if (clientLoading) {
-    return (
-      <div className="container mx-auto py-8 px-4 md:px-6">
-        <div className="animate-pulse space-y-8">
-          <div className="h-10 bg-muted rounded w-1/3"></div>
-          <div className="h-6 bg-muted rounded w-2/3"></div>
-          <div className="h-[400px] bg-muted rounded"></div>
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto py-8 px-4 md:px-6">
-        <div className="animate-pulse space-y-8">
-          <div className="h-10 bg-muted rounded w-1/3"></div>
-          <div className="h-6 bg-muted rounded w-2/3"></div>
-          <div className="h-[400px] bg-muted rounded"></div>
-        </div>
-      </div>
-    );
+  // render skeleton while loading
+  if (!hasLoadedData) {
+    return <BookDetailsSkeleton isNew={isNew} />;
   }
 
   return (

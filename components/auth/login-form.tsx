@@ -117,7 +117,7 @@ export function LoginForm() {
     }
 
     setIsLoading(true);
-    let redirectLink = "/library";
+    let redirectLink = "/books";
 
     try {
       const result = await signInUser({

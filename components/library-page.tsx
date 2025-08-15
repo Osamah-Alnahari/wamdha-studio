@@ -22,6 +22,7 @@ import { getUserBooks, deleteBook } from "@/lib/services/book.service";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
 import { getFileUrl } from "@/lib/services";
+import LibrarySkeleton from "@/components/skeletons/LibrarySkeleton";
 
 export function LibraryPage() {
   const router = useRouter();
@@ -30,23 +31,24 @@ export function LibraryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [hasLoadedBooks, setHasLoadedBooks] = useState(false);
 
   useEffect(() => {
     const loadBooks = async () => {
+      // Don't load books if client is still loading or not available
       if (clientLoading || !client) {
         return;
       }
 
-      setIsLoading(true);
-      try {
-        if (!user?.userId) {
-          return;
-        }
+      // Don't load books if user is not available yet
+      if (!user?.userId) {
+        return;
+      }
 
+      try {
         const allBooksData = await getUserBooks(client, user.userId);
         const allBooks: Book[] = await Promise.all(
           allBooksData.map(async (item: any) => {
@@ -65,10 +67,7 @@ export function LibraryPage() {
             };
           })
         );
-        // Use dummy data as fallback if empty
-        if (allBooks.length !== 0) {
-          setBooks(allBooks);
-        }
+        setBooks(allBooks);
       } catch (e) {
         console.log("Error loading books:", e);
         // toast.error("Error loading books", {
@@ -76,7 +75,7 @@ export function LibraryPage() {
         //     "There was a problem loading your books. Using sample books instead.",
         // });
       } finally {
-        setIsLoading(false);
+        setHasLoadedBooks(true);
       }
     };
 
@@ -148,6 +147,11 @@ export function LibraryPage() {
     router.push("/books/new");
   };
 
+  // Show skeleton while client is loading or books haven't been loaded yet
+  if (clientLoading || !hasLoadedBooks) {
+    return <LibrarySkeleton />;
+  }
+
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
       <div className="flex flex-col space-y-8">
@@ -160,121 +164,95 @@ export function LibraryPage() {
               Manage your books and summaries
             </p>
           </div>
-          <Button className="md:w-auto w-full" onClick={handleCreateNewBook}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create New Book
-          </Button>
+          {books.length > 0 && (
+            <Button className="md:w-auto w-full" onClick={handleCreateNewBook}>
+              <Plus className="mr-2 h-4 w-4" />
+              Create New Book
+            </Button>
+          )}
         </div>
 
-        {clientLoading ? (
-          <div className="text-center py-16">
-            <div className="relative w-16 h-16 mx-auto">
-              <div className="absolute inset-0 border-4 border-primary border-solid rounded-full animate-spin opacity-30"></div>
-              <div className="absolute inset-2 border-4 border-primary border-dashed rounded-full animate-spin animate-reverse"></div>
-              <div className="absolute inset-4 border-4 border-primary border-dotted rounded-full animate-spin animate-delay"></div>
-            </div>
-            <h3 className="mt-4 text-lg font-semibold">Connecting to Server</h3>
-            <p className="text-sm text-muted-foreground mt-2">
-              Please wait while we establish a connection...
-            </p>
+        <div className="relative">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search books by title or author..."
+            className="pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        {filteredBooks.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredBooks.map((book) => (
+              <Card
+                key={book.id}
+                className="overflow-hidden flex flex-col hover:shadow-md transition-shadow"
+              >
+                <div
+                  className="aspect-[2/3] relative cursor-pointer"
+                  onClick={() => handleEditBook(book.id)}
+                >
+                  {book.coverImageUrl ? (
+                    <img
+                      src={book.coverImageUrl || "/placeholder.svg"}
+                      alt={book.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-muted">
+                      <BookOpen className="h-16 w-16 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                <CardContent className="p-5 flex-grow">
+                  <h3
+                    className="font-semibold text-lg line-clamp-1 hover:underline cursor-pointer"
+                    onClick={() => handleEditBook(book.id)}
+                  >
+                    {book.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
+                    {book.author}
+                  </p>
+                </CardContent>
+                <CardFooter className="p-5 pt-0 flex justify-between">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEditBook(book.id)}
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteClick(book.id)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
         ) : (
-          <>
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search books by title or author..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-
-            {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {[1, 2, 3, 4].map((i) => (
-                  <Card key={i} className="overflow-hidden">
-                    <div className="aspect-[2/3] bg-muted animate-pulse" />
-                    <CardContent className="p-5">
-                      <div className="h-6 bg-muted animate-pulse rounded mb-3" />
-                      <div className="h-4 bg-muted animate-pulse rounded w-2/3" />
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : filteredBooks.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {filteredBooks.map((book) => (
-                  <Card
-                    key={book.id}
-                    className="overflow-hidden flex flex-col hover:shadow-md transition-shadow"
-                  >
-                    <div
-                      className="aspect-[2/3] relative cursor-pointer"
-                      onClick={() => handleEditBook(book.id)}
-                    >
-                      {book.coverImageUrl ? (
-                        <img
-                          src={book.coverImageUrl || "/placeholder.svg"}
-                          alt={book.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-muted">
-                          <BookOpen className="h-16 w-16 text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
-                    <CardContent className="p-5 flex-grow">
-                      <h3
-                        className="font-semibold text-lg line-clamp-1 hover:underline cursor-pointer"
-                        onClick={() => handleEditBook(book.id)}
-                      >
-                        {book.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
-                        {book.author}
-                      </p>
-                    </CardContent>
-                    <CardFooter className="p-5 pt-0 flex justify-between">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditBook(book.id)}
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteClick(book.id)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Delete
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <BookOpen className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="mt-6 text-lg font-medium">No books found</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {searchQuery
-                    ? "Try a different search term"
-                    : "Start by creating your first book"}
-                </p>
-                {!searchQuery && (
-                  <Button className="mt-6" onClick={handleCreateNewBook}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create New Book
-                  </Button>
-                )}
-              </div>
+          <div className="text-center py-16">
+            <BookOpen className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-6 text-lg font-medium">No books found</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {searchQuery
+                ? "Try a different search term"
+                : "Start by creating your first book"}
+            </p>
+            {!searchQuery && (
+              <Button className="mt-6" onClick={handleCreateNewBook}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create New Book
+              </Button>
             )}
-          </>
+          </div>
         )}
       </div>
 
