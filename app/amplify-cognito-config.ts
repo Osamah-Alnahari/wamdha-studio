@@ -24,7 +24,7 @@ const prodConfig = {
 async function configureAmplify() {
   try {
     let config;
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV !== "production") {
       config = prodConfig;
     } else {
       // Dynamically import only in development
