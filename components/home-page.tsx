@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Book, 
-  FileText, 
-  Sparkles, 
-  Upload, 
-  Brain, 
+import {
+  Book,
+  FileText,
+  Sparkles,
+  Upload,
+  Brain,
   Search,
   ArrowRight,
   BookOpen,
@@ -17,7 +17,8 @@ import {
   Star,
   ChevronRight,
   Play,
-  CheckCircle
+  CheckCircle,
+  Scroll
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
