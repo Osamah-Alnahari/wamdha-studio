@@ -9,6 +9,7 @@ import {
   X,
   PlusCircle,
   Loader2,
+  Home,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -64,7 +65,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <div
             className="flex items-center space-x-2 cursor-pointer"
-            onClick={() => handleNavigation("/books")}
+            onClick={() => handleNavigation("/home")}
           >
             <Book className="h-6 w-6" />
             <span className="font-bold">عليم</span>
@@ -73,6 +74,16 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
+          <div
+            className={cn(
+              "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
+              pathname === "/home" ? "text-primary" : "text-muted-foreground"
+            )}
+            onClick={() => handleNavigation("/home")}
+          >
+            <Home className="h-5 w-5" />
+            <span className="ml-2">Home</span>
+          </div>
           <div
             className={cn(
               "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
@@ -159,6 +170,18 @@ export function Navbar() {
         <div className="md:hidden border-t">
           <div className="container py-4 grid gap-4">
             <nav className="grid gap-2">
+              <div
+                className={cn(
+                  "flex items-center py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer",
+                  pathname === "/home"
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                )}
+                onClick={() => handleNavigation("/home")}
+              >
+                <Home className="h-5 w-5" />
+                <span className="ml-2">Home</span>
+              </div>
               <div
                 className={cn(
                   "flex items-center py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer",
