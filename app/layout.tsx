@@ -13,8 +13,8 @@ import "@aws-amplify/ui-react/styles.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Studio",
-  description: "Upload a document and create summaries with custom images",
+  title: "عليم - Your Digital Reading Companion",
+  description: "Transform your reading experience with AI-powered summaries and document analysis",
 };
 
 export default function RootLayout({
