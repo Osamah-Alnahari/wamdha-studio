@@ -50,25 +50,25 @@ export function HomePage() {
       icon: Upload,
       title: "Smart Document Upload",
       description: "Upload PDFs, Word documents, and more. Our AI instantly processes your content.",
-      color: "text-blue-500"
+      color: "text-amber-600"
     },
     {
       icon: Brain,
       title: "AI-Powered Summaries",
       description: "Get intelligent summaries that capture key insights and main points.",
-      color: "text-purple-500"
+      color: "text-orange-600"
     },
     {
       icon: Search,
       title: "Advanced Search",
       description: "Find any information across your entire library with semantic search.",
-      color: "text-green-500"
+      color: "text-red-600"
     },
     {
       icon: BookOpen,
       title: "Interactive Reading",
       description: "Annotate, highlight, and organize your reading materials effortlessly.",
-      color: "text-orange-500"
+      color: "text-amber-700"
     }
   ];
 
@@ -89,8 +89,8 @@ export function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-900 dark:via-amber-900/20 dark:to-orange-900/20 library-ambiance">
+        <div className="absolute inset-0 library-pattern opacity-10"></div>
         <div className="relative container mx-auto px-4 py-20 md:py-32">
           <div className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium">
@@ -100,7 +100,7 @@ export function HomePage() {
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
               Welcome to{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
                 عليم
               </span>
             </h1>
@@ -156,15 +156,29 @@ export function HomePage() {
           </div>
         </div>
         
-        {/* Floating Elements */}
-        <div className="absolute top-20 left-10 opacity-20">
-          <Book className="w-16 h-16 text-blue-500 animate-pulse" />
+        {/* Floating Library Elements */}
+        <div className="absolute top-20 left-10 opacity-30">
+          <div className="floating-book">
+            <Book className="w-16 h-16 text-amber-600 dark:text-amber-400" />
+          </div>
         </div>
-        <div className="absolute top-40 right-10 opacity-20">
-          <Brain className="w-12 h-12 text-purple-500 animate-bounce" />
+        <div className="absolute top-32 right-20 opacity-25">
+          <div className="floating-icon">
+            <BookOpen className="w-14 h-14 text-orange-500" />
+          </div>
+        </div>
+        <div className="absolute top-60 left-1/4 opacity-20">
+          <div className="page-flip">
+            <FileText className="w-10 h-10 text-red-500" />
+          </div>
+        </div>
+        <div className="absolute bottom-32 right-10 opacity-25">
+          <div className="book-spine">
+            <Scroll className="w-12 h-12 text-amber-500" />
+          </div>
         </div>
         <div className="absolute bottom-20 left-20 opacity-20">
-          <Sparkles className="w-10 h-10 text-indigo-500 animate-pulse" />
+          <div className="knowledge-orb w-8 h-8"></div>
         </div>
       </section>
 
@@ -182,9 +196,9 @@ export function HomePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-2">
+              <Card key={index} className="group library-card-hover library-shelf">
                 <CardHeader className="text-center pb-4">
-                  <div className={`w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-amber-100 to-orange-200 dark:from-amber-900 dark:to-orange-800 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 book-stack`}>
                     <feature.icon className={`w-8 h-8 ${feature.color}`} />
                   </div>
                   <CardTitle className="text-xl">{feature.title}</CardTitle>
@@ -199,7 +213,7 @@ export function HomePage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 md:py-32 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-blue-900/10">
+      <section className="py-20 md:py-32 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-900 dark:to-amber-900/10 library-ambiance">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -228,22 +242,28 @@ export function HomePage() {
               </div>
 
               <div className="relative">
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-300 book-stack">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                     <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   </div>
                   <div className="space-y-4">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                    <div className="h-4 bg-blue-200 dark:bg-blue-900 rounded w-2/3"></div>
-                    <div className="h-6 bg-gradient-to-r from-purple-200 to-blue-200 dark:from-purple-900 dark:to-blue-900 rounded w-full"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                    <div className="h-4 bg-amber-200 dark:bg-amber-800 rounded w-3/4"></div>
+                    <div className="h-4 bg-orange-200 dark:bg-orange-800 rounded w-1/2"></div>
+                    <div className="h-4 bg-amber-300 dark:bg-amber-700 rounded w-2/3"></div>
+                    <div className="h-6 bg-gradient-to-r from-amber-200 to-orange-200 dark:from-amber-900 dark:to-orange-900 rounded w-full reading-progress"></div>
+                    <div className="h-4 bg-amber-200 dark:bg-amber-800 rounded w-5/6"></div>
                   </div>
                   <div className="mt-6 flex gap-2">
-                    <Badge variant="secondary">AI Summary</Badge>
-                    <Badge variant="outline">Key Points</Badge>
+                    <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                      <BookOpen className="w-3 h-3 mr-1" />
+                      AI Summary
+                    </Badge>
+                    <Badge variant="outline" className="border-orange-300 text-orange-700 dark:border-orange-700 dark:text-orange-300">
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      Key Points
+                    </Badge>
                   </div>
                 </div>
               </div>
