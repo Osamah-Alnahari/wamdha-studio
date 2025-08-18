@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 import { Toaster } from "sonner";
 import "./amplify-cognito-config";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -31,6 +32,7 @@ export default function RootLayout({
               <div className="min-h-screen flex flex-col">
                 <Navbar />
                 <main className="flex-1">{children}</main>
+                <Footer />
                 <Toaster position="top-right" richColors />
               </div>
             </AuthProvider>
