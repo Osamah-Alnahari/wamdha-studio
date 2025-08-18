@@ -288,19 +288,19 @@ You agree to resolve disputes individually and waive any right to participate in
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium border-slate-200 dark:border-slate-800">
               <Scroll className="w-4 h-4 mr-2" />
-              Legal Agreement
+              اتفاقية قانونية
             </Badge>
-            
+
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-              Terms &{" "}
+              الشروط و{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-600 to-gray-600">
-                Conditions
+                الأحكام
               </span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              These terms govern your use of عليم. By using our AI-powered reading platform, 
-              you agree to these terms and conditions.
+              تحكم هذه الشروط استخدامك لمنصة عليم. باستخدام منصة القراءة المدعومة بالذكاء الاصطناعي،
+              فإنك توافق على هذه الشروط والأحكام.
             </p>
 
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
@@ -330,7 +330,7 @@ You agree to resolve disputes individually and waive any right to participate in
                 Key Terms at a Glance
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Here are the most important points you should know about using علي��.
+                Here are the most important points you should know about using عليم.
               </p>
             </div>
 
