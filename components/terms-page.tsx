@@ -266,7 +266,7 @@ You agree to resolve disputes individually and waive any right to participate in
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen public-page-bg">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 dark:from-gray-900 dark:via-slate-900/20 dark:to-zinc-900/20">
         <div className="absolute inset-0 library-pattern opacity-10"></div>
@@ -330,7 +330,7 @@ You agree to resolve disputes individually and waive any right to participate in
                 Key Terms at a Glance
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Here are the most important points you should know about using عليم.
+                Here are the most important points you should know about using علي��.
               </p>
             </div>
 
