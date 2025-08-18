@@ -112,7 +112,7 @@ export function OurStoryPage() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen public-page-bg">
       {/* Hero Section with Animated Books */}
       <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-900 dark:via-amber-900/20 dark:to-orange-900/20">
         <div className="absolute inset-0 library-pattern opacity-10"></div>
