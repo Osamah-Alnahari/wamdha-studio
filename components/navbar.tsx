@@ -68,6 +68,7 @@ export function Navbar() {
 
   // Navigation items for non-books routes (public pages)
   const publicNavItems = [
+    { path: "/", label: "الرئيسية", icon: Home },
     { path: "/ourstory", label: "قصتنا", icon: Book },
     { path: "/contact", label: "تواصل معنا", icon: Mail },
     { path: "/private", label: "الخصوصية", icon: Shield },
