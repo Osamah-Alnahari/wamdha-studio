@@ -181,7 +181,7 @@ export function PrivacyPage() {
   return (
     <div className="min-h-screen public-page-bg">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50 dark:from-gray-900 dark:via-violet-900/20 dark:to-purple-900/20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50 dark:from-gray-900 dark:via-violet-900/20 dark:to-purple-900/20 min-h-screen flex items-center">
         <div className="absolute inset-0 library-pattern opacity-10"></div>
         
         {/* Floating Security Icons */}
@@ -197,7 +197,7 @@ export function PrivacyPage() {
           </div>
         </div>
 
-        <div className="relative container mx-auto px-4 py-20 md:py-32">
+        <div className="relative container mx-auto px-4 py-12 md:py-16">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium border-violet-200 dark:border-violet-800">
               <Scroll className="w-4 h-4 mr-2" />
