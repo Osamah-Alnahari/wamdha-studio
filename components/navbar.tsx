@@ -68,10 +68,10 @@ export function Navbar() {
 
   // Navigation items for non-books routes (public pages)
   const publicNavItems = [
-    { path: "/ourstory", label: "Our Story", icon: Book },
-    { path: "/contact", label: "Contact Us", icon: Mail },
-    { path: "/private", label: "Privacy", icon: Shield },
-    { path: "/terms-and-conditions", label: "Terms", icon: ScrollText },
+    { path: "/ourstory", label: "قصتنا", icon: Book },
+    { path: "/contact", label: "تواصل معنا", icon: Mail },
+    { path: "/private", label: "الخصوصية", icon: Shield },
+    { path: "/terms-and-conditions", label: "الشروط", icon: ScrollText },
   ];
 
   // Navigation items for books routes (authenticated app)
@@ -211,7 +211,7 @@ export function Navbar() {
                   onClick={() => handleNavigation("/books")}
                 >
                   <Zap className="h-5 w-5" />
-                  <span className="ml-2">Studio</span>
+                  <span className="ml-2">الاستوديو</span>
                 </div>
               )}
             </nav>
