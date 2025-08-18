@@ -127,7 +127,7 @@ export function ContactPage() {
   return (
     <div className="min-h-screen public-page-bg">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/20 min-h-screen flex items-center">
         <div className="absolute inset-0 library-pattern opacity-10"></div>
         
         {/* Floating Contact Icons */}
@@ -143,7 +143,7 @@ export function ContactPage() {
           </div>
         </div>
 
-        <div className="relative container mx-auto px-4 py-20 md:py-32">
+        <div className="relative container mx-auto px-4 py-12 md:py-16">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium border-emerald-200 dark:border-emerald-800">
               <BookOpen className="w-4 h-4 mr-2" />
@@ -158,7 +158,7 @@ export function ContactPage() {
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              لديك أسئلة حول عليم؟ تحتاج مساعدة في البدء؟ تريد مشاركة تعليقاتك؟
+              لديك أسئلة حول عليم؟ تحتاج مساعدة في البدء؟ تريد مشاركة ت��ليقاتك؟
               فريقنا هنا لمساعدتك في الاستفادة القصوى من تجربة القراءة.
             </p>
 
