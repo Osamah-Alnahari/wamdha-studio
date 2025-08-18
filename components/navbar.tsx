@@ -120,7 +120,7 @@ export function Navbar() {
               onClick={() => handleNavigation("/books")}
             >
               <Zap className="h-5 w-5" />
-              <span className="ml-2">Studio</span>
+              <span className="ml-2">الاستوديو</span>
             </div>
           )}
         </nav>
