@@ -114,7 +114,7 @@ export function OurStoryPage() {
   return (
     <div className="min-h-screen public-page-bg">
       {/* Hero Section with Animated Books */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-900 dark:via-amber-900/20 dark:to-orange-900/20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-900 dark:via-amber-900/20 dark:to-orange-900/20 min-h-screen flex items-center">
         <div className="absolute inset-0 library-pattern opacity-10"></div>
         
         {/* Floating Books Animation */}
@@ -139,7 +139,7 @@ export function OurStoryPage() {
           ))}
         </div>
 
-        <div className="relative container mx-auto px-4 py-20 md:py-32">
+        <div className="relative container mx-auto px-4 py-12 md:py-16">
           <div className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium border-amber-200 dark:border-amber-800">
               <Scroll className="w-4 h-4 mr-2" />
