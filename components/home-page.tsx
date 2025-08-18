@@ -49,42 +49,42 @@ export function HomePage() {
   const features = [
     {
       icon: Upload,
-      title: "Smart Document Upload",
-      description: "Upload PDFs, Word documents, and more. Our AI instantly processes your content.",
+      title: "رفع ذكي للمستندات",
+      description: "ارفع ملفات PDF ومستندات Word والمزيد. يعالج الذكاء الاصطناعي محتواك فوراً.",
       color: "text-amber-600"
     },
     {
       icon: Brain,
-      title: "AI-Powered Summaries",
-      description: "Get intelligent summaries that capture key insights and main points.",
+      title: "ملخصات مدعومة بالذكاء الاصطناعي",
+      description: "احصل على ملخصات ذكية تلتقط الرؤى الأساسية والنقاط الرئيسية.",
       color: "text-orange-600"
     },
     {
       icon: Search,
-      title: "Advanced Search",
-      description: "Find any information across your entire library with semantic search.",
+      title: "بحث متقدم",
+      description: "اعثر على أي معلومة عبر مكتبتك بالكامل باستخدام البحث الدلالي.",
       color: "text-red-600"
     },
     {
       icon: BookOpen,
-      title: "Interactive Reading",
-      description: "Annotate, highlight, and organize your reading materials effortlessly.",
+      title: "قراءة تفاعلية",
+      description: "أضف التعليقات والإبرازات ونظم مواد القراءة دون عناء.",
       color: "text-amber-700"
     }
   ];
 
   const benefits = [
-    "Save 80% of your reading time",
-    "Never lose important information",
-    "Access your library anywhere",
-    "Share insights with your team"
+    "وفر 80% من وقت القراءة",
+    "لا تفقد المعلومات المهمة أبداً",
+    "اوصل إلى مكتبتك من أي مكان",
+    "شارك الرؤى مع فريقك"
   ];
 
   const stats = [
-    { number: "10K+", label: "Documents Processed" },
-    { number: "95%", label: "Time Saved" },
-    { number: "4.9", label: "User Rating" },
-    { number: "24/7", label: "Available" }
+    { number: "10K+", label: "مستند معالج" },
+    { number: "95%", label: "وقت موفر" },
+    { number: "4.9", label: "تقييم المستخدمين" },
+    { number: "24/7", label: "متوفر" }
   ];
 
   return (
@@ -96,51 +96,51 @@ export function HomePage() {
           <div className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium">
               <Sparkles className="w-4 h-4 mr-2" />
-              AI-Powered Reading Experience
+              تجربة قراءة مدعومة بالذكاء الاصطناعي
             </Badge>
-            
+
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-              Welcome to{" "}
+              مرحباً بكم في{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
                 عليم
               </span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              Transform your reading experience with AI-powered summaries, intelligent analysis, 
-              and seamless document management. Your knowledge, amplified.
+              حوّل تجربة القراءة مع الملخصات المدعومة بالذكاء الاصطناعي والتحليل الذكي
+              وإدارة المستندات السلسة. معرفتك، مُضخّمة.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="px-8 py-6 text-lg font-semibold"
                 onClick={handleGetStarted}
               >
-                {user?.isLoggedIn ? "Go to Library" : "Get Started Free"}
+                {user?.isLoggedIn ? "اذهب إلى المكتبة" : "ابدأ مجاناً"}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              
+
               {user?.isLoggedIn && (
-                <Button 
-                  variant="outline" 
-                  size="lg" 
+                <Button
+                  variant="outline"
+                  size="lg"
                   className="px-8 py-6 text-lg"
                   onClick={() => router.push("/books/new")}
                 >
                   <Upload className="mr-2 h-5 w-5" />
-                  Upload Document
+                  رفع مستند
                 </Button>
               )}
-              
+
               {!user?.isLoggedIn && (
-                <Button 
-                  variant="ghost" 
-                  size="lg" 
+                <Button
+                  variant="ghost"
+                  size="lg"
                   className="px-8 py-6 text-lg"
                 >
                   <Play className="mr-2 h-5 w-5" />
-                  Watch Demo
+                  شاهد العرض التوضيحي
                 </Button>
               )}
             </div>
@@ -188,10 +188,10 @@ export function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Powerful Features for Modern Readers
+              ميزات قوية للقراء المعاصرين
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to revolutionize how you consume and understand written content
+              كل ما تحتاجه لثورة في طريقة استهلاك وفهم المحتوى المكتوب
             </p>
           </div>
 
@@ -219,13 +219,13 @@ export function HomePage() {
           <div className="max-w-4xl mx-auto">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                  Why Choose عليم?
-                </h2>
-                <p className="text-lg text-muted-foreground mb-8">
-                  Join thousands of professionals, students, and researchers who have transformed 
-                  their reading workflow with our intelligent platform.
-                </p>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                لماذا تختار عليم؟
+              </h2>
+              <p className="text-lg text-muted-foreground mb-8">
+                انضم إلى آلاف المختصين والطلاب والباحثين الذين حولوا
+                سير عمل القراءة مع منصتنا الذكية.
+              </p>
                 
                 <div className="space-y-4">
                   {benefits.map((benefit, index) => (
@@ -237,7 +237,7 @@ export function HomePage() {
                 </div>
 
                 <Button className="mt-8" size="lg" onClick={handleGetStarted}>
-                  Start Your Journey
+                  ابدأ رحلتك
                   <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>
               </div>
@@ -278,29 +278,29 @@ export function HomePage() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Ready to Transform Your Reading?
+              هل أنت مستعد لتحويل قراءتك؟
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Join the revolution in document analysis and knowledge management. 
-              Start your free journey today.
+              انضم إلى ثورة تحليل المستندات وإدارة المعرفة.
+              ابدأ رحلتك المجانية اليوم.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="px-8 py-6 text-lg" onClick={handleGetStarted}>
                 <Zap className="mr-2 h-5 w-5" />
-                {user?.isLoggedIn ? "Go to Library" : "Start Free Trial"}
+                {user?.isLoggedIn ? "اذهب إلى المكتبة" : "ابدأ تجربة مجانية"}
               </Button>
-              
+
               {!user?.isLoggedIn && (
                 <Button variant="outline" size="lg" className="px-8 py-6 text-lg" onClick={() => router.push("/login")}>
                   <Users className="mr-2 h-5 w-5" />
-                  Sign In
+                  تسجيل الدخول
                 </Button>
               )}
             </div>
 
             <p className="text-sm text-muted-foreground mt-6">
-              No credit card required • Free forever plan available
+              لا حاجة لبطاقة ائتمان • خطة مجانية متوفرة دائماً
             </p>
           </div>
         </div>
