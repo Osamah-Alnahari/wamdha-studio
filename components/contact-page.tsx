@@ -125,7 +125,7 @@ export function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen public-page-bg">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-900 dark:via-emerald-900/20 dark:to-teal-900/20">
         <div className="absolute inset-0 library-pattern opacity-10"></div>
