@@ -59,6 +59,26 @@ export function Navbar() {
     setIsMenuOpen(false);
   };
 
+  // Check if current route is in books section
+  const isBooksRoute = pathname.startsWith('/books');
+
+  // Navigation items for non-books routes (public pages)
+  const publicNavItems = [
+    { path: "/ourstory", label: "Our Story", icon: Book },
+    { path: "/contact", label: "Contact Us", icon: FileText },
+    { path: "/private", label: "Privacy", icon: PlusCircle },
+    { path: "/terms-and-conditions", label: "Terms", icon: Menu },
+  ];
+
+  // Navigation items for books routes (authenticated app)
+  const appNavItems = [
+    { path: "/", label: "Home", icon: Home },
+    { path: "/books", label: "Library", icon: FileText },
+    { path: "/books/new", label: "New Book", icon: PlusCircle },
+  ];
+
+  const navItems = isBooksRoute ? appNavItems : publicNavItems;
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
