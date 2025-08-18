@@ -403,3 +403,12 @@
 .library-scrollbar::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(to bottom, #7c3aed, #4f46e5);
 }
+
+/* Custom background colors for public pages */
+.public-page-bg {
+  background-color: #FAF9F6;
+}
+
+.dark .public-page-bg {
+  background-color: #1C1C1C;
+}
