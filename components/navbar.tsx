@@ -119,7 +119,7 @@ export function Navbar() {
               )}
               onClick={() => handleNavigation("/books")}
             >
-              <LogOut className="h-5 w-5" />
+              <Zap className="h-5 w-5" />
               <span className="ml-2">Studio</span>
             </div>
           )}
