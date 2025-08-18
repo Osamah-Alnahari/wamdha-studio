@@ -10,6 +10,9 @@ import {
   PlusCircle,
   Loader2,
   Home,
+  Mail,
+  Shield,
+  ScrollText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -65,9 +68,9 @@ export function Navbar() {
   // Navigation items for non-books routes (public pages)
   const publicNavItems = [
     { path: "/ourstory", label: "Our Story", icon: Book },
-    { path: "/contact", label: "Contact Us", icon: FileText },
-    { path: "/private", label: "Privacy", icon: PlusCircle },
-    { path: "/terms-and-conditions", label: "Terms", icon: Menu },
+    { path: "/contact", label: "Contact Us", icon: Mail },
+    { path: "/private", label: "Privacy", icon: Shield },
+    { path: "/terms-and-conditions", label: "Terms", icon: ScrollText },
   ];
 
   // Navigation items for books routes (authenticated app)
