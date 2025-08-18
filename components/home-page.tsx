@@ -160,12 +160,12 @@ export function HomePage() {
         {/* Floating Library Elements */}
         <div className="absolute top-20 left-10 opacity-30">
           <div className="floating-book">
-            <Book className="w-16 h-16 text-amber-600 dark:text-amber-400" />
+            <Book className="w-20 h-22 text-amber-600 dark:text-amber-400" />
           </div>
         </div>
         <div className="absolute top-32 right-20 opacity-25">
           <div className="floating-icon">
-            <BookOpen className="w-14 h-14 text-orange-500" />
+            <BookOpen className="w-14 h-28 text-orange-500 ml-12" />
           </div>
         </div>
         <div className="absolute top-60 left-1/4 opacity-20">
