@@ -140,7 +140,7 @@ export function HomePage() {
                   className="px-8 py-6 text-lg"
                 >
                   <Play className="mr-2 h-5 w-5" />
-                  ش��هد العرض التوضيحي
+                  شاهد العرض التوضيحي
                 </Button>
               )}
             </div>
@@ -209,96 +209,6 @@ export function HomePage() {
                 </CardContent>
               </Card>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Book Preview Demo Section */}
-      <section className="py-20 md:py-32 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-blue-900/10">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                شاهد عليم في العمل
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                من الكتاب إلى الخلاصة المصورة في ثوانٍ معدودة
-              </p>
-            </div>
-
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              {/* Book Preview */}
-              <div className="relative">
-                <div className="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-8 shadow-xl">
-                  <div className="relative max-w-sm mx-auto">
-                    <img
-                      src="https://cdn.builder.io/api/v1/image/assets%2F07886841aac447a0bacf69bae3b6d774%2F8c61c2bd69bc443ebca74e684fa50c6c?format=webp&width=800"
-                      alt="معاينة الكتاب - 250 تقنية في التلاعب النفسي"
-                      className="w-full h-auto rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute -top-4 -right-4 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      <CheckCircle className="w-5 h-5 text-white" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Transformation Description */}
-              <div className="space-y-8">
-                <div>
-                  <h3 className="text-2xl md:text-3xl font-bold mb-4">
-                    من الكتاب إلى الخلاصة المصورة
-                  </h3>
-                  <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                    ارفع أي كتاب أو مستند، وشاهد كيف يحوله الذكاء الاصطناعي إ��ى ملخص مرئي
-                    شامل مع النقاط الأساسية والرؤى المهمة.
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4 p-4 rounded-lg bg-white/50 dark:bg-gray-800/50">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-sm font-bold text-blue-600 dark:text-blue-400">1</span>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-1">رفع المستند</h4>
-                      <p className="text-sm text-muted-foreground">ارفع كتابك أو مستندك بصيغة PDF أو Word</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4 p-4 rounded-lg bg-white/50 dark:bg-gray-800/50">
-                    <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-sm font-bold text-purple-600 dark:text-purple-400">2</span>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-1">التحليل الذكي</h4>
-                      <p className="text-sm text-muted-foreground">الذكاء الاصطناعي يحلل المحتوى ويستخرج النقاط الرئيسية</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4 p-4 rounded-lg bg-white/50 dark:bg-gray-800/50">
-                    <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-sm font-bold text-green-600 dark:text-green-400">3</span>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-1">الخلاصة المرئية</h4>
-                      <p className="text-sm text-muted-foreground">احصل على ملخص تفاعلي مع الصور والرسوم البيانية</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" className="px-8 py-6 text-lg">
-                    <Play className="mr-2 h-5 w-5" />
-                    جرب الآن
-                  </Button>
-                  <Button variant="outline" size="lg" className="px-8 py-6 text-lg">
-                    <BookOpen className="mr-2 h-5 w-5" />
-                    شاهد أمثلة أخرى
-                  </Button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
