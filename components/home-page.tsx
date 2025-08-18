@@ -68,7 +68,7 @@ export function HomePage() {
     {
       icon: BookOpen,
       title: "قراءة تفاعلية",
-      description: "أضف التعليقات والإبرازات ونظم مواد القراءة دون عناء.",
+      description: "أضف التعليقات والإب��ازات ونظم مواد القراءة دون عناء.",
       color: "text-amber-700"
     }
   ];
@@ -93,66 +93,104 @@ export function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-900 dark:via-amber-900/20 dark:to-orange-900/20 library-ambiance min-h-screen flex items-center">
         <div className="absolute inset-0 library-pattern opacity-10"></div>
         <div className="relative container mx-auto px-4 py-12 md:py-16">
-          <div className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium">
-              <Sparkles className="w-4 h-4 mr-2" />
-              تجربة قراءة مدعومة بالذكاء الاصطناعي
-            </Badge>
+          <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
+            {/* Book Preview - Left Column */}
+            <div className={`relative transition-all duration-1000 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
+              <div className="relative">
+                {/* Multiple book covers arranged in a stack/grid */}
+                <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto">
+                  <div className="transform rotate-6 hover:rotate-12 transition-transform duration-300">
+                    <img
+                      src="https://cdn.builder.io/api/v1/image/assets%2F07886841aac447a0bacf69bae3b6d774%2F8c61c2bd69bc443ebca74e684fa50c6c?format=webp&width=800"
+                      alt="كتاب 250 تقنية في التلاعب النفسي"
+                      className="w-full h-auto rounded-xl shadow-2xl"
+                    />
+                  </div>
+                  <div className="transform -rotate-3 hover:-rotate-6 transition-transform duration-300 mt-8">
+                    <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl shadow-2xl aspect-[3/4] flex items-center justify-center text-white p-6">
+                      <div className="text-center">
+                        <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-80" />
+                        <h3 className="text-lg font-bold mb-2">كتاب تجريبي</h3>
+                        <p className="text-sm opacity-80">إدارة الوقت والإنتاجية</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="transform rotate-2 hover:rotate-6 transition-transform duration-300 -mt-4">
+                    <div className="bg-gradient-to-br from-green-600 to-teal-600 rounded-xl shadow-2xl aspect-[3/4] flex items-center justify-center text-white p-6">
+                      <div className="text-center">
+                        <Brain className="w-12 h-12 mx-auto mb-4 opacity-80" />
+                        <h3 className="text-lg font-bold mb-2">علم النفس</h3>
+                        <p className="text-sm opacity-80">التفكير النقدي والإبداع</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="transform -rotate-6 hover:-rotate-12 transition-transform duration-300 mt-6">
+                    <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-xl shadow-2xl aspect-[3/4] flex items-center justify-center text-white p-6">
+                      <div className="text-center">
+                        <Star className="w-12 h-12 mx-auto mb-4 opacity-80" />
+                        <h3 className="text-lg font-bold mb-2">التطوير الذاتي</h3>
+                        <p className="text-sm opacity-80">بناء العادات الإيجابية</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-              مرحباً بكم في{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
-                عليم
-              </span>
-            </h1>
-
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              حوّل تجربة القراءة مع الملخصات المدعومة بالذكاء الاصطناعي والتحليل الذكي
-              وإدارة المستندات السلسة. معرفتك، مُضخّمة.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <Button
-                size="lg"
-                className="px-8 py-6 text-lg font-semibold"
-                onClick={handleGetStarted}
-              >
-                {user?.isLoggedIn ? "اذهب إلى المكتبة" : "ابدأ مجاناً"}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-
-              {user?.isLoggedIn && (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="px-8 py-6 text-lg"
-                  onClick={() => router.push("/books/new")}
-                >
-                  <Upload className="mr-2 h-5 w-5" />
-                  رفع مستند
-                </Button>
-              )}
-
-              {!user?.isLoggedIn && (
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="px-8 py-6 text-lg"
-                >
-                  <Play className="mr-2 h-5 w-5" />
-                  شاهد العرض التوضيحي
-                </Button>
-              )}
+                {/* Floating animation elements */}
+                <div className="absolute -top-4 -left-4 w-12 h-12 bg-amber-500 rounded-full opacity-20 animate-pulse"></div>
+                <div className="absolute -bottom-6 -right-6 w-8 h-8 bg-purple-500 rounded-full opacity-30 animate-bounce"></div>
+              </div>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-primary">{stat.number}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
+            {/* Content - Right Column */}
+            <div className={`text-center lg:text-right transition-all duration-1000 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
+              <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium">
+                <Sparkles className="w-4 h-4 mr-2" />
+                تجربة قراءة مدعومة بالذكاء الاصطناعي
+              </Badge>
+
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
+                مرحباً بكم في{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
+                  عليم
+                </span>
+              </h1>
+
+              <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
+                حوّل تجربة القراءة مع الملخصات المدعومة بالذكاء ��لاصطناعي والتحليل الذكي
+                وإدارة المستندات السلسة. معرفتك، مُضخّمة.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center mb-12">
+                <Button
+                  size="lg"
+                  className="px-8 py-6 text-lg font-semibold"
+                  onClick={handleGetStarted}
+                >
+                  {user?.isLoggedIn ? "اذهب إلى المكتبة" : "ابدأ مجاناً"}
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+
+                {!user?.isLoggedIn && (
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    className="px-8 py-6 text-lg"
+                  >
+                    <Play className="mr-2 h-5 w-5" />
+                    شاهد العرض التوضيحي
+                  </Button>
+                )}
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {stats.map((stat, index) => (
+                  <div key={index} className="text-center lg:text-right">
+                    <div className="text-2xl md:text-3xl font-bold text-primary">{stat.number}</div>
+                    <div className="text-sm text-muted-foreground">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
