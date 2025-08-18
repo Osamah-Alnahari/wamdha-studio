@@ -268,7 +268,7 @@ You agree to resolve disputes individually and waive any right to participate in
   return (
     <div className="min-h-screen public-page-bg">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 dark:from-gray-900 dark:via-slate-900/20 dark:to-zinc-900/20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 dark:from-gray-900 dark:via-slate-900/20 dark:to-zinc-900/20 min-h-screen flex items-center">
         <div className="absolute inset-0 library-pattern opacity-10"></div>
         
         {/* Floating Legal Icons */}
@@ -284,7 +284,7 @@ You agree to resolve disputes individually and waive any right to participate in
           </div>
         </div>
 
-        <div className="relative container mx-auto px-4 py-20 md:py-32">
+        <div className="relative container mx-auto px-4 py-12 md:py-16">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium border-slate-200 dark:border-slate-800">
               <Scroll className="w-4 h-4 mr-2" />
@@ -299,7 +299,7 @@ You agree to resolve disputes individually and waive any right to participate in
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              تحكم هذه الشروط استخدامك لمنصة عليم. باستخدام منصة القراءة المدعومة بالذكاء الاصطناعي،
+              تحكم هذه الشروط استخدامك لمنصة ع��يم. باستخدام منصة القراءة المدعومة بالذكاء الاصطناعي،
               فإنك توافق على هذه الشروط والأحكام.
             </p>
 
