@@ -201,20 +201,19 @@ export function PrivacyPage() {
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium border-violet-200 dark:border-violet-800">
               <Scroll className="w-4 h-4 mr-2" />
-              Privacy Policy
+              سياسة الخصوصية
             </Badge>
-            
+
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-              Your{" "}
+              خصوصيتك{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-purple-600">
-                Privacy
-              </span>{" "}
-              Matters
+                مهمة
+              </span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              At عليم, we believe privacy is a fundamental right. Learn how we protect your data, 
-              respect your privacy, and give you complete control over your information.
+              في عليم، نؤمن أن الخصوصية حق أساسي. تعلم كيف نحمي بياناتك،
+              نحترم خصوصيتك، ونمنحك السيطرة الكاملة على معلوماتك.
             </p>
 
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
