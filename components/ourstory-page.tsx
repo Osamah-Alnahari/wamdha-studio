@@ -143,19 +143,19 @@ export function OurStoryPage() {
           <div className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium border-amber-200 dark:border-amber-800">
               <Scroll className="w-4 h-4 mr-2" />
-              Our Journey
+              رحلتنا
             </Badge>
-            
+
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-              The Story Behind{" "}
+              القصة وراء{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
                 عليم
               </span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              Born from a simple belief: that everyone deserves to unlock the full potential 
-              of their reading experience. This is how we're revolutionizing the way the world learns.
+              وُلدت من إيمان بسيط: أن كل فرد يستحق أن يطلق الإمكانات الكاملة
+              لتجربة القراءة. هكذا نثور في طريقة تعلم العالم.
             </p>
 
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
