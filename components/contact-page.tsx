@@ -147,19 +147,19 @@ export function ContactPage() {
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium border-emerald-200 dark:border-emerald-800">
               <BookOpen className="w-4 h-4 mr-2" />
-              We're Here to Help
+              نحن هنا للمساعدة
             </Badge>
-            
+
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-              Get in{" "}
+              تواصل{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">
-                Touch
+                معنا
               </span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              Have questions about عليم? Need help getting started? Want to share feedback? 
-              Our team is here to help you make the most of your reading experience.
+              لديك أسئلة حول عليم؟ تحتاج مساعدة في البدء؟ تريد مشاركة تعليقاتك؟
+              فريقنا هنا لمساعدتك في الاستفادة القصوى من تجربة القراءة.
             </p>
 
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
