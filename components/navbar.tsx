@@ -85,7 +85,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <div
             className="flex items-center space-x-2 cursor-pointer"
-            onClick={() => handleNavigation("/home")}
+            onClick={() => handleNavigation(isBooksRoute ? "/books" : "/")}
           >
             <Book className="h-6 w-6" />
             <span className="font-bold">عليم</span>
