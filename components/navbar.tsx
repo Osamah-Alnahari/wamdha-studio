@@ -94,38 +94,31 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
-          <div
-            className={cn(
-              "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-              pathname === "/home" ? "text-primary" : "text-muted-foreground"
-            )}
-            onClick={() => handleNavigation("/home")}
-          >
-            <Home className="h-5 w-5" />
-            <span className="ml-2">Home</span>
-          </div>
-          <div
-            className={cn(
-              "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-              pathname === "/books" ? "text-primary" : "text-muted-foreground"
-            )}
-            onClick={() => handleNavigation("/books")}
-          >
-            <FileText className="h-5 w-5" />
-            <span className="ml-2">Library</span>
-          </div>
-          <div
-            className={cn(
-              "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-              pathname === "/books/new"
-                ? "text-primary"
-                : "text-muted-foreground"
-            )}
-            onClick={() => handleNavigation("/books/new")}
-          >
-            <PlusCircle className="h-5 w-5" />
-            <span className="ml-2">New Book</span>
-          </div>
+          {navItems.map((item) => (
+            <div
+              key={item.path}
+              className={cn(
+                "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
+                pathname === item.path ? "text-primary" : "text-muted-foreground"
+              )}
+              onClick={() => handleNavigation(item.path)}
+            >
+              <item.icon className="h-5 w-5" />
+              <span className="ml-2">{item.label}</span>
+            </div>
+          ))}
+          {!isBooksRoute && (
+            <div
+              className={cn(
+                "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
+                "text-muted-foreground"
+              )}
+              onClick={() => handleNavigation("/books")}
+            >
+              <LogOut className="h-5 w-5" />
+              <span className="ml-2">Studio</span>
+            </div>
+          )}
         </nav>
 
         {/* Desktop User Menu */}
