@@ -179,7 +179,7 @@ export function PrivacyPage() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen public-page-bg">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50 dark:from-gray-900 dark:via-violet-900/20 dark:to-purple-900/20">
         <div className="absolute inset-0 library-pattern opacity-10"></div>
