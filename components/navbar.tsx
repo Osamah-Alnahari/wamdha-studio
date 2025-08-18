@@ -13,6 +13,7 @@ import {
   Mail,
   Shield,
   ScrollText,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -209,7 +210,7 @@ export function Navbar() {
                   )}
                   onClick={() => handleNavigation("/books")}
                 >
-                  <LogOut className="h-5 w-5" />
+                  <Zap className="h-5 w-5" />
                   <span className="ml-2">Studio</span>
                 </div>
               )}
