@@ -63,6 +63,7 @@ export function LoginForm() {
       console.log("Not signed in");
     }
   };
+  
   useEffect(() => {
     console.log("starting1");
     const unsubscribe = listenToAuthEvents(({ payload }) => {
@@ -93,15 +94,15 @@ export function LoginForm() {
     const newErrors = { ...errors };
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = "البريد الإلكتروني مطلوب";
       valid = false;
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
+      newErrors.email = "البريد الإلكتروني غير صحيح";
       valid = false;
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = "كلمة المرور مطلوبة";
       valid = false;
     }
 
@@ -151,18 +152,55 @@ export function LoginForm() {
   };
 
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
-        <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Welcome back</h1>
+    <div className="min-h-screen public-page-bg relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0 library-pattern opacity-10"></div>
+      
+      {/* Floating Library Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 left-10 opacity-20">
+          <div className="floating-book">
+            <BookOpen className="w-12 h-12 text-amber-600 dark:text-amber-400" />
+          </div>
         </div>
+        <div className="absolute top-40 right-20 opacity-20">
+          <div className="floating-icon">
+            <Book className="w-10 h-10 text-orange-500" />
+          </div>
+        </div>
+        <div className="absolute bottom-32 left-20 opacity-20">
+          <div className="page-flip">
+            <FileText className="w-8 h-8 text-red-500" />
+          </div>
+        </div>
+        <div className="absolute bottom-20 right-10 opacity-20">
+          <div className="knowledge-orb w-6 h-6"></div>
+        </div>
+      </div>
+
+      <div className="relative container flex min-h-screen w-screen flex-col items-center justify-center">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-[450px]">
+          {/* Header with Logo */}
+          <div className="flex flex-col space-y-4 text-center">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center">
+                <Book className="h-7 w-7 text-white" />
+              </div>
+              <span className="text-3xl font-bold">عليم</span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold">مرحباً بك مرة أخرى</h1>
+            <p className="text-lg text-muted-foreground">سجل دخولك للوصول إلى مكتبتك الذكية</p>
+          </div>
+          
+          {/* Main Card */}
+          <div className="library-card-hover bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border rounded-2xl p-8 shadow-2xl">
             <form onSubmit={handleSubmit} className="space-y-6">
               {errors.form && (
                 <div className="rounded-lg bg-destructive/15 p-4 text-sm text-destructive border border-destructive/20">
                   {errors.form}
                 </div>
               )}
-
+              
               <div className="space-y-2">
                 <Label
                   htmlFor="email"
@@ -243,9 +281,9 @@ export function LoginForm() {
                 )}
               </div>
 
-              <Button
-                type="submit"
-                className="w-full py-3 text-base font-semibold rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 transition-all duration-200"
+              <Button 
+                type="submit" 
+                className="w-full py-3 text-base font-semibold rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 transition-all duration-200" 
                 disabled={isLoading}
                 size="lg"
               >
@@ -256,7 +294,7 @@ export function LoginForm() {
                   </>
                 ) : (
                   <>
-                    تسجيل ال��خول
+                    تسجيل الدخول
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </>
                 )}
@@ -317,15 +355,21 @@ export function LoginForm() {
                 Google
               </Button>
             </div>
-        <p className="px-8 text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <Link
-            href="/register"
-            className="underline underline-offset-4 hover:text-primary"
-          >
-            Sign up
-          </Link>
-        </p>
+          </div>
+          
+          {/* Footer */}
+          <div className="text-center">
+            <p className="text-muted-foreground">
+              ليس لديك حساب؟{" "}
+              <Link
+                href="/register"
+                className="text-primary font-semibold hover:underline"
+              >
+                إنشاء حساب جديد
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
