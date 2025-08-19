@@ -152,29 +152,46 @@ export function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen public-page-bg relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 library-pattern opacity-10"></div>
-      
-      {/* Floating Library Elements */}
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-900 dark:via-amber-900/20 dark:to-orange-900/20">
+      {/* Enhanced Background Elements */}
+      <div className="absolute inset-0 library-pattern opacity-20"></div>
+
+      {/* Geometric Background Shapes */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 opacity-20">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-amber-200/30 to-orange-200/30 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-red-200/30 to-pink-200/30 rounded-full blur-3xl transform translate-x-1/2 translate-y-1/2"></div>
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-orange-200/20 to-amber-200/20 rounded-full blur-2xl transform -translate-x-1/2 -translate-y-1/2"></div>
+      </div>
+
+      {/* Enhanced Floating Library Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 left-10 opacity-30">
           <div className="floating-book">
-            <BookOpen className="w-12 h-12 text-amber-600 dark:text-amber-400" />
+            <BookOpen className="w-16 h-16 text-amber-600 dark:text-amber-400 drop-shadow-lg" />
           </div>
         </div>
-        <div className="absolute top-40 right-20 opacity-20">
+        <div className="absolute top-40 right-20 opacity-25">
           <div className="floating-icon">
-            <Book className="w-10 h-10 text-orange-500" />
+            <Book className="w-14 h-14 text-orange-500 drop-shadow-lg" />
           </div>
         </div>
-        <div className="absolute bottom-32 left-20 opacity-20">
+        <div className="absolute bottom-32 left-20 opacity-25">
           <div className="page-flip">
-            <FileText className="w-8 h-8 text-red-500" />
+            <FileText className="w-12 h-12 text-red-500 drop-shadow-lg" />
           </div>
         </div>
-        <div className="absolute bottom-20 right-10 opacity-20">
-          <div className="knowledge-orb w-6 h-6"></div>
+        <div className="absolute bottom-20 right-10 opacity-30">
+          <div className="knowledge-orb w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full shadow-lg"></div>
+        </div>
+        <div className="absolute top-1/3 left-1/4 opacity-20">
+          <div className="book-spine">
+            <Book className="w-8 h-8 text-amber-700 dark:text-amber-300" />
+          </div>
+        </div>
+        <div className="absolute bottom-1/3 right-1/4 opacity-20">
+          <div className="floating-icon">
+            <FileText className="w-10 h-10 text-orange-600 dark:text-orange-400" />
+          </div>
         </div>
       </div>
 
