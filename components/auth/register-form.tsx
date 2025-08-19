@@ -166,43 +166,7 @@ export function RegisterForm() {
 
       <div className="relative container min-h-screen w-screen py-12">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto px-4">
-          {/* Left Column - Header Content */}
-          <div className="flex flex-col justify-center space-y-8 text-center lg:text-right">
-            <div className="flex items-center justify-center lg:justify-start gap-4 mb-8">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-xl">
-                <Book className="h-9 w-9 text-white" />
-              </div>
-              <span className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">عليم</span>
-            </div>
-            
-            <div className="space-y-6">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight">
-                إنشاء حساب{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
-                  جديد
-                </span>
-              </h1>
-              
-              <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                انضم إلى آلاف المستخدمين في رحلة التعلم الذكي واكتشف قوة الذكاء الاصطناعي في تحليل المستندات
-              </p>
-              
-              <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span>مجاني تماماً</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span>ذكاء اصطناعي متقدم</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span>بدء فوري</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          
 
           {/* Right Column - Form Card */}
           <div className="flex items-center justify-center">
@@ -448,6 +412,43 @@ export function RegisterForm() {
                       سياسة الخصوصية
                     </Link>
                   </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Left Column - Header Content */}
+          <div className="flex flex-col justify-center space-y-8 text-center lg:text-right">
+            <div className="flex items-center justify-center lg:justify-start gap-4 mb-8">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-xl">
+                <Book className="h-9 w-9 text-white" />
+              </div>
+              <span className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">عليم</span>
+            </div>
+            
+            <div className="space-y-6">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight">
+                إنشاء حساب{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
+                  جديد
+                </span>
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                انضم إلى آلاف المستخدمين في رحلة التعلم الذكي واكتشف قوة الذكاء الاصطناعي في تحليل المستندات
+              </p>
+              
+              <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <span>مجاني تماماً</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <span>ذكاء اصطناعي متقدم</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <span>بدء فوري</span>
                 </div>
               </div>
             </div>
