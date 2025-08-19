@@ -64,15 +64,16 @@ export function Navbar() {
   };
 
   // Check if current route is in books section
-  const isBooksRoute = pathname.startsWith('/books');
+  const isBooksRoute = pathname.startsWith("/books");
 
   // Navigation items for non-books routes (public pages)
   const publicNavItems = [
-    { path: "/", label: "الرئيسية", icon: Home },
-    { path: "/ourstory", label: "قصتنا", icon: Book },
     { path: "/contact", label: "تواصل معنا", icon: Mail },
-    { path: "/private", label: "الخصوصية", icon: Shield },
+    { path: "/privacy", label: "الخصوصية", icon: Shield },
     { path: "/terms-and-conditions", label: "الشروط", icon: ScrollText },
+    { path: "/books", label: "الاستوديو", icon: Zap },
+    { path: "/ourstory", label: "قصتنا", icon: Book },
+    { path: "/", label: "الرئيسية", icon: Home },
   ];
 
   // Navigation items for books routes (authenticated app)
@@ -104,7 +105,9 @@ export function Navbar() {
               key={item.path}
               className={cn(
                 "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-                pathname === item.path ? "text-primary" : "text-muted-foreground"
+                pathname === item.path
+                  ? "text-primary"
+                  : "text-muted-foreground"
               )}
               onClick={() => handleNavigation(item.path)}
             >
@@ -112,18 +115,6 @@ export function Navbar() {
               <span className="ml-2">{item.label}</span>
             </div>
           ))}
-          {!isBooksRoute && (
-            <div
-              className={cn(
-                "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-                "text-muted-foreground"
-              )}
-              onClick={() => handleNavigation("/books")}
-            >
-              <Zap className="h-5 w-5" />
-              <span className="ml-2">الاستوديو</span>
-            </div>
-          )}
         </nav>
 
         {/* Desktop User Menu */}

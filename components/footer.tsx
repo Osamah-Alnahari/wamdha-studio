@@ -39,7 +39,7 @@ export function Footer() {
   ];
 
   const legalLinks = [
-    { href: "/private", label: "سياسة الخصوصية", icon: Shield },
+    { href: "/privacy", label: "سياسة الخصوصية", icon: Shield },
     { href: "/terms-and-conditions", label: "الشروط والأحكام", icon: ScrollText },
     { href: "#", label: "سياسة الاستخدام", icon: FileText },
     { href: "#", label: "سياسة ملفات تعريف الارتباط", icon: Globe },

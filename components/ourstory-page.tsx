@@ -176,7 +176,7 @@ export function OurStoryPage() {
         </div>
       </section>
 
-      {/* Mission Statement */}
+      {/* Mission Statement
       <section className="py-20 md:py-32">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
@@ -233,7 +233,7 @@ export function OurStoryPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Timeline */}
       <section className="py-20 md:py-32 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-900 dark:to-amber-900/10">
@@ -278,7 +278,7 @@ export function OurStoryPage() {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 md:py-32">
+      {/* <section className="py-20 md:py-32">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
@@ -309,7 +309,7 @@ export function OurStoryPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Team Quotes */}
       <section className="py-20 md:py-32 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-blue-900/10">
