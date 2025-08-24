@@ -1,14 +1,14 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { 
-  Book, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Twitter, 
-  Facebook, 
-  Instagram, 
+import {
+  Book,
+  Mail,
+  Phone,
+  MapPin,
+  Twitter,
+  Facebook,
+  Instagram,
   Linkedin,
   Youtube,
   Globe,
@@ -16,16 +16,16 @@ import {
   FileText,
   ScrollText,
   Home,
-  Zap
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function Footer() {
   const pathname = usePathname();
-  
+
   // Don't show footer on books routes
-  if (pathname.startsWith('/books')) {
+  if (pathname.startsWith("/books")) {
     return null;
   }
 
@@ -40,16 +40,35 @@ export function Footer() {
 
   const legalLinks = [
     { href: "/privacy", label: "سياسة الخصوصية", icon: Shield },
-    { href: "/terms-and-conditions", label: "الشروط والأحكام", icon: ScrollText },
+    {
+      href: "/terms-and-conditions",
+      label: "الشروط والأحكام",
+      icon: ScrollText,
+    },
     { href: "#", label: "سياسة الاستخدام", icon: FileText },
     { href: "#", label: "سياسة ملفات تعريف الارتباط", icon: Globe },
   ];
 
   const socialLinks = [
     { href: "#", label: "تويتر", icon: Twitter, color: "hover:text-blue-400" },
-    { href: "#", label: "فيسبوك", icon: Facebook, color: "hover:text-blue-600" },
-    { href: "#", label: "إنستغرام", icon: Instagram, color: "hover:text-pink-500" },
-    { href: "#", label: "لينكد إن", icon: Linkedin, color: "hover:text-blue-700" },
+    {
+      href: "#",
+      label: "فيسبوك",
+      icon: Facebook,
+      color: "hover:text-blue-600",
+    },
+    {
+      href: "#",
+      label: "إنستغرام",
+      icon: Instagram,
+      color: "hover:text-pink-500",
+    },
+    {
+      href: "#",
+      label: "لينكد إن",
+      icon: Linkedin,
+      color: "hover:text-blue-700",
+    },
     { href: "#", label: "يوتيوب", icon: Youtube, color: "hover:text-red-500" },
   ];
 
@@ -78,12 +97,11 @@ export function Footer() {
               <span className="text-2xl font-bold">عليم</span>
             </div>
             <p className="text-muted-foreground leading-relaxed mb-6 max-w-md">
-              منصة ذكية لتحليل المستندات وإنشاء الملخصات باستخدام الذكاء الاصطناعي. 
-              حوّل طريقة قراءتك وفهمك للمحتوى المكتوب.
+              منصة ذكية لتحليل المستندات وإنشاء الملخصات باستخدام الذكاء
+              الاصطناعي. حوّل طريقة قراءتك وفهمك للمحتوى المكتوب.
             </p>
-            
             {/* Newsletter Signup */}
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <h3 className="font-semibold mb-3">اشترك في نشرتنا الإخبارية</h3>
               <div className="flex gap-2">
                 <Input 
@@ -96,8 +114,7 @@ export function Footer() {
               <p className="text-xs text-muted-foreground mt-2">
                 احصل على آخر التحديثات والنصائح مباشرة في بريدك
               </p>
-            </div>
-
+            </div> */}
             {/* Contact Info */}
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm">
@@ -110,7 +127,7 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>الرياض، المملكة العربية السعودية</span>
+                <span>الشرقية، المملكة العربية السعودية</span>
               </div>
             </div>
           </div>
@@ -121,7 +138,7 @@ export function Footer() {
             <ul className="space-y-3">
               {navigationLinks.map((link, index) => (
                 <li key={index}>
-                  <a 
+                  <a
                     href={link.href}
                     className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
                   >
@@ -139,21 +156,7 @@ export function Footer() {
             <ul className="space-y-3 mb-6">
               {productLinks.map((link, index) => (
                 <li key={index}>
-                  <a 
-                    href={link.href}
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            <h3 className="font-semibold mb-4">الدعم</h3>
-            <ul className="space-y-3">
-              {supportLinks.map((link, index) => (
-                <li key={index}>
-                  <a 
+                  <a
                     href={link.href}
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >
@@ -170,7 +173,7 @@ export function Footer() {
             <ul className="space-y-3 mb-6">
               {legalLinks.map((link, index) => (
                 <li key={index}>
-                  <a 
+                  <a
                     href={link.href}
                     className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
                   >
@@ -198,22 +201,10 @@ export function Footer() {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t mt-12 pt-8">
+        <div className="border-t mt-6 pt-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-sm text-muted-foreground">
               © {currentYear} عليم. جميع الحقوق محفوظة.
-            </div>
-            
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <span className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                SSL محمي
-              </span>
-              <span className="flex items-center gap-2">
-                <Globe className="h-4 w-4" />
-                GDPR متوافق
-              </span>
-              <span>صنع بـ ❤️ في السعودية</span>
             </div>
           </div>
         </div>
