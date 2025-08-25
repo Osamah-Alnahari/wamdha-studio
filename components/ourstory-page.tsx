@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  Book, 
-  BookOpen, 
-  Lightbulb, 
-  Users, 
-  Target, 
+import {
+  Book,
+  BookOpen,
+  Lightbulb,
+  Users,
+  Target,
   Sparkles,
   Quote,
   Heart,
@@ -15,7 +15,7 @@ import {
   Scroll,
   Library,
   GraduationCap,
-  Globe
+  Globe,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +27,7 @@ export function OurStoryPage() {
 
   useEffect(() => {
     setIsVisible(true);
-    
+
     // Animate books cycling
     const interval = setInterval(() => {
       setActiveBook((prev) => (prev + 1) % 5);
@@ -38,77 +38,79 @@ export function OurStoryPage() {
 
   const milestones = [
     {
-      year: "2023",
-      title: "The Vision",
-      description: "Recognizing the overwhelming amount of information in today's digital world, we envisioned a solution that could help people truly understand and retain knowledge from their reading materials.",
-      icon: Lightbulb
-    },
-    {
-      year: "2023",
-      title: "Building the Foundation",
-      description: "We assembled a team of passionate engineers, AI researchers, and reading experts to create the most intuitive document analysis platform.",
-      icon: Users
+      year: "2024",
+      title: "الرؤية",
+      description:
+        "بدأت الفكرة من الحاجة اليومية لقراءة وفهم المستندات الطويلة بسرعة. أردنا أداة تساعد على استخراج المعلومات المهمة من النصوص.",
+      icon: Lightbulb,
     },
     {
       year: "2024",
-      title: "Launch & Growth",
-      description: "عليم was born, combining cutting-edge AI with elegant design to serve thousands of students, professionals, and lifelong learners.",
-      icon: Target
+      title: "التطوير",
+      description:
+        "عملنا على تطوير نظام ذكي لتحليل المستندات وإنشاء ملخصات للصفحات. ركزنا على سهولة الاستخدام والدقة في النتائج.",
+      icon: Users,
     },
     {
-      year: "2024", 
-      title: "Community Impact",
-      description: "Today, we're proud to help users save countless hours while deepening their understanding of complex materials across every field imaginable.",
-      icon: Heart
-    }
+      year: "2024",
+      title: "الإطلاق",
+      description:
+        "أطلقنا عليم كمنصة بسيطة لرفع المستندات والحصول على ملخصات ذكية. ",
+      icon: Target,
+    },
+    {
+      year: "2024",
+      title: "التطوير المستمر",
+      description:
+        "نواصل تحسين الميزات وإضافة وظائف جديدة مثل إنشاء الصور من النص ومعاينة الهاتف المحمول.",
+      icon: Heart,
+    },
   ];
 
   const values = [
     {
-      title: "Knowledge First",
-      description: "We believe that true understanding comes from quality, not quantity. Our AI doesn't just summarize—it helps you comprehend.",
+      title: "المعرفة أولاً",
+      description:
+        "نعتقد أن الفهم الحقيقي يأتي من الجودة وليس الكمية. الذكاء الاصطناعي لدينا لا يلخص فقط—إنه يساعدك على الفهم.",
       icon: GraduationCap,
-      color: "text-blue-500"
+      color: "text-blue-500",
     },
     {
-      title: "Accessibility",
-      description: "Learning should be accessible to everyone, everywhere. We're breaking down barriers between people and knowledge.",
+      title: "سهولة الوصول",
+      description:
+        "يجب أن يكون التعلم متاحاً للجميع في كل مكان. نحن نحطم الحواجز بين الناس والمعرفة.",
       icon: Globe,
-      color: "text-green-500"
+      color: "text-green-500",
     },
     {
-      title: "Innovation",
-      description: "We constantly push the boundaries of what's possible in AI-assisted learning and reading comprehension.",
+      title: "الابتكار",
+      description:
+        "نحن ندفع باستمرار حدود ما هو ممكن في التعلم المدعوم بالذكاء الاصطناعي وفهم القراءة.",
       icon: Sparkles,
-      color: "text-purple-500"
+      color: "text-purple-500",
     },
     {
-      title: "Community",
-      description: "We're building more than a tool—we're fostering a community of curious minds and lifelong learners.",
+      title: "المجتمع",
+      description:
+        "نحن نبني أكثر من أداة—نحن نعزز مجتمعاً من العقول الفضولية والمتعلمين مدى الحياة.",
       icon: Users,
-      color: "text-orange-500"
-    }
+      color: "text-orange-500",
+    },
   ];
 
   const teamQuotes = [
     {
-      quote: "We're not just building software; we're crafting a bridge between human curiosity and the vast ocean of knowledge.",
-      author: "Sarah Chen",
-      role: "Founder & CEO",
-      avatar: "SC"
+      quote:
+        "هدفنا بسيط: مساعدة الناس على فهم المستندات بسرعة وسهولة. نركز على الحلول العملية التي تحل مشاكل حقيقية.",
+      author: "أسامة النهاري",
+      avatar: "أ.ن",
     },
     {
-      quote: "Every algorithm we write, every feature we design, is guided by one question: How can we make learning more joyful?",
-      author: "Ahmad Al-Rashid",
-      role: "Chief Technology Officer", 
-      avatar: "AR"
+      quote:
+        "نطور عليم خطوة بخطوة بناءً على احتياجات المستخدمين. كل ميزة جديدة تهدف إلى تحسين تجربة القراءة.",
+      author: "أسامة النهاري",
+      avatar: "أ.ن",
     },
-    {
-      quote: "The magic happens when AI and human intelligence dance together to unlock deeper understanding.",
-      author: "Dr. Elena Rodriguez",
-      role: "Head of AI Research",
-      avatar: "ER"
-    }
   ];
 
   return (
@@ -116,20 +118,22 @@ export function OurStoryPage() {
       {/* Hero Section with Animated Books */}
       <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-900 dark:via-amber-900/20 dark:to-orange-900/20 min-h-screen flex items-center">
         <div className="absolute inset-0 library-pattern opacity-10"></div>
-        
+
         {/* Floating Books Animation */}
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
               className={`absolute transition-all duration-1000 ${
-                activeBook === i ? 'opacity-100 scale-110' : 'opacity-60 scale-100'
+                activeBook === i
+                  ? "opacity-100 scale-110"
+                  : "opacity-60 scale-100"
               }`}
               style={{
                 left: `${20 + i * 15}%`,
                 top: `${30 + (i % 2) * 20}%`,
                 transform: `rotate(${-10 + i * 5}deg)`,
-                animationDelay: `${i * 0.5}s`
+                animationDelay: `${i * 0.5}s`,
               }}
             >
               <div className="floating-book">
@@ -140,8 +144,17 @@ export function OurStoryPage() {
         </div>
 
         <div className="relative container mx-auto px-4 py-12 md:py-16">
-          <div className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium border-amber-200 dark:border-amber-800">
+          <div
+            className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
+            }`}
+          >
+            <Badge
+              variant="outline"
+              className="mb-6 px-4 py-2 text-sm font-medium border-amber-200 dark:border-amber-800"
+            >
               <Scroll className="w-4 h-4 mr-2" />
               رحلتنا
             </Badge>
@@ -154,22 +167,22 @@ export function OurStoryPage() {
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              وُلدت من إيمان بسيط: أن كل فرد يستحق أن يطلق الإمكانات الكاملة
-              لتجربة القراءة. هكذا نثور في طريقة تعلم العالم.
+              بدأت فكرة عليم من تحديات القراءة اليومية: مستندات طويلة، معلومات
+              معقدة، ووقت محدود. أردنا أن نجعل فهم المحتوى أسرع وأسهل للجميع.
             </p>
 
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Library className="w-4 h-4" />
-                <span>Founded 2023</span>
+                <span>منذ 2024</span>
               </div>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
-                <span>10,000+ Users</span>
+                <span>xx مستخدم</span>
               </div>
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
-                <span>1M+ Documents Processed</span>
+                <span>xx مستند معالج</span>
               </div>
             </div>
           </div>
@@ -240,19 +253,28 @@ export function OurStoryPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">
-              Our Journey
+              رحلتنا
             </h2>
-            
+
             <div className="relative">
               {/* Timeline line */}
               <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-amber-300 dark:bg-amber-700 transform md:-translate-x-px"></div>
-              
+
               {milestones.map((milestone, index) => (
-                <div key={index} className={`relative flex items-center mb-16 ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+                <div
+                  key={index}
+                  className={`relative flex items-center mb-16 ${
+                    index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+                  }`}
+                >
                   {/* Timeline dot */}
                   <div className="absolute left-8 md:left-1/2 w-4 h-4 bg-amber-500 rounded-full transform -translate-x-2 md:-translate-x-2 z-10"></div>
-                  
-                  <div className={`w-full md:w-1/2 ${index % 2 === 0 ? 'md:pr-16' : 'md:pl-16'} pl-20 md:pl-0`}>
+
+                  <div
+                    className={`w-full md:w-1/2 ${
+                      index % 2 === 0 ? "md:pr-16" : "md:pl-16"
+                    } pl-20 md:pl-0`}
+                  >
                     <Card className="library-card-hover">
                       <CardHeader>
                         <div className="flex items-center gap-3 mb-2">
@@ -261,10 +283,12 @@ export function OurStoryPage() {
                           </div>
                           <Badge variant="secondary">{milestone.year}</Badge>
                         </div>
-                        <CardTitle className="text-xl">{milestone.title}</CardTitle>
+                        <CardTitle className="text-xl text-right">
+                          {milestone.title}
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-muted-foreground leading-relaxed">
+                        <p className="text-muted-foreground leading-relaxed text-right">
                           {milestone.description}
                         </p>
                       </CardContent>
@@ -317,10 +341,10 @@ export function OurStoryPage() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                Voices from Our Team
+                أصوات من فريقنا
               </h2>
               <p className="text-xl text-muted-foreground">
-                Meet some of the passionate minds behind عليم
+                تعرف على بعض العقول المتحمسة وراء عليم
               </p>
             </div>
 
@@ -331,7 +355,7 @@ export function OurStoryPage() {
                     <div className="flex items-start gap-4">
                       <Quote className="w-8 h-8 text-blue-500 flex-shrink-0 mt-1" />
                       <div>
-                        <p className="text-lg md:text-xl leading-relaxed mb-6 italic">
+                        <p className="text-lg md:text-xl leading-relaxed mb-6 italic text-right">
                           "{quote.quote}"
                         </p>
                         <div className="flex items-center gap-4">
@@ -340,7 +364,6 @@ export function OurStoryPage() {
                           </div>
                           <div>
                             <div className="font-semibold">{quote.author}</div>
-                            <div className="text-sm text-muted-foreground">{quote.role}</div>
                           </div>
                         </div>
                       </div>
@@ -358,21 +381,21 @@ export function OurStoryPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Join Our Story
+              انضم إلى قصتنا
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Be part of the knowledge revolution. Start your journey with عليم today 
-              and help us write the next chapter of learning.
+              كن جزءاً من ثورة المعرفة. ابدأ رحلتك مع عليم اليوم وساعدنا في
+              كتابة الفصل التالي من التعلم.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="px-8 py-6 text-lg">
-                Start Reading Smarter
+                ابدأ القراءة بذكاء
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button variant="outline" size="lg" className="px-8 py-6 text-lg">
                 <Users className="mr-2 h-5 w-5" />
-                Join Our Community
+                انضم إلى مجتمعنا
               </Button>
             </div>
           </div>

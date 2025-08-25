@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  Shield, 
-  Lock, 
-  Eye, 
-  Database, 
+import {
+  Shield,
+  Lock,
+  Eye,
+  Database,
   FileText,
   CheckCircle,
   AlertTriangle,
@@ -17,12 +17,17 @@ import {
   UserCheck,
   Timer,
   Mail,
-  Phone
+  Phone,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export function PrivacyPage() {
   const [activeSection, setActiveSection] = useState("overview");
@@ -30,152 +35,127 @@ export function PrivacyPage() {
   const privacyPrinciples = [
     {
       icon: Shield,
-      title: "Data Protection",
-      description: "Your documents and personal information are encrypted and protected with enterprise-grade security.",
+      title: "حماية البيانات",
+      description:
+        "مستنداتك والمعلومات الشخصية مشفرة ومحمية بأمان على مستوى المؤسسات.",
       color: "text-green-500",
-      bgColor: "bg-green-100 dark:bg-green-900"
+      bgColor: "bg-green-100 dark:bg-green-900",
     },
     {
       icon: Eye,
-      title: "Transparency",
-      description: "We clearly explain what data we collect, how we use it, and give you control over your information.",
+      title: "الشفافية",
+      description:
+        "نوضح بوضوح البيانات التي نجمعها، وكيفية استخدامها، ونمنحك السيطرة على معلوماتك.",
       color: "text-blue-500",
-      bgColor: "bg-blue-100 dark:bg-blue-900"
+      bgColor: "bg-blue-100 dark:bg-blue-900",
     },
     {
       icon: UserCheck,
-      title: "User Control",
-      description: "You own your data. You can access, modify, or delete your information at any time.",
+      title: "سيطرة المستخدم",
+      description:
+        "أنت تملك بياناتك. يمكنك الوصول إليها أو تعديلها أو حذفها في أي وقت.",
       color: "text-purple-500",
-      bgColor: "bg-purple-100 dark:bg-purple-900"
+      bgColor: "bg-purple-100 dark:bg-purple-900",
     },
     {
       icon: Lock,
-      title: "Security First",
-      description: "We implement the highest security standards to protect your data from unauthorized access.",
+      title: "الأمان أولاً",
+      description:
+        "نطبق أعلى معايير الأمان لحماية بياناتك من الوصول غير المصرح به.",
       color: "text-orange-500",
-      bgColor: "bg-orange-100 dark:bg-orange-900"
-    }
+      bgColor: "bg-orange-100 dark:bg-orange-900",
+    },
   ];
 
   const dataTypes = [
     {
-      category: "Account Information",
-      description: "Information you provide when creating your account",
+      category: "معلومات الحساب",
+      description: "المعلومات التي تقدمها عند إنشاء حسابك",
       items: [
-        "Name and email address",
-        "Account preferences and settings",
-        "Profile information (optional)",
-        "Subscription and billing information"
+        "الاسم وعنوان البريد الإلكتروني",
+        "تفضيلات الحساب والإعدادات",
+        "معلومات الملف الشخصي (اختياري)",
+        "معلومات الاشتراك والفوترة",
       ],
       icon: UserCheck,
-      retention: "Until account deletion"
+      retention: "حتى حذف الحساب",
     },
     {
-      category: "Document Content",
-      description: "Documents and files you upload for processing",
+      category: "محتوى المستندات",
+      description: "المستندات والملفات التي ترفعها للمعالجة",
       items: [
-        "Original document files",
-        "Generated summaries and analyses",
-        "Annotations and highlights",
-        "Reading progress and bookmarks"
+        "ملفات المستندات الأصلية",
+        "الملخصات والتحليلات المُنشأة",
+        "التعليقات والتمييز",
+        "تقدم القراءة والإشارات المرجعية",
       ],
       icon: FileText,
-      retention: "User-controlled storage"
+      retention: "تخزين يتحكم فيه المستخدم",
     },
     {
-      category: "Usage Analytics",
-      description: "Anonymous data about how you use عليم",
+      category: "تحليلات الاستخدام",
+      description: "بيانات مجهولة المصدر حول كيفية استخدامك لعليم",
       items: [
-        "Feature usage patterns",
-        "Performance metrics",
-        "Error logs (anonymized)",
-        "User interface interactions"
+        "أنماط استخدام الميزات",
+        "مقاييس الأداء",
+        "سجلات الأخطاء (مجهولة المصدر)",
+        "تفاعلات واجهة المستخدم",
       ],
       icon: Database,
-      retention: "12-24 months"
+      retention: "12-24 شهر",
     },
     {
-      category: "Technical Data",
-      description: "Information needed for service functionality",
+      category: "البيانات التقنية",
+      description: "المعلومات المطلوبة لوظائف الخدمة",
       items: [
-        "IP address and location data",
-        "Browser and device information",
-        "Session and authentication tokens",
-        "API usage logs"
+        "عنوان IP وبيانات الموقع",
+        "معلومات المتصفح والجهاز",
+        "رموز الجلسة والمصادقة",
+        "سجلات استخدام API",
       ],
       icon: Server,
-      retention: "30-90 days"
-    }
+      retention: "30-90 يوم",
+    },
   ];
 
   const securityMeasures = [
     {
-      title: "End-to-End Encryption",
-      description: "All your documents are encrypted both in transit and at rest using AES-256 encryption."
+      title: "التشفير من طرف إلى طرف",
+      description:
+        "جميع مستنداتك مشفرة أثناء النقل والتخزين باستخدام تشفير AES-256.",
     },
     {
-      title: "Zero-Knowledge Architecture",
-      description: "We process your documents without permanently storing sensitive content on our servers."
+      title: "هندسة المعرفة الصفرية",
+      description:
+        "نعالج مستنداتك دون تخزين المحتوى الحساس بشكل دائم على خوادمنا.",
     },
     {
-      title: "Regular Security Audits",
-      description: "Independent security firms regularly audit our systems to ensure the highest protection standards."
+      title: "مراجعات الأمان المنتظمة",
+      description:
+        "تقوم شركات الأمان المستقلة بمراجعة أنظمتنا بانتظام لضمان أعلى معايير الحماية.",
     },
     {
-      title: "Access Controls",
-      description: "Strict employee access controls and monitoring ensure only authorized personnel can access systems."
+      title: "ضوابط الوصول",
+      description:
+        "ضوابط الوصول الصارمة للموظفين والمراقبة تضمن أن الموظفين المصرح لهم فقط يمكنهم الوصول للأنظمة.",
     },
     {
-      title: "Data Minimization",
-      description: "We collect and retain only the minimum data necessary to provide our services effectively."
+      title: "تقليل البيانات",
+      description:
+        "نجمع ونحتفظ فقط بالحد الأدنى من البيانات اللازمة لتقديم خدماتنا بفعالية.",
     },
     {
-      title: "Secure Infrastructure",
-      description: "Our services run on enterprise-grade cloud infrastructure with multiple layers of security."
-    }
-  ];
-
-  const userRights = [
-    {
-      right: "Access Your Data",
-      description: "Request a copy of all personal data we have about you in a machine-readable format.",
-      action: "Submit access request"
+      title: "البنية التحتية الآمنة",
+      description:
+        "تعمل خدماتنا على بنية تحتية سحابية على مستوى المؤسسات مع طبقات متعددة من الأمان.",
     },
-    {
-      right: "Correct Your Data",
-      description: "Update or correct any inaccurate personal information in your account.",
-      action: "Update in settings"
-    },
-    {
-      right: "Delete Your Data",
-      description: "Request complete deletion of your account and all associated data.",
-      action: "Contact support"
-    },
-    {
-      right: "Data Portability",
-      description: "Export your data to use with other services or for backup purposes.",
-      action: "Download data"
-    },
-    {
-      right: "Opt-Out",
-      description: "Withdraw consent for data processing activities like analytics or marketing.",
-      action: "Manage preferences"
-    },
-    {
-      right: "Object to Processing",
-      description: "Object to certain types of data processing for legitimate interests.",
-      action: "File objection"
-    }
   ];
 
   const sections = [
-    { id: "overview", title: "Overview", icon: BookOpen },
-    { id: "collection", title: "Data Collection", icon: Database },
-    { id: "usage", title: "How We Use Data", icon: Eye },
-    { id: "security", title: "Security Measures", icon: Shield },
-    { id: "rights", title: "Your Rights", icon: UserCheck },
-    { id: "contact", title: "Contact Us", icon: Mail }
+    { id: "overview", title: "نظرة عامة", icon: BookOpen },
+    { id: "collection", title: "جمع البيانات", icon: Database },
+    { id: "usage", title: "كيفية استخدام البيانات", icon: Eye },
+    { id: "security", title: "إجراءات الأمان", icon: Shield },
   ];
 
   return (
@@ -183,7 +163,7 @@ export function PrivacyPage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50 dark:from-gray-900 dark:via-violet-900/20 dark:to-purple-900/20 min-h-screen flex items-center">
         <div className="absolute inset-0 library-pattern opacity-10"></div>
-        
+
         {/* Floating Security Icons */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-20 left-10 opacity-20 animate-pulse">
@@ -199,7 +179,10 @@ export function PrivacyPage() {
 
         <div className="relative container mx-auto px-4 py-12 md:py-16">
           <div className="max-w-4xl mx-auto text-center">
-            <Badge variant="outline" className="mb-6 px-4 py-2 text-sm font-medium border-violet-200 dark:border-violet-800">
+            <Badge
+              variant="outline"
+              className="mb-6 px-4 py-2 text-sm font-medium border-violet-200 dark:border-violet-800"
+            >
               <Scroll className="w-4 h-4 mr-2" />
               سياسة الخصوصية
             </Badge>
@@ -212,22 +195,22 @@ export function PrivacyPage() {
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              في عليم، نؤمن أن الخصوصية حق أساسي. تعلم كيف نحمي بياناتك،
-              نحترم خصوصيتك، ونمنحك السيطرة الكاملة على معلوماتك.
+              في عليم، نؤمن أن الخصوصية حق أساسي. تعلم كيف نحمي بياناتك، نحترم
+              خصوصيتك، ونمنحك السيطرة الكاملة على معلوماتك.
             </p>
 
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Timer className="w-4 h-4" />
-                <span>Last Updated: Dec 2024</span>
+                <span>آخر تحديث: ديسمبر 2024</span>
               </div>
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4" />
-                <span>GDPR Compliant</span>
+                <span>متوافق مع الخصوصية</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
-                <span>SOC 2 Certified</span>
+                <span>البيانات محمية</span>
               </div>
             </div>
           </div>
@@ -240,10 +223,10 @@ export function PrivacyPage() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                Our Privacy Principles
+                مبادئ الخصوصية لدينا
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                These core principles guide every decision we make about data and privacy.
+                هذه المبادئ الأساسية توجه كل قرار نتخذه بشأن البيانات والخصوصية.
               </p>
             </div>
 
@@ -251,13 +234,17 @@ export function PrivacyPage() {
               {privacyPrinciples.map((principle, index) => (
                 <Card key={index} className="library-card-hover text-center">
                   <CardHeader>
-                    <div className={`w-16 h-16 mx-auto rounded-2xl ${principle.bgColor} flex items-center justify-center mb-4`}>
-                      <principle.icon className={`w-8 h-8 ${principle.color}`} />
+                    <div
+                      className={`w-16 h-16 mx-auto rounded-2xl ${principle.bgColor} flex items-center justify-center mb-4`}
+                    >
+                      <principle.icon
+                        className={`w-8 h-8 ${principle.color}`}
+                      />
                     </div>
                     <CardTitle className="text-xl">{principle.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed text-right">
                       {principle.description}
                     </p>
                   </CardContent>
@@ -277,13 +264,15 @@ export function PrivacyPage() {
               <div className="lg:col-span-1">
                 <Card className="sticky top-8">
                   <CardHeader>
-                    <CardTitle className="text-lg">Quick Navigation</CardTitle>
+                    <CardTitle className="text-lg">التنقل السريع</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     {sections.map((section) => (
                       <Button
                         key={section.id}
-                        variant={activeSection === section.id ? "default" : "ghost"}
+                        variant={
+                          activeSection === section.id ? "default" : "ghost"
+                        }
                         className="w-full justify-start"
                         onClick={() => setActiveSection(section.id)}
                       >
@@ -302,29 +291,32 @@ export function PrivacyPage() {
                   <CardHeader>
                     <CardTitle className="text-2xl flex items-center gap-3">
                       <BookOpen className="w-6 h-6 text-violet-500" />
-                      Privacy Policy Overview
+                      نظرة عامة على سياسة الخصوصية
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="prose prose-gray dark:prose-invert max-w-none">
+                  <CardContent className="prose prose-gray dark:prose-invert max-w-none text-right">
                     <p className="text-lg leading-relaxed mb-6">
-                      This Privacy Policy explains how عليم ("we," "our," or "us") collects, uses, 
-                      processes, and protects your personal information when you use our AI-powered 
-                      document analysis platform.
+                      توضح سياسة الخصوصية هذه كيف يجمع عليم ويستخدم ويعالج ويحمي
+                      معلوماتك الشخصية عند استخدامك للمنصة
                     </p>
                     <p className="leading-relaxed mb-4">
-                      We are committed to protecting your privacy and ensuring you have a positive 
-                      experience on our platform. This policy outlines our practices concerning the 
-                      collection, use, and disclosure of your information through our services.
+                      نحن ملتزمون بحماية خصوصيتك وضمان حصولك على تجربة إيجابية
+                      على منصتنا. تحدد هذه السياسة ممارساتنا فيما يتعلق بجمع
+                      واستخدام وكشف معلوماتك من خلال خدماتنا.
+                    </p>
+                    <p className="leading-relaxed mb-4">
+                      هذه السياسة سارية المفعول اعتباراً من ديسمبر 2024 وتنطبق
+                      على جميع مستخدمي منصة عليم.
                     </p>
                     <div className="bg-violet-50 dark:bg-violet-900/20 p-6 rounded-lg border border-violet-200 dark:border-violet-800">
                       <h4 className="font-semibold mb-2 flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5 text-violet-500" />
-                        Important Note
+                        ملاحظة مهمة
                       </h4>
-                      <p className="text-sm text-muted-foreground">
-                        By using عليم, you agree to the collection and use of information in accordance 
-                        with this policy. If you do not agree with our policies and practices, please 
-                        do not use our services.
+                      <p className="text-sm text-muted-foreground text-right">
+                        باستخدام عليم، فإنك توافق على جمع واستخدام المعلومات
+                        وفقاً لهذه السياسة. إذا كنت لا توافق على سياساتنا
+                        وممارساتنا، يرجى عدم استخدام خدماتنا.
                       </p>
                     </div>
                   </CardContent>
@@ -335,31 +327,41 @@ export function PrivacyPage() {
                   <CardHeader>
                     <CardTitle className="text-2xl flex items-center gap-3">
                       <Database className="w-6 h-6 text-blue-500" />
-                      What Information We Collect
+                      المعلومات التي نجمعها
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-8">
                       {dataTypes.map((type, index) => (
-                        <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                        <div
+                          key={index}
+                          className="border border-gray-200 dark:border-gray-700 rounded-lg p-6"
+                        >
                           <div className="flex items-start gap-4 mb-4">
                             <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
                               <type.icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <div className="flex-1">
-                              <h3 className="text-xl font-semibold mb-2">{type.category}</h3>
-                              <p className="text-muted-foreground mb-4">{type.description}</p>
+                            <div className="flex-1 text-right">
+                              <h3 className="text-xl font-semibold mb-2">
+                                {type.category}
+                              </h3>
+                              <p className="text-muted-foreground mb-4">
+                                {type.description}
+                              </p>
                               <div className="grid md:grid-cols-2 gap-2 mb-4">
                                 {type.items.map((item, itemIndex) => (
-                                  <div key={itemIndex} className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                  <div
+                                    key={itemIndex}
+                                    className="flex items-center gap-2 justify-end"
+                                  >
                                     <span className="text-sm">{item}</span>
+                                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
                                   </div>
                                 ))}
                               </div>
                               <Badge variant="outline" className="text-xs">
                                 <Timer className="w-3 h-3 mr-1" />
-                                Retention: {type.retention}
+                                الاحتفاظ: {type.retention}
                               </Badge>
                             </div>
                           </div>
@@ -374,117 +376,32 @@ export function PrivacyPage() {
                   <CardHeader>
                     <CardTitle className="text-2xl flex items-center gap-3">
                       <Shield className="w-6 h-6 text-green-500" />
-                      How We Protect Your Data
+                      كيف نحمي بياناتك
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-lg text-muted-foreground mb-6">
-                      We implement comprehensive security measures to protect your personal information 
-                      against unauthorized access, alteration, disclosure, or destruction.
+                    <p className="text-lg text-muted-foreground mb-6 text-right">
+                      نطبق إجراءات أمان شاملة لحماية معلوماتك الشخصية من الوصول
+                      غير المصرح به أو التعديل أو الكشف أو التدمير.
                     </p>
-                    
+
                     <div className="grid md:grid-cols-2 gap-6">
                       {securityMeasures.map((measure, index) => (
-                        <div key={index} className="flex items-start gap-3 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                        <div
+                          key={index}
+                          className="flex items-start gap-3 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
+                        >
                           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <h4 className="font-semibold mb-1">{measure.title}</h4>
-                            <p className="text-sm text-muted-foreground">{measure.description}</p>
+                          <div className="text-right">
+                            <h4 className="font-semibold mb-1">
+                              {measure.title}
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              {measure.description}
+                            </p>
                           </div>
                         </div>
                       ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* User Rights */}
-                <Card className="library-card-hover">
-                  <CardHeader>
-                    <CardTitle className="text-2xl flex items-center gap-3">
-                      <UserCheck className="w-6 h-6 text-purple-500" />
-                      Your Rights and Controls
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-lg text-muted-foreground mb-6">
-                      You have comprehensive rights regarding your personal data. Here's what you can do:
-                    </p>
-                    
-                    <Accordion type="single" collapsible className="w-full">
-                      {userRights.map((right, index) => (
-                        <AccordionItem key={index} value={`right-${index}`}>
-                          <AccordionTrigger className="text-left">
-                            <div className="flex items-center gap-3">
-                              <CheckCircle className="w-5 h-5 text-purple-500" />
-                              {right.right}
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="pl-8">
-                            <p className="text-muted-foreground mb-3">{right.description}</p>
-                            <Button variant="outline" size="sm">
-                              {right.action}
-                            </Button>
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
-                  </CardContent>
-                </Card>
-
-                {/* Contact Information */}
-                <Card className="library-card-hover">
-                  <CardHeader>
-                    <CardTitle className="text-2xl flex items-center gap-3">
-                      <Mail className="w-6 h-6 text-orange-500" />
-                      Privacy Questions & Contact
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-lg text-muted-foreground mb-6">
-                      If you have any questions about this Privacy Policy or our data practices, 
-                      we're here to help.
-                    </p>
-                    
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="p-6 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
-                        <h4 className="font-semibold mb-3 flex items-center gap-2">
-                          <Mail className="w-5 h-5 text-orange-500" />
-                          Data Protection Officer
-                        </h4>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          For privacy-related questions and requests
-                        </p>
-                        <p className="font-medium">privacy@aleem.app</p>
-                      </div>
-                      
-                      <div className="p-6 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                        <h4 className="font-semibold mb-3 flex items-center gap-2">
-                          <Phone className="w-5 h-5 text-blue-500" />
-                          Legal & Compliance
-                        </h4>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          For legal matters and compliance questions
-                        </p>
-                        <p className="font-medium">legal@aleem.app</p>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-6 p-6 rounded-lg bg-gray-50 dark:bg-gray-800 border">
-                      <h4 className="font-semibold mb-3">Response Timeline</h4>
-                      <div className="grid md:grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <span className="font-medium">General Inquiries:</span>
-                          <p className="text-muted-foreground">Within 24 hours</p>
-                        </div>
-                        <div>
-                          <span className="font-medium">Data Requests:</span>
-                          <p className="text-muted-foreground">Within 30 days</p>
-                        </div>
-                        <div>
-                          <span className="font-medium">Urgent Matters:</span>
-                          <p className="text-muted-foreground">Within 2 hours</p>
-                        </div>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -499,20 +416,21 @@ export function PrivacyPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Privacy-First Reading Experience
+              تجربة قراءة تركز على الخصوصية
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Experience the power of AI-assisted reading while knowing your data is secure and your privacy is protected.
+              اختبر قوة القراءة المدعومة بالذكاء الاصطناعي مع العلم أن بياناتك
+              آمنة وخصوصيتك محمية.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="px-8 py-6 text-lg">
                 <Shield className="mr-2 h-5 w-5" />
-                Start Reading Securely
+                ابدأ القراءة بأمان
               </Button>
               <Button variant="outline" size="lg" className="px-8 py-6 text-lg">
                 <Mail className="mr-2 h-5 w-5" />
-                Contact Privacy Team
+                اتصل بفريق الخصوصية
               </Button>
             </div>
           </div>

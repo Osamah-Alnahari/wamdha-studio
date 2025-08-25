@@ -43,10 +43,8 @@ export function Footer() {
     {
       href: "/terms-and-conditions",
       label: "الشروط والأحكام",
-      icon: ScrollText,
+      icon: ScrollText, 
     },
-    { href: "#", label: "سياسة الاستخدام", icon: FileText },
-    { href: "#", label: "سياسة ملفات تعريف الارتباط", icon: Globe },
   ];
 
   const socialLinks = [
@@ -82,8 +80,6 @@ export function Footer() {
   const productLinks = [
     { href: "#", label: "الميزات" },
     { href: "#", label: "التسعير" },
-    { href: "#", label: "للمؤسسات" },
-    { href: "#", label: "للمطورين" },
   ];
 
   return (
@@ -123,7 +119,7 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <Phone className="h-4 w-4 text-muted-foreground" />
-                <span dir="ltr">+966 11 123 4567</span>
+                <span dir="ltr">+966 551 282 648</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
