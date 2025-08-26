@@ -24,8 +24,13 @@ const prodConfig = {
 async function configureAmplify() {
   try {
     let config;
-    config = prodConfig;
-
+    if (process.env.NODE_ENV === "production") {
+      config = prodConfig;
+    } else {
+      // Dynamically import only in development
+      const devModule = await import("./aws-exports");
+      config = devModule.default;
+    }
     Amplify.configure(config);
   } catch (error) {
     console.error("Error configuring Amplify:", error);
