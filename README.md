@@ -7,10 +7,59 @@ Built with **Next.js, TypeScript, Tailwind CSS, and AWS Amplify**, it delivers a
 
 ## Table of Contents
 
+- [Getting Started](#getting-started)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
+
+---
+
+## Getting Started
+
+1. **Clone the repository**
+
+   ```sh
+   git clone <repo-url>
+   cd reads-studio
+
+   ```
+
+2. **Install dependencies**
+
+   ```sh
+   npm install --legacy-peer-deps
+   ```
+
+3. **Configure AWS Amplify**
+
+   - Install Amplify CLI if not already installed:
+
+     ```sh
+     npm install -g @aws-amplify/cli
+     ```
+
+   - Configure your AWS credentials (one-time per machine):
+
+     ```sh
+     amplify configure
+     ```
+
+   - Pull the existing Amplify backend environment:
+
+     ```sh
+     amplify pull --appId <appId> --envName <env>
+     ```
+
+     This will automatically generate/update the `amplify/` folder and configuration files (e.g., `aws-exports.js`).
+
+4. **Run the development server**
+
+   ```sh
+   npm run dev
+   ```
+
+5. **Open in browser**
+   [http://localhost:3000](http://localhost:3000)
 
 ---
 
@@ -77,7 +126,7 @@ Built with **Next.js, TypeScript, Tailwind CSS, and AWS Amplify**, it delivers a
 - Utility functions for error handling, uploads, etc.
 - Modular, reusable UI components (forms, cards, navigation, etc.)
 
-### Advanced Features
+### Other Features
 
 - Real-time updates with `document-store`
 - Confirmation dialogs for destructive actions
@@ -87,67 +136,62 @@ Built with **Next.js, TypeScript, Tailwind CSS, and AWS Amplify**, it delivers a
 
 ## Tech Stack
 
-- **Framework:** Next.js + React
+- **Framework:** Next.js
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS
 - **Cloud & Backend:** AWS Amplify (Cognito, Storage, GraphQL API, Analytics)
-- **UI Tools:** Amplify Studio, react-beautiful-dnd
-- **Notifications & UX:** sonner, skeleton loaders
 
 ---
 
 ## Project Structure
 
 ```text
-app/           Next.js app directory (routing, layouts, providers)
-components/    Reusable UI components (forms, cards, navigation, skeletons)
-contexts/      React context providers (Auth, Document, Theme)
-hooks/         Custom hooks (Amplify client, mobile detection, toast)
-lib/           API clients, services, AI integrations
-public/        Static assets (images, logos, placeholders)
-stores/        State management (document-store, UI state)
-styles/        Global styles (Tailwind, CSS)
-types/         TypeScript definitions (API, components, documents)
-utils/         Helpers (error handling, uploads, etc.)
-amplify/       AWS Amplify config, backend resources
+reads-studio/
+│
+├── app/                  # Next.js app (routing, layouts, providers)
+│   ├── layout.tsx        # Root layout
+│   ├── page.tsx          # Main page
+│   └── ...               # Other pages and UI
+│
+├── components/           # Reusable UI components
+│   ├── navbar.tsx        # Navigation bar
+│   ├── footer.tsx        # Footer
+│   ├── document-splitter.tsx
+│   └── ...               # Forms, cards, skeletons, modals
+│
+├── contexts/             # React context providers
+│   ├── AuthContext.tsx   # Authentication context
+│   └── ...               # Document, theme contexts
+│
+├── hooks/                # Custom React hooks
+│   ├── use-amplify-client.ts
+│   └── ...               # Mobile detection, toast
+│
+├── lib/                  # API clients, services, AI integrations
+│   ├── api-client.ts
+│   └── ...
+│
+├── public/               # Static assets
+│   ├── placeholder-logo.png
+│   └── ...               # Images, SVGs
+│
+├── stores/               # State management
+│   ├── document-store.ts
+│   └── ...
+│
+├── styles/               # Global and component styles
+│   ├── globals.css
+│   └── ...
+│
+├── types/                # TypeScript type definitions
+│   ├── api-types.ts
+│   └── ...
+│
+├── utils/                # Helper functions
+│   ├── get-error-message.tsx
+│   └── ...
+│
+├── amplify/              # AWS Amplify config & backend
+│   ├── cli.json
+│   └── ...
 ```
-
-````
-
----
-
-## Getting Started
-
-1. **Clone the repository**
-
-   ```sh
-   git clone <repo-url>
-   cd reads-studio
-   ```
-
-2. **Install dependencies**
-
-   ```sh
-   npm install --legacy-peer-deps
-   ```
-
-3. **Configure AWS Amplify**
-
-   - Update `amplifyconfiguration.json` and `aws-exports.js` with your AWS credentials.
-   - If needed, install and set up Amplify CLI:
-
-     ```sh
-     npm install -g @aws-amplify/cli
-     amplify configure
-     amplify pull
-     ```
-
-4. **Run the development server**
-
-   ```sh
-   npm run dev
-   ```
-
-5. **Open in browser**
-   [http://localhost:3000](http://localhost:3000)
-````
