@@ -9,6 +9,11 @@ import {
   X,
   PlusCircle,
   Loader2,
+  Home,
+  Mail,
+  Shield,
+  ScrollText,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -58,13 +63,35 @@ export function Navbar() {
     setIsMenuOpen(false);
   };
 
+  // Check if current route is in books section
+  const isBooksRoute = pathname.startsWith("/books");
+
+  // Navigation items for non-books routes (public pages)
+  const publicNavItems = [
+    { path: "/contact", label: "تواصل معنا", icon: Mail },
+    { path: "/privacy", label: "الخصوصية", icon: Shield },
+    { path: "/terms-and-conditions", label: "الشروط", icon: ScrollText },
+    { path: "/books", label: "الاستوديو", icon: Zap },
+    { path: "/ourstory", label: "قصتنا", icon: Book },
+    { path: "/", label: "الرئيسية", icon: Home },
+  ];
+
+  // Navigation items for books routes (authenticated app)
+  const appNavItems = [
+    { path: "/", label: "Home", icon: Home },
+    { path: "/books", label: "Library", icon: FileText },
+    { path: "/books/new", label: "New Book", icon: PlusCircle },
+  ];
+
+  const navItems = isBooksRoute ? appNavItems : publicNavItems;
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <div
             className="flex items-center space-x-2 cursor-pointer"
-            onClick={() => handleNavigation("/books")}
+            onClick={() => handleNavigation(isBooksRoute ? "/books" : "/")}
           >
             <Book className="h-6 w-6" />
             <span className="font-bold">عليم</span>
@@ -73,28 +100,21 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
-          <div
-            className={cn(
-              "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-              pathname === "/books" ? "text-primary" : "text-muted-foreground"
-            )}
-            onClick={() => handleNavigation("/books")}
-          >
-            <FileText className="h-5 w-5" />
-            <span className="ml-2">Library</span>
-          </div>
-          <div
-            className={cn(
-              "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-              pathname === "/books/new"
-                ? "text-primary"
-                : "text-muted-foreground"
-            )}
-            onClick={() => handleNavigation("/books/new")}
-          >
-            <PlusCircle className="h-5 w-5" />
-            <span className="ml-2">New Book</span>
-          </div>
+          {navItems.map((item) => (
+            <div
+              key={item.path}
+              className={cn(
+                "flex items-center text-sm font-medium transition-colors hover:text-primary cursor-pointer",
+                pathname === item.path
+                  ? "text-primary"
+                  : "text-muted-foreground"
+              )}
+              onClick={() => handleNavigation(item.path)}
+            >
+              <item.icon className="h-5 w-5" />
+              <span className="ml-2">{item.label}</span>
+            </div>
+          ))}
         </nav>
 
         {/* Desktop User Menu */}
@@ -159,30 +179,33 @@ export function Navbar() {
         <div className="md:hidden border-t">
           <div className="container py-4 grid gap-4">
             <nav className="grid gap-2">
-              <div
-                className={cn(
-                  "flex items-center py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-                  pathname === "/books"
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                )}
-                onClick={() => handleNavigation("/books")}
-              >
-                <FileText className="h-5 w-5" />
-                <span className="ml-2">Library</span>
-              </div>
-              <div
-                className={cn(
-                  "flex items-center py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer",
-                  pathname === "/books/new"
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                )}
-                onClick={() => handleNavigation("/books/new")}
-              >
-                <PlusCircle className="h-5 w-5" />
-                <span className="ml-2">New Book</span>
-              </div>
+              {navItems.map((item) => (
+                <div
+                  key={item.path}
+                  className={cn(
+                    "flex items-center py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer",
+                    pathname === item.path
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  )}
+                  onClick={() => handleNavigation(item.path)}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span className="ml-2">{item.label}</span>
+                </div>
+              ))}
+              {!isBooksRoute && (
+                <div
+                  className={cn(
+                    "flex items-center py-2 text-sm font-medium transition-colors hover:text-primary cursor-pointer",
+                    "text-muted-foreground"
+                  )}
+                  onClick={() => handleNavigation("/books")}
+                >
+                  <Zap className="h-5 w-5" />
+                  <span className="ml-2">الاستوديو</span>
+                </div>
+              )}
             </nav>
             <div className="flex items-center justify-between pt-4 border-t">
               <ThemeToggle showLabel />
