@@ -175,7 +175,7 @@ export function HomePage() {
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
                 مرحباً بك في{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
-                  عليم
+                 ومضة 
                 </span>
               </h1>
 
