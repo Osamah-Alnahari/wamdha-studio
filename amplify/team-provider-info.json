@@ -1,25 +1,22 @@
 {
-  "staging": {
+  "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-readerapp-staging-8b655-authRole",
-      "UnauthRoleArn": "arn:aws:iam::570522843504:role/amplify-readerapp-staging-8b655-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::570522843504:role/amplify-readerapp-staging-8b655-authRole",
+      "AuthRoleName": "amplify-wamdha-dev-f2def-authRole",
+      "UnauthRoleArn": "arn:aws:iam::180141513784:role/amplify-wamdha-dev-f2def-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::180141513784:role/amplify-wamdha-dev-f2def-authRole",
       "Region": "me-south-1",
-      "DeploymentBucketName": "amplify-readerapp-staging-8b655-deployment",
-      "UnauthRoleName": "amplify-readerapp-staging-8b655-unauthRole",
-      "StackName": "amplify-readerapp-staging-8b655",
-      "StackId": "arn:aws:cloudformation:me-south-1:570522843504:stack/amplify-readerapp-staging-8b655/f71e0310-1868-11f0-b53c-06d345d49c43",
-      "AmplifyAppId": "d339kw1wl071s1"
+      "DeploymentBucketName": "amplify-wamdha-dev-f2def-deployment",
+      "UnauthRoleName": "amplify-wamdha-dev-f2def-unauthRole",
+      "StackName": "amplify-wamdha-dev-f2def",
+      "StackId": "arn:aws:cloudformation:me-south-1:180141513784:stack/amplify-wamdha-dev-f2def/43ce05d0-9590-11f0-abe1-0a7a34a79053",
+      "AmplifyAppId": "d3qncqtpuwmoc1"
     },
     "categories": {
       "auth": {
-        "ReaderApp": {}
+        "wamdha7c758018": {}
       },
       "storage": {
-        "readerAppContentStorage": {}
-      },
-      "api": {
-        "readerapp": {}
+        "wamdhaStorage": {}
       }
     }
   }

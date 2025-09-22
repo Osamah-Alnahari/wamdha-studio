@@ -5,16 +5,16 @@
 type Read @model
   @auth(rules: [
     { allow: private, operations: [read] },
-    { allow: owner, identityClaim: "sub", operations: [create, read, update, delete] }
+    { allow: owner, operations: [create, read, update, delete] }
   ]) {
   id: ID!
   title: String!
   description: String
   thumbnailUrl: String!
-  AuthorName: String!
+  authorName: String!
 
   # Associate each Read with its owner
-  userId: ID! @index(name: "byUser", sortKeyFields: [])
+  userId: ID! @index(name: "byUser")
   user: User @belongsTo(fields: ["userId"])
 
   slides: [Slide] @hasMany(indexName: "byRead", fields: ["id"])
@@ -23,7 +23,7 @@ type Read @model
 type Slide @model
   @auth(rules: [
     { allow: private, operations: [read] },
-    { allow: owner, identityClaim: "sub", operations: [create, read, update, delete] }
+    { allow: owner, operations: [create, read, update, delete] }
   ]) {
   id: ID!
   readId: ID! @index(name: "byRead", sortKeyFields: ["slideNumber"])
@@ -31,7 +31,7 @@ type Slide @model
 
   slideNumber: Int!
   text: String!
-  imageUrl: String!        # S3 key for this slide’s image
+  imageUrl: String        # S3 key for this slide’s image
 }
 
 ############################
@@ -40,10 +40,9 @@ type Slide @model
 
 type User @model
   @auth(rules: [
-    { allow: owner, ownerField: "id", identityClaim: "sub", operations: [create, read, update, delete] }
+    { allow: owner, ownerField: "id", operations: [create, read, update, delete] }
   ]) {
   id: ID!
-  username: String!
   email: String!
   givenName: String!
   dailyStreak: Int!
@@ -57,10 +56,10 @@ type User @model
 
 type UserBookProgress @model
   @auth(rules: [
-    { allow: owner, ownerField: "userId", identityClaim: "sub", operations: [create, read, update, delete] }
+    { allow: owner, ownerField: "userId", operations: [create, read, update, delete] }
   ]) {
   id: ID!
-  userId: ID! @index(name: "byUser", sortKeyFields: [])
+  userId: ID! @index(name: "byUser")
   user: User @belongsTo(fields: ["userId"])
 
   bookId: ID!
@@ -70,10 +69,10 @@ type UserBookProgress @model
 
 type Achievement @model
   @auth(rules: [
-    { allow: owner, ownerField: "userId", identityClaim: "sub", operations: [create, read, update, delete] }
+    { allow: owner, ownerField: "userId", operations: [create, read, update, delete] }
   ]) {
   id: ID!
-  userId: ID! @index(name: "byUser", sortKeyFields: [])
+  userId: ID! @index(name: "byUser")
   user: User @belongsTo(fields: ["userId"])
 
   name: String!
@@ -83,10 +82,10 @@ type Achievement @model
 
 type Badge @model
   @auth(rules: [
-    { allow: owner, ownerField: "userId", identityClaim: "sub", operations: [create, read, update, delete] }
+    { allow: owner, ownerField: "userId", operations: [create, read, update, delete] }
   ]) {
   id: ID!
-  userId: ID! @index(name: "byUser", sortKeyFields: [])
+  userId: ID! @index(name: "byUser")
   user: User @belongsTo(fields: ["userId"])
 
   name: String!
