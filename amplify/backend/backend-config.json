@@ -1,40 +1,28 @@
 {
   "analytics": {
-    "readerapp": {
+    "wamdhaAnalytics": {
       "providerPlugin": "awscloudformation",
       "service": "Pinpoint"
     }
   },
   "api": {
-    "readerapp": {
+    "wamdha": {
       "dependsOn": [
         {
           "attributes": [
             "UserPoolId"
           ],
           "category": "auth",
-          "resourceName": "ReaderApp"
+          "resourceName": "wamdha7c758018"
         }
       ],
       "output": {
         "authConfig": {
-          "additionalAuthenticationProviders": [
-            {
-              "apiKeyConfig": {
-                "apiKeyExpirationDate": "2026-04-25T19:27:26.109Z",
-                "apiKeyExpirationDays": 365,
-                "description": "ReaderApp-API-Key-2025-4-25"
-              },
-              "authenticationType": "API_KEY"
-            },
-            {
-              "authenticationType": "AWS_IAM"
-            }
-          ],
+          "additionalAuthenticationProviders": [],
           "defaultAuthentication": {
             "authenticationType": "AMAZON_COGNITO_USER_POOLS",
             "userPoolConfig": {
-              "userPoolId": "authReaderApp"
+              "userPoolId": "authwamdha7c758018"
             }
           }
         }
@@ -44,7 +32,7 @@
     }
   },
   "auth": {
-    "ReaderApp": {
+    "wamdha7c758018": {
       "customAuth": false,
       "dependsOn": [],
       "frontendAuthConfig": {
@@ -57,11 +45,11 @@
           "passwordPolicyMinLength": 8
         },
         "signupAttributes": [
-          "EMAIL",
-          "GIVEN_NAME",
-          "PREFERRED_USERNAME"
+          "EMAIL"
         ],
-        "socialProviders": [],
+        "socialProviders": [
+          "GOOGLE"
+        ],
         "usernameAttributes": [
           "EMAIL"
         ],
@@ -74,7 +62,7 @@
     }
   },
   "storage": {
-    "readerAppContentStorage": {
+    "wamdhaStorage": {
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
       "service": "S3"

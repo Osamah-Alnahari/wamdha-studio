@@ -1,10 +1,10 @@
 {
-  "AppSyncApiName": "readerapp",
+  "AppSyncApiName": "wamdha",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
   "DynamoDBEnableServerSideEncryption": false,
   "AuthCognitoUserPoolId": {
     "Fn::GetAtt": [
-      "authReaderApp",
+      "authwamdha7c758018",
       "Outputs.UserPoolId"
     ]
   }
