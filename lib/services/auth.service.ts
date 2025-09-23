@@ -1,3 +1,4 @@
+import { createUser } from "@/src/graphql/mutations";
 import {
   AuthUser,
   fetchAuthSession,
@@ -10,6 +11,8 @@ import {
   fetchUserAttributes,
 } from "@aws-amplify/auth";
 import { Hub } from "aws-amplify/utils";
+import { generateClient } from "aws-amplify/api";
+const client = generateClient();
 
 // Types for auth operations
 export interface SignInCredentials {
@@ -47,6 +50,18 @@ export const signInUser = async (credentials: SignInCredentials) => {
       password: credentials.password,
     });
 
+    // await client.graphql({
+    //   query: createUser,
+    //   variables: {
+    //     input: {
+    //       email: credentials.username,
+    //       givenName: credentials.username,
+    //       dailyStreak: 0,
+    //       lastActive: new Date().toISOString(),
+    //     },
+    //   },
+    // });
+    // console.log("User record created/updated in database");
     return result;
   } catch (error) {
     console.error("Error signing in:", error);

@@ -14,11 +14,10 @@ export const getRead = /* GraphQL */ `query GetRead($id: ID!) {
     title
     description
     thumbnailUrl
-    AuthorName
+    authorName
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -49,7 +48,7 @@ export const listReads = /* GraphQL */ `query ListReads(
       title
       description
       thumbnailUrl
-      AuthorName
+      authorName
       userId
       createdAt
       updatedAt
@@ -61,40 +60,6 @@ export const listReads = /* GraphQL */ `query ListReads(
   }
 }
 ` as GeneratedQuery<APITypes.ListReadsQueryVariables, APITypes.ListReadsQuery>;
-export const readsByUserId = /* GraphQL */ `query ReadsByUserId(
-  $userId: ID!
-  $sortDirection: ModelSortDirection
-  $filter: ModelReadFilterInput
-  $limit: Int
-  $nextToken: String
-) {
-  readsByUserId(
-    userId: $userId
-    sortDirection: $sortDirection
-    filter: $filter
-    limit: $limit
-    nextToken: $nextToken
-  ) {
-    items {
-      id
-      title
-      description
-      thumbnailUrl
-      AuthorName
-      userId
-      createdAt
-      updatedAt
-      owner
-      __typename
-    }
-    nextToken
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.ReadsByUserIdQueryVariables,
-  APITypes.ReadsByUserIdQuery
->;
 export const getSlide = /* GraphQL */ `query GetSlide($id: ID!) {
   getSlide(id: $id) {
     id
@@ -104,7 +69,7 @@ export const getSlide = /* GraphQL */ `query GetSlide($id: ID!) {
       title
       description
       thumbnailUrl
-      AuthorName
+      authorName
       userId
       createdAt
       updatedAt
@@ -146,45 +111,9 @@ export const listSlides = /* GraphQL */ `query ListSlides(
   APITypes.ListSlidesQueryVariables,
   APITypes.ListSlidesQuery
 >;
-export const slidesByReadIdAndSlideNumber = /* GraphQL */ `query SlidesByReadIdAndSlideNumber(
-  $readId: ID!
-  $slideNumber: ModelIntKeyConditionInput
-  $sortDirection: ModelSortDirection
-  $filter: ModelSlideFilterInput
-  $limit: Int
-  $nextToken: String
-) {
-  slidesByReadIdAndSlideNumber(
-    readId: $readId
-    slideNumber: $slideNumber
-    sortDirection: $sortDirection
-    filter: $filter
-    limit: $limit
-    nextToken: $nextToken
-  ) {
-    items {
-      id
-      readId
-      slideNumber
-      text
-      imageUrl
-      createdAt
-      updatedAt
-      owner
-      __typename
-    }
-    nextToken
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.SlidesByReadIdAndSlideNumberQueryVariables,
-  APITypes.SlidesByReadIdAndSlideNumberQuery
->;
 export const getUser = /* GraphQL */ `query GetUser($id: ID!) {
   getUser(id: $id) {
     id
-    username
     email
     givenName
     dailyStreak
@@ -219,7 +148,6 @@ export const listUsers = /* GraphQL */ `query ListUsers(
   listUsers(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
-      username
       email
       givenName
       dailyStreak
@@ -239,7 +167,6 @@ export const getUserBookProgress = /* GraphQL */ `query GetUserBookProgress($id:
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -286,44 +213,12 @@ export const listUserBookProgresses = /* GraphQL */ `query ListUserBookProgresse
   APITypes.ListUserBookProgressesQueryVariables,
   APITypes.ListUserBookProgressesQuery
 >;
-export const userBookProgressesByUserId = /* GraphQL */ `query UserBookProgressesByUserId(
-  $userId: ID!
-  $sortDirection: ModelSortDirection
-  $filter: ModelUserBookProgressFilterInput
-  $limit: Int
-  $nextToken: String
-) {
-  userBookProgressesByUserId(
-    userId: $userId
-    sortDirection: $sortDirection
-    filter: $filter
-    limit: $limit
-    nextToken: $nextToken
-  ) {
-    items {
-      id
-      userId
-      bookId
-      lastSlideNumber
-      updatedAt
-      createdAt
-      __typename
-    }
-    nextToken
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.UserBookProgressesByUserIdQueryVariables,
-  APITypes.UserBookProgressesByUserIdQuery
->;
 export const getAchievement = /* GraphQL */ `query GetAchievement($id: ID!) {
   getAchievement(id: $id) {
     id
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -368,45 +263,12 @@ export const listAchievements = /* GraphQL */ `query ListAchievements(
   APITypes.ListAchievementsQueryVariables,
   APITypes.ListAchievementsQuery
 >;
-export const achievementsByUserId = /* GraphQL */ `query AchievementsByUserId(
-  $userId: ID!
-  $sortDirection: ModelSortDirection
-  $filter: ModelAchievementFilterInput
-  $limit: Int
-  $nextToken: String
-) {
-  achievementsByUserId(
-    userId: $userId
-    sortDirection: $sortDirection
-    filter: $filter
-    limit: $limit
-    nextToken: $nextToken
-  ) {
-    items {
-      id
-      userId
-      name
-      description
-      unlockedAt
-      createdAt
-      updatedAt
-      __typename
-    }
-    nextToken
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.AchievementsByUserIdQueryVariables,
-  APITypes.AchievementsByUserIdQuery
->;
 export const getBadge = /* GraphQL */ `query GetBadge($id: ID!) {
   getBadge(id: $id) {
     id
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -447,6 +309,138 @@ export const listBadges = /* GraphQL */ `query ListBadges(
 ` as GeneratedQuery<
   APITypes.ListBadgesQueryVariables,
   APITypes.ListBadgesQuery
+>;
+export const readsByUserId = /* GraphQL */ `query ReadsByUserId(
+  $userId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelReadFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  readsByUserId(
+    userId: $userId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      title
+      description
+      thumbnailUrl
+      authorName
+      userId
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ReadsByUserIdQueryVariables,
+  APITypes.ReadsByUserIdQuery
+>;
+export const slidesByReadIdAndSlideNumber = /* GraphQL */ `query SlidesByReadIdAndSlideNumber(
+  $readId: ID!
+  $slideNumber: ModelIntKeyConditionInput
+  $sortDirection: ModelSortDirection
+  $filter: ModelSlideFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  slidesByReadIdAndSlideNumber(
+    readId: $readId
+    slideNumber: $slideNumber
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      readId
+      slideNumber
+      text
+      imageUrl
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.SlidesByReadIdAndSlideNumberQueryVariables,
+  APITypes.SlidesByReadIdAndSlideNumberQuery
+>;
+export const userBookProgressesByUserId = /* GraphQL */ `query UserBookProgressesByUserId(
+  $userId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelUserBookProgressFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  userBookProgressesByUserId(
+    userId: $userId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      userId
+      bookId
+      lastSlideNumber
+      updatedAt
+      createdAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.UserBookProgressesByUserIdQueryVariables,
+  APITypes.UserBookProgressesByUserIdQuery
+>;
+export const achievementsByUserId = /* GraphQL */ `query AchievementsByUserId(
+  $userId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelAchievementFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  achievementsByUserId(
+    userId: $userId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      userId
+      name
+      description
+      unlockedAt
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.AchievementsByUserIdQueryVariables,
+  APITypes.AchievementsByUserIdQuery
 >;
 export const badgesByUserId = /* GraphQL */ `query BadgesByUserId(
   $userId: ID!

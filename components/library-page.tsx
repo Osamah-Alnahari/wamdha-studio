@@ -59,7 +59,7 @@ export function LibraryPage() {
             return {
               id: item.id,
               title: item.title,
-              author: item.AuthorName || "Unknown Author",
+              author: item.authorName || "Unknown Author",
               description: item.description || "",
               coverImageUrl: imageUrl,
               isOwnedByUser: item.userId === user.userId,

@@ -84,8 +84,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
             title:
               typeof book.title === "string" ? book.title : "Untitled Book",
             author:
-              typeof book.AuthorName === "string"
-                ? book.AuthorName
+              typeof book.authorName === "string"
+                ? book.authorName
                 : "Unknown Author",
             description:
               typeof book.description === "string" ? book.description : "",
