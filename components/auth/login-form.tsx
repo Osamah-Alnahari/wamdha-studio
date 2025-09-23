@@ -28,7 +28,6 @@ import {
   resendConfirmationCode,
   getCurrentSession,
   extractUserFromSession,
-  getCurrentUserInfo,
   listenToAuthEvents,
 } from "@/lib/services";
 import { getCurrentUser, signInWithRedirect } from "@aws-amplify/auth";
@@ -164,7 +163,6 @@ export function LoginForm() {
         if (session) {
           const userInfo = extractUserFromSession(session);
           if (userInfo) {
-            console.log("User ID:", userInfo.userId);
             setUser(userInfo);
           }
         }
