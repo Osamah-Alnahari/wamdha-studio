@@ -1,20 +1,19 @@
 export type AmplifyDependentResourcesAttributes = {
   "analytics": {
-    "readerapp": {
+    "wamdhaAnalytics": {
       "Id": "string",
       "Region": "string",
       "appName": "string"
     }
   },
   "api": {
-    "readerapp": {
+    "wamdha": {
       "GraphQLAPIEndpointOutput": "string",
-      "GraphQLAPIIdOutput": "string",
-      "GraphQLAPIKeyOutput": "string"
+      "GraphQLAPIIdOutput": "string"
     }
   },
   "auth": {
-    "ReaderApp": {
+    "wamdha7c758018": {
       "AppClientID": "string",
       "AppClientIDWeb": "string",
       "HostedUIDomain": "string",
@@ -27,7 +26,7 @@ export type AmplifyDependentResourcesAttributes = {
     }
   },
   "storage": {
-    "readerAppContentStorage": {
+    "wamdhaStorage": {
       "BucketName": "string",
       "Region": "string"
     }
