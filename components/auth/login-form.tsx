@@ -5,7 +5,17 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2, Book, BookOpen, FileText } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  ArrowRight,
+  Loader2,
+  Book,
+  BookOpen,
+  FileText,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +31,7 @@ import {
   getCurrentUserInfo,
   listenToAuthEvents,
 } from "@/lib/services";
-import { signInWithRedirect } from "@aws-amplify/auth";
+import { getCurrentUser, signInWithRedirect } from "@aws-amplify/auth";
 import type { AuthUser } from "@aws-amplify/auth";
 
 export function LoginForm() {
@@ -56,14 +66,27 @@ export function LoginForm() {
 
   const getUser = async (): Promise<void> => {
     try {
-      const currentUser = await getCurrentUserInfo();
+      const currentUser = await getCurrentUser();
       setCurrentUser(currentUser);
       console.log("Current user:", currentUser);
+      
+      // Update auth context after OAuth
+      const session = await getCurrentSession();
+      if (session) {
+        const userInfo = extractUserFromSession(session);
+        if (userInfo) {
+          setUser(userInfo);
+          // Only redirect if we're on the login page
+          if (window.location.pathname === '/login' || window.location.pathname === '/') {
+            router.push("/books");
+          }
+        }
+      }
     } catch (error) {
       console.log("Not signed in");
     }
   };
-  
+
   useEffect(() => {
     console.log("starting1");
     const unsubscribe = listenToAuthEvents(({ payload }) => {
@@ -87,7 +110,7 @@ export function LoginForm() {
     getUser();
 
     return unsubscribe;
-  }, []);
+  }, [router, setUser]);
 
   const validateForm = () => {
     let valid = true;
@@ -205,10 +228,14 @@ export function LoginForm() {
               </div>
               <span className="text-3xl font-bold">عليم</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold">مرحباً بك مرة أخرى</h1>
-            <p className="text-lg text-muted-foreground">سجل دخولك للوصول إلى مكتبتك الذكية</p>
+            <h1 className="text-3xl md:text-4xl font-bold">
+              مرحباً بك مرة أخرى
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              سجل دخولك للوصول إلى مكتبتك الذكية
+            </p>
           </div>
-          
+
           {/* Main Card */}
           <div className="library-card-hover bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border rounded-2xl p-8 shadow-2xl">
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -217,11 +244,14 @@ export function LoginForm() {
                   {errors.form}
                 </div>
               )}
-              
+
               <div className="space-y-2">
                 <Label
                   htmlFor="email"
-                  className={cn("text-base font-medium", errors.email && "text-destructive")}
+                  className={cn(
+                    "text-base font-medium",
+                    errors.email && "text-destructive"
+                  )}
                 >
                   البريد الإلكتروني
                 </Label>
@@ -237,7 +267,8 @@ export function LoginForm() {
                     autoCorrect="off"
                     className={cn(
                       "pl-12 py-3 text-base rounded-xl border-2 transition-all duration-200",
-                      errors.email && "border-destructive focus-visible:ring-destructive"
+                      errors.email &&
+                        "border-destructive focus-visible:ring-destructive"
                     )}
                     value={formData.email}
                     onChange={handleChange}
@@ -253,7 +284,10 @@ export function LoginForm() {
                 <div className="flex items-center justify-between">
                   <Label
                     htmlFor="password"
-                    className={cn("text-base font-medium", errors.password && "text-destructive")}
+                    className={cn(
+                      "text-base font-medium",
+                      errors.password && "text-destructive"
+                    )}
                   >
                     كلمة المرور
                   </Label>
@@ -272,7 +306,8 @@ export function LoginForm() {
                     type={showPassword ? "text" : "password"}
                     className={cn(
                       "pl-12 pr-12 py-3 text-base rounded-xl border-2 transition-all duration-200",
-                      errors.password && "border-destructive focus-visible:ring-destructive"
+                      errors.password &&
+                        "border-destructive focus-visible:ring-destructive"
                     )}
                     value={formData.password}
                     onChange={handleChange}
@@ -298,9 +333,9 @@ export function LoginForm() {
                 )}
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full py-3 text-base font-semibold rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 transition-all duration-200" 
+              <Button
+                type="submit"
+                className="w-full py-3 text-base font-semibold rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 transition-all duration-200"
                 disabled={isLoading}
                 size="lg"
               >
@@ -354,7 +389,7 @@ export function LoginForm() {
                   try {
                     await signInWithRedirect({
                       provider: "Google",
-                      customState: "/",
+                      customState: "/books",
                     });
                   } catch (error) {
                     console.error("Google sign-in error:", error);
@@ -373,7 +408,7 @@ export function LoginForm() {
               </Button>
             </div>
           </div>
-          
+
           {/* Footer */}
           <div className="text-center">
             <p className="text-muted-foreground">

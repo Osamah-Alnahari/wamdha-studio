@@ -17,6 +17,12 @@
       },
       "storage": {
         "wamdhaStorage": {}
+      },
+      "api": {
+        "wamdha": {}
+      },
+      "analytics": {
+        "wamdhaAnalytics": {}
       }
     }
   }
