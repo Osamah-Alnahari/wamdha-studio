@@ -64,6 +64,6 @@
     },
     "breakCircularDependency": true,
     "dependsOn": [],
-    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"wamdha://\",\"http://localhost:3000/\",\"https://wamdha.app/\"],\"LogoutURLs\":[\"wamdha://\",\"http://localhost:3000/\",\"https://wamdha.app/\"]}"
+    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"wamdha://\",\"http://localhost:3000/login/\",\"https://wamdha.app/login/\"],\"LogoutURLs\":[\"wamdha://\"]}"
   }
 }
