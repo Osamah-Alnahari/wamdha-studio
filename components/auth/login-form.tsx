@@ -28,11 +28,11 @@ import {
   resendConfirmationCode,
   getCurrentSession,
   extractUserFromSession,
-  getCurrentUserInfo,
   listenToAuthEvents,
 } from "@/lib/services";
 import { getCurrentUser, signInWithRedirect } from "@aws-amplify/auth";
 import type { AuthUser } from "@aws-amplify/auth";
+import { useAmplifyClient } from "@/hooks/use-amplify-client";
 
 export function LoginForm() {
   const router = useRouter();
@@ -50,6 +50,7 @@ export function LoginForm() {
     password: "",
     form: "",
   });
+  const { client } = useAmplifyClient();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -69,7 +70,7 @@ export function LoginForm() {
       const currentUser = await getCurrentUser();
       setCurrentUser(currentUser);
       console.log("Current user:", currentUser);
-      
+
       // Update auth context after OAuth
       const session = await getCurrentSession();
       if (session) {
@@ -77,7 +78,10 @@ export function LoginForm() {
         if (userInfo) {
           setUser(userInfo);
           // Only redirect if we're on the login page
-          if (window.location.pathname === '/login' || window.location.pathname === '/') {
+          if (
+            window.location.pathname === "/login" ||
+            window.location.pathname === "/"
+          ) {
             router.push("/books");
           }
         }
@@ -159,7 +163,6 @@ export function LoginForm() {
         if (session) {
           const userInfo = extractUserFromSession(session);
           if (userInfo) {
-            console.log("User ID:", userInfo.userId);
             setUser(userInfo);
           }
         }

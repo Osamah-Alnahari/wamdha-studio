@@ -1,6 +1,6 @@
 projects:
   readerapp:
-    schemaPath: amplify/backend/api/readerapp/build/schema.graphql
+    schemaPath: amplify/backend/api/wamdha/build/schema.graphql
     includes:
       - src/graphql/**/*.ts
     excludes:

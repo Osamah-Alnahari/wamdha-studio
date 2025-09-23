@@ -84,17 +84,3 @@ export interface UIState {
   isRemoving: boolean;
   isUploading: boolean;
 }
-
-// Mock GraphQL query - replace with your actual implementation
-export const getRead = `
-    query GetRead($id: ID!) {
-      getRead(id: $id) {
-        id
-        title
-        AuthorName
-        description
-        thumbnailUrl
-        userId
-      }
-    }
-  `;

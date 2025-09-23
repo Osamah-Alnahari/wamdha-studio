@@ -7,7 +7,7 @@ export type CreateReadInput = {
   title: string,
   description?: string | null,
   thumbnailUrl: string,
-  AuthorName: string,
+  authorName: string,
   userId: string,
 };
 
@@ -15,7 +15,7 @@ export type ModelReadConditionInput = {
   title?: ModelStringInput | null,
   description?: ModelStringInput | null,
   thumbnailUrl?: ModelStringInput | null,
-  AuthorName?: ModelStringInput | null,
+  authorName?: ModelStringInput | null,
   userId?: ModelIDInput | null,
   and?: Array< ModelReadConditionInput | null > | null,
   or?: Array< ModelReadConditionInput | null > | null,
@@ -87,7 +87,7 @@ export type Read = {
   title: string,
   description?: string | null,
   thumbnailUrl: string,
-  AuthorName: string,
+  authorName: string,
   userId: string,
   user?: User | null,
   slides?: ModelSlideConnection | null,
@@ -99,7 +99,6 @@ export type Read = {
 export type User = {
   __typename: "User",
   id: string,
-  username: string,
   email: string,
   givenName: string,
   dailyStreak: number,
@@ -184,7 +183,7 @@ export type Slide = {
   read?: Read | null,
   slideNumber: number,
   text: string,
-  imageUrl: string,
+  imageUrl?: string | null,
   createdAt: string,
   updatedAt: string,
   owner?: string | null,
@@ -195,7 +194,7 @@ export type UpdateReadInput = {
   title?: string | null,
   description?: string | null,
   thumbnailUrl?: string | null,
-  AuthorName?: string | null,
+  authorName?: string | null,
   userId?: string | null,
 };
 
@@ -208,7 +207,7 @@ export type CreateSlideInput = {
   readId: string,
   slideNumber: number,
   text: string,
-  imageUrl: string,
+  imageUrl?: string | null,
 };
 
 export type ModelSlideConditionInput = {
@@ -250,7 +249,6 @@ export type DeleteSlideInput = {
 
 export type CreateUserInput = {
   id?: string | null,
-  username: string,
   email: string,
   givenName: string,
   dailyStreak: number,
@@ -258,7 +256,6 @@ export type CreateUserInput = {
 };
 
 export type ModelUserConditionInput = {
-  username?: ModelStringInput | null,
   email?: ModelStringInput | null,
   givenName?: ModelStringInput | null,
   dailyStreak?: ModelIntInput | null,
@@ -273,7 +270,6 @@ export type ModelUserConditionInput = {
 
 export type UpdateUserInput = {
   id: string,
-  username?: string | null,
   email?: string | null,
   givenName?: string | null,
   dailyStreak?: number | null,
@@ -384,7 +380,7 @@ export type ModelReadFilterInput = {
   title?: ModelStringInput | null,
   description?: ModelStringInput | null,
   thumbnailUrl?: ModelStringInput | null,
-  AuthorName?: ModelStringInput | null,
+  authorName?: ModelStringInput | null,
   userId?: ModelIDInput | null,
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
@@ -393,12 +389,6 @@ export type ModelReadFilterInput = {
   not?: ModelReadFilterInput | null,
   owner?: ModelStringInput | null,
 };
-
-export enum ModelSortDirection {
-  ASC = "ASC",
-  DESC = "DESC",
-}
-
 
 export type ModelSlideFilterInput = {
   id?: ModelIDInput | null,
@@ -414,18 +404,8 @@ export type ModelSlideFilterInput = {
   owner?: ModelStringInput | null,
 };
 
-export type ModelIntKeyConditionInput = {
-  eq?: number | null,
-  le?: number | null,
-  lt?: number | null,
-  ge?: number | null,
-  gt?: number | null,
-  between?: Array< number | null > | null,
-};
-
 export type ModelUserFilterInput = {
   id?: ModelIDInput | null,
-  username?: ModelStringInput | null,
   email?: ModelStringInput | null,
   givenName?: ModelStringInput | null,
   dailyStreak?: ModelIntInput | null,
@@ -481,12 +461,27 @@ export type ModelBadgeFilterInput = {
   not?: ModelBadgeFilterInput | null,
 };
 
+export enum ModelSortDirection {
+  ASC = "ASC",
+  DESC = "DESC",
+}
+
+
+export type ModelIntKeyConditionInput = {
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+};
+
 export type ModelSubscriptionReadFilterInput = {
   id?: ModelSubscriptionIDInput | null,
   title?: ModelSubscriptionStringInput | null,
   description?: ModelSubscriptionStringInput | null,
   thumbnailUrl?: ModelSubscriptionStringInput | null,
-  AuthorName?: ModelSubscriptionStringInput | null,
+  authorName?: ModelSubscriptionStringInput | null,
   userId?: ModelSubscriptionIDInput | null,
   createdAt?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
@@ -551,7 +546,6 @@ export type ModelSubscriptionIntInput = {
 };
 
 export type ModelSubscriptionUserFilterInput = {
-  username?: ModelSubscriptionStringInput | null,
   email?: ModelSubscriptionStringInput | null,
   givenName?: ModelSubscriptionStringInput | null,
   dailyStreak?: ModelSubscriptionIntInput | null,
@@ -610,12 +604,11 @@ export type CreateReadMutation = {
     title: string,
     description?: string | null,
     thumbnailUrl: string,
-    AuthorName: string,
+    authorName: string,
     userId: string,
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -645,12 +638,11 @@ export type UpdateReadMutation = {
     title: string,
     description?: string | null,
     thumbnailUrl: string,
-    AuthorName: string,
+    authorName: string,
     userId: string,
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -680,12 +672,11 @@ export type DeleteReadMutation = {
     title: string,
     description?: string | null,
     thumbnailUrl: string,
-    AuthorName: string,
+    authorName: string,
     userId: string,
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -719,7 +710,7 @@ export type CreateSlideMutation = {
       title: string,
       description?: string | null,
       thumbnailUrl: string,
-      AuthorName: string,
+      authorName: string,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -727,7 +718,7 @@ export type CreateSlideMutation = {
     } | null,
     slideNumber: number,
     text: string,
-    imageUrl: string,
+    imageUrl?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
@@ -750,7 +741,7 @@ export type UpdateSlideMutation = {
       title: string,
       description?: string | null,
       thumbnailUrl: string,
-      AuthorName: string,
+      authorName: string,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -758,7 +749,7 @@ export type UpdateSlideMutation = {
     } | null,
     slideNumber: number,
     text: string,
-    imageUrl: string,
+    imageUrl?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
@@ -781,7 +772,7 @@ export type DeleteSlideMutation = {
       title: string,
       description?: string | null,
       thumbnailUrl: string,
-      AuthorName: string,
+      authorName: string,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -789,7 +780,7 @@ export type DeleteSlideMutation = {
     } | null,
     slideNumber: number,
     text: string,
-    imageUrl: string,
+    imageUrl?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
@@ -805,7 +796,6 @@ export type CreateUserMutation = {
   createUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
     givenName: string,
     dailyStreak: number,
@@ -840,7 +830,6 @@ export type UpdateUserMutation = {
   updateUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
     givenName: string,
     dailyStreak: number,
@@ -875,7 +864,6 @@ export type DeleteUserMutation = {
   deleteUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
     givenName: string,
     dailyStreak: number,
@@ -914,7 +902,6 @@ export type CreateUserBookProgressMutation = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -942,7 +929,6 @@ export type UpdateUserBookProgressMutation = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -970,7 +956,6 @@ export type DeleteUserBookProgressMutation = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -998,7 +983,6 @@ export type CreateAchievementMutation = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1027,7 +1011,6 @@ export type UpdateAchievementMutation = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1056,7 +1039,6 @@ export type DeleteAchievementMutation = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1085,7 +1067,6 @@ export type CreateBadgeMutation = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1114,7 +1095,6 @@ export type UpdateBadgeMutation = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1143,7 +1123,6 @@ export type DeleteBadgeMutation = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1170,12 +1149,11 @@ export type GetReadQuery = {
     title: string,
     description?: string | null,
     thumbnailUrl: string,
-    AuthorName: string,
+    authorName: string,
     userId: string,
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1208,34 +1186,7 @@ export type ListReadsQuery = {
       title: string,
       description?: string | null,
       thumbnailUrl: string,
-      AuthorName: string,
-      userId: string,
-      createdAt: string,
-      updatedAt: string,
-      owner?: string | null,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
-export type ReadsByUserIdQueryVariables = {
-  userId: string,
-  sortDirection?: ModelSortDirection | null,
-  filter?: ModelReadFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-};
-
-export type ReadsByUserIdQuery = {
-  readsByUserId?:  {
-    __typename: "ModelReadConnection",
-    items:  Array< {
-      __typename: "Read",
-      id: string,
-      title: string,
-      description?: string | null,
-      thumbnailUrl: string,
-      AuthorName: string,
+      authorName: string,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -1260,7 +1211,7 @@ export type GetSlideQuery = {
       title: string,
       description?: string | null,
       thumbnailUrl: string,
-      AuthorName: string,
+      authorName: string,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -1268,7 +1219,7 @@ export type GetSlideQuery = {
     } | null,
     slideNumber: number,
     text: string,
-    imageUrl: string,
+    imageUrl?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
@@ -1290,34 +1241,7 @@ export type ListSlidesQuery = {
       readId: string,
       slideNumber: number,
       text: string,
-      imageUrl: string,
-      createdAt: string,
-      updatedAt: string,
-      owner?: string | null,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
-export type SlidesByReadIdAndSlideNumberQueryVariables = {
-  readId: string,
-  slideNumber?: ModelIntKeyConditionInput | null,
-  sortDirection?: ModelSortDirection | null,
-  filter?: ModelSlideFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-};
-
-export type SlidesByReadIdAndSlideNumberQuery = {
-  slidesByReadIdAndSlideNumber?:  {
-    __typename: "ModelSlideConnection",
-    items:  Array< {
-      __typename: "Slide",
-      id: string,
-      readId: string,
-      slideNumber: number,
-      text: string,
-      imageUrl: string,
+      imageUrl?: string | null,
       createdAt: string,
       updatedAt: string,
       owner?: string | null,
@@ -1334,7 +1258,6 @@ export type GetUserQuery = {
   getUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
     givenName: string,
     dailyStreak: number,
@@ -1372,7 +1295,6 @@ export type ListUsersQuery = {
     items:  Array< {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1396,7 +1318,6 @@ export type GetUserBookProgressQuery = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1433,30 +1354,6 @@ export type ListUserBookProgressesQuery = {
   } | null,
 };
 
-export type UserBookProgressesByUserIdQueryVariables = {
-  userId: string,
-  sortDirection?: ModelSortDirection | null,
-  filter?: ModelUserBookProgressFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-};
-
-export type UserBookProgressesByUserIdQuery = {
-  userBookProgressesByUserId?:  {
-    __typename: "ModelUserBookProgressConnection",
-    items:  Array< {
-      __typename: "UserBookProgress",
-      id: string,
-      userId: string,
-      bookId: string,
-      lastSlideNumber: number,
-      updatedAt: string,
-      createdAt: string,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
 export type GetAchievementQueryVariables = {
   id: string,
 };
@@ -1469,7 +1366,6 @@ export type GetAchievementQuery = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1508,31 +1404,6 @@ export type ListAchievementsQuery = {
   } | null,
 };
 
-export type AchievementsByUserIdQueryVariables = {
-  userId: string,
-  sortDirection?: ModelSortDirection | null,
-  filter?: ModelAchievementFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-};
-
-export type AchievementsByUserIdQuery = {
-  achievementsByUserId?:  {
-    __typename: "ModelAchievementConnection",
-    items:  Array< {
-      __typename: "Achievement",
-      id: string,
-      userId: string,
-      name: string,
-      description?: string | null,
-      unlockedAt: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
 export type GetBadgeQueryVariables = {
   id: string,
 };
@@ -1545,7 +1416,6 @@ export type GetBadgeQuery = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1577,6 +1447,109 @@ export type ListBadgesQuery = {
       name: string,
       iconUrl?: string | null,
       earnedAt: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ReadsByUserIdQueryVariables = {
+  userId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelReadFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ReadsByUserIdQuery = {
+  readsByUserId?:  {
+    __typename: "ModelReadConnection",
+    items:  Array< {
+      __typename: "Read",
+      id: string,
+      title: string,
+      description?: string | null,
+      thumbnailUrl: string,
+      authorName: string,
+      userId: string,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type SlidesByReadIdAndSlideNumberQueryVariables = {
+  readId: string,
+  slideNumber?: ModelIntKeyConditionInput | null,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelSlideFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type SlidesByReadIdAndSlideNumberQuery = {
+  slidesByReadIdAndSlideNumber?:  {
+    __typename: "ModelSlideConnection",
+    items:  Array< {
+      __typename: "Slide",
+      id: string,
+      readId: string,
+      slideNumber: number,
+      text: string,
+      imageUrl?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type UserBookProgressesByUserIdQueryVariables = {
+  userId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelUserBookProgressFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type UserBookProgressesByUserIdQuery = {
+  userBookProgressesByUserId?:  {
+    __typename: "ModelUserBookProgressConnection",
+    items:  Array< {
+      __typename: "UserBookProgress",
+      id: string,
+      userId: string,
+      bookId: string,
+      lastSlideNumber: number,
+      updatedAt: string,
+      createdAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type AchievementsByUserIdQueryVariables = {
+  userId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelAchievementFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type AchievementsByUserIdQuery = {
+  achievementsByUserId?:  {
+    __typename: "ModelAchievementConnection",
+    items:  Array< {
+      __typename: "Achievement",
+      id: string,
+      userId: string,
+      name: string,
+      description?: string | null,
+      unlockedAt: string,
       createdAt: string,
       updatedAt: string,
     } | null >,
@@ -1621,12 +1594,11 @@ export type OnCreateReadSubscription = {
     title: string,
     description?: string | null,
     thumbnailUrl: string,
-    AuthorName: string,
+    authorName: string,
     userId: string,
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1656,12 +1628,11 @@ export type OnUpdateReadSubscription = {
     title: string,
     description?: string | null,
     thumbnailUrl: string,
-    AuthorName: string,
+    authorName: string,
     userId: string,
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1691,12 +1662,11 @@ export type OnDeleteReadSubscription = {
     title: string,
     description?: string | null,
     thumbnailUrl: string,
-    AuthorName: string,
+    authorName: string,
     userId: string,
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1730,7 +1700,7 @@ export type OnCreateSlideSubscription = {
       title: string,
       description?: string | null,
       thumbnailUrl: string,
-      AuthorName: string,
+      authorName: string,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -1738,7 +1708,7 @@ export type OnCreateSlideSubscription = {
     } | null,
     slideNumber: number,
     text: string,
-    imageUrl: string,
+    imageUrl?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
@@ -1761,7 +1731,7 @@ export type OnUpdateSlideSubscription = {
       title: string,
       description?: string | null,
       thumbnailUrl: string,
-      AuthorName: string,
+      authorName: string,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -1769,7 +1739,7 @@ export type OnUpdateSlideSubscription = {
     } | null,
     slideNumber: number,
     text: string,
-    imageUrl: string,
+    imageUrl?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
@@ -1792,7 +1762,7 @@ export type OnDeleteSlideSubscription = {
       title: string,
       description?: string | null,
       thumbnailUrl: string,
-      AuthorName: string,
+      authorName: string,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -1800,7 +1770,7 @@ export type OnDeleteSlideSubscription = {
     } | null,
     slideNumber: number,
     text: string,
-    imageUrl: string,
+    imageUrl?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
@@ -1816,7 +1786,6 @@ export type OnCreateUserSubscription = {
   onCreateUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
     givenName: string,
     dailyStreak: number,
@@ -1851,7 +1820,6 @@ export type OnUpdateUserSubscription = {
   onUpdateUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
     givenName: string,
     dailyStreak: number,
@@ -1886,7 +1854,6 @@ export type OnDeleteUserSubscription = {
   onDeleteUser?:  {
     __typename: "User",
     id: string,
-    username: string,
     email: string,
     givenName: string,
     dailyStreak: number,
@@ -1925,7 +1892,6 @@ export type OnCreateUserBookProgressSubscription = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1953,7 +1919,6 @@ export type OnUpdateUserBookProgressSubscription = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -1981,7 +1946,6 @@ export type OnDeleteUserBookProgressSubscription = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -2009,7 +1973,6 @@ export type OnCreateAchievementSubscription = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -2038,7 +2001,6 @@ export type OnUpdateAchievementSubscription = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -2067,7 +2029,6 @@ export type OnDeleteAchievementSubscription = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -2096,7 +2057,6 @@ export type OnCreateBadgeSubscription = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -2125,7 +2085,6 @@ export type OnUpdateBadgeSubscription = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,
@@ -2154,7 +2113,6 @@ export type OnDeleteBadgeSubscription = {
     user?:  {
       __typename: "User",
       id: string,
-      username: string,
       email: string,
       givenName: string,
       dailyStreak: number,

@@ -17,11 +17,10 @@ export const createRead = /* GraphQL */ `mutation CreateRead(
     title
     description
     thumbnailUrl
-    AuthorName
+    authorName
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -53,11 +52,10 @@ export const updateRead = /* GraphQL */ `mutation UpdateRead(
     title
     description
     thumbnailUrl
-    AuthorName
+    authorName
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -89,11 +87,10 @@ export const deleteRead = /* GraphQL */ `mutation DeleteRead(
     title
     description
     thumbnailUrl
-    AuthorName
+    authorName
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -128,7 +125,7 @@ export const createSlide = /* GraphQL */ `mutation CreateSlide(
       title
       description
       thumbnailUrl
-      AuthorName
+      authorName
       userId
       createdAt
       updatedAt
@@ -160,7 +157,7 @@ export const updateSlide = /* GraphQL */ `mutation UpdateSlide(
       title
       description
       thumbnailUrl
-      AuthorName
+      authorName
       userId
       createdAt
       updatedAt
@@ -192,7 +189,7 @@ export const deleteSlide = /* GraphQL */ `mutation DeleteSlide(
       title
       description
       thumbnailUrl
-      AuthorName
+      authorName
       userId
       createdAt
       updatedAt
@@ -218,7 +215,6 @@ export const createUser = /* GraphQL */ `mutation CreateUser(
 ) {
   createUser(input: $input, condition: $condition) {
     id
-    username
     email
     givenName
     dailyStreak
@@ -254,7 +250,6 @@ export const updateUser = /* GraphQL */ `mutation UpdateUser(
 ) {
   updateUser(input: $input, condition: $condition) {
     id
-    username
     email
     givenName
     dailyStreak
@@ -290,7 +285,6 @@ export const deleteUser = /* GraphQL */ `mutation DeleteUser(
 ) {
   deleteUser(input: $input, condition: $condition) {
     id
-    username
     email
     givenName
     dailyStreak
@@ -329,7 +323,6 @@ export const createUserBookProgress = /* GraphQL */ `mutation CreateUserBookProg
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -358,7 +351,6 @@ export const updateUserBookProgress = /* GraphQL */ `mutation UpdateUserBookProg
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -387,7 +379,6 @@ export const deleteUserBookProgress = /* GraphQL */ `mutation DeleteUserBookProg
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -416,7 +407,6 @@ export const createAchievement = /* GraphQL */ `mutation CreateAchievement(
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -446,7 +436,6 @@ export const updateAchievement = /* GraphQL */ `mutation UpdateAchievement(
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -476,7 +465,6 @@ export const deleteAchievement = /* GraphQL */ `mutation DeleteAchievement(
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -506,7 +494,6 @@ export const createBadge = /* GraphQL */ `mutation CreateBadge(
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -536,7 +523,6 @@ export const updateBadge = /* GraphQL */ `mutation UpdateBadge(
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -566,7 +552,6 @@ export const deleteBadge = /* GraphQL */ `mutation DeleteBadge(
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak

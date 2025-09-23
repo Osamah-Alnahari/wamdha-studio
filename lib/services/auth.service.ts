@@ -1,3 +1,4 @@
+import { createUser } from "@/src/graphql/mutations";
 import {
   AuthUser,
   fetchAuthSession,
@@ -10,6 +11,9 @@ import {
   fetchUserAttributes,
 } from "@aws-amplify/auth";
 import { Hub } from "aws-amplify/utils";
+import { generateClient } from "aws-amplify/api";
+import { getUser } from "@/src/graphql/queries";
+const client = generateClient();
 
 // Types for auth operations
 export interface SignInCredentials {
@@ -46,6 +50,26 @@ export const signInUser = async (credentials: SignInCredentials) => {
       username: credentials.username,
       password: credentials.password,
     });
+
+    try {
+      // TODO: Fix user creation after each login
+      await client.graphql({
+        query: createUser,
+        variables: {
+          input: {
+            email: credentials.username,
+            givenName: credentials.username,
+            dailyStreak: 0,
+            lastActive: new Date().toISOString(),
+          },
+        },
+        authMode: "userPool",
+      });
+    } catch (err: any) {
+      if (!err.errors?.[0]?.message.includes("already exists")) {
+        console.log("User Already exists in the database");
+      }
+    }
 
     return result;
   } catch (error) {

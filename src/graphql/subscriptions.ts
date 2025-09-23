@@ -17,11 +17,10 @@ export const onCreateRead = /* GraphQL */ `subscription OnCreateRead(
     title
     description
     thumbnailUrl
-    AuthorName
+    authorName
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -53,11 +52,10 @@ export const onUpdateRead = /* GraphQL */ `subscription OnUpdateRead(
     title
     description
     thumbnailUrl
-    AuthorName
+    authorName
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -89,11 +87,10 @@ export const onDeleteRead = /* GraphQL */ `subscription OnDeleteRead(
     title
     description
     thumbnailUrl
-    AuthorName
+    authorName
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -128,7 +125,7 @@ export const onCreateSlide = /* GraphQL */ `subscription OnCreateSlide(
       title
       description
       thumbnailUrl
-      AuthorName
+      authorName
       userId
       createdAt
       updatedAt
@@ -160,7 +157,7 @@ export const onUpdateSlide = /* GraphQL */ `subscription OnUpdateSlide(
       title
       description
       thumbnailUrl
-      AuthorName
+      authorName
       userId
       createdAt
       updatedAt
@@ -192,7 +189,7 @@ export const onDeleteSlide = /* GraphQL */ `subscription OnDeleteSlide(
       title
       description
       thumbnailUrl
-      AuthorName
+      authorName
       userId
       createdAt
       updatedAt
@@ -218,7 +215,6 @@ export const onCreateUser = /* GraphQL */ `subscription OnCreateUser(
 ) {
   onCreateUser(filter: $filter, id: $id) {
     id
-    username
     email
     givenName
     dailyStreak
@@ -254,7 +250,6 @@ export const onUpdateUser = /* GraphQL */ `subscription OnUpdateUser(
 ) {
   onUpdateUser(filter: $filter, id: $id) {
     id
-    username
     email
     givenName
     dailyStreak
@@ -290,7 +285,6 @@ export const onDeleteUser = /* GraphQL */ `subscription OnDeleteUser(
 ) {
   onDeleteUser(filter: $filter, id: $id) {
     id
-    username
     email
     givenName
     dailyStreak
@@ -329,7 +323,6 @@ export const onCreateUserBookProgress = /* GraphQL */ `subscription OnCreateUser
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -358,7 +351,6 @@ export const onUpdateUserBookProgress = /* GraphQL */ `subscription OnUpdateUser
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -387,7 +379,6 @@ export const onDeleteUserBookProgress = /* GraphQL */ `subscription OnDeleteUser
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -416,7 +407,6 @@ export const onCreateAchievement = /* GraphQL */ `subscription OnCreateAchieveme
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -446,7 +436,6 @@ export const onUpdateAchievement = /* GraphQL */ `subscription OnUpdateAchieveme
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -476,7 +465,6 @@ export const onDeleteAchievement = /* GraphQL */ `subscription OnDeleteAchieveme
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -506,7 +494,6 @@ export const onCreateBadge = /* GraphQL */ `subscription OnCreateBadge(
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -536,7 +523,6 @@ export const onUpdateBadge = /* GraphQL */ `subscription OnUpdateBadge(
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak
@@ -566,7 +552,6 @@ export const onDeleteBadge = /* GraphQL */ `subscription OnDeleteBadge(
     userId
     user {
       id
-      username
       email
       givenName
       dailyStreak

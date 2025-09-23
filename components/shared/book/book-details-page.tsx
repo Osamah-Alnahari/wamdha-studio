@@ -80,7 +80,7 @@ export function BookDetailsPage({
         setBookInfo({
           id: book.id,
           title: book.title,
-          author: book.AuthorName,
+          author: book.authorName,
           description:
             typeof book.description === "string" ? book.description : "",
           coverImageUrl: book.thumbnailUrl,
@@ -112,7 +112,7 @@ export function BookDetailsPage({
       if (isNew) {
         const newBook = await createBook(client, {
           title: info.title,
-          AuthorName: info.author,
+          authorName: info.author,
           description: info.description,
           thumbnailUrl: info.coverImageUrl ?? "",
           userId: user.userId,
@@ -127,7 +127,7 @@ export function BookDetailsPage({
         const updatedBook = await updateBook(client, {
           id: bookId!,
           title: info.title,
-          AuthorName: info.author,
+          authorName: info.author,
           description: info.description,
           thumbnailUrl: info.coverImageUrl ?? "",
         });
