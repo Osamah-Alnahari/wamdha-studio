@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { APP_NAME } from "@/constants";
 
 export function HomePage() {
   const router = useRouter();
@@ -175,7 +176,7 @@ export function HomePage() {
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
                 مرحباً بك في{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
-                 ومضة 
+                  {APP_NAME}
                 </span>
               </h1>
 
@@ -326,7 +327,7 @@ export function HomePage() {
 
               <div className="order-1 md:order-2 text-right">
                 <h2 className="text-3xl md:text-4xl font-bold mb-8 text-right">
-                  لماذا تختار عليم؟
+                  لماذا تختار {APP_NAME}؟
                 </h2>
                 <p className="text-lg text-muted-foreground mb-10 text-right leading-relaxed">
                   انضم إلى آلاف المختصين والطلاب والباحثين الذين حولوا سير عمل

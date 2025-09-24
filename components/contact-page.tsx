@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { APP_NAME } from "@/constants";
 
 export function ContactPage() {
   const [formData, setFormData] = useState({
@@ -109,12 +110,12 @@ export function ContactPage() {
 
   const faqs = [
     {
-      question: "كيف يعمل تلخيص الذكاء الاصطناعي في عليم؟",
+      question: `كيف يعمل تلخيص الذكاء الاصطناعي في ${APP_NAME}؟`,
       answer:
         "يستخدم الذكاء الاصطناعي لدينا معالجة متقدمة للغة الطبيعية لتحليل مستنداتك، وتحديد المفاهيم الرئيسية والحجج المهمة والتفاصيل الهامة لإنشاء ملخصات شاملة ومختصرة.",
     },
     {
-      question: "هل بياناتي آمنة مع عليم؟",
+      question: `هل بياناتي آمنة مع ${APP_NAME}؟`,
       answer:
         "بالتأكيد. نستخدم تشفيراً على مستوى المؤسسات ولا نخزن مستنداتك لفترة أطول من اللازم للمعالجة. خصوصيتك وأمان بياناتك هما أولويتنا القصوى.",
     },
@@ -157,8 +158,9 @@ export function ContactPage() {
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              لديك أسئلة حول عليم؟ تحتاج مساعدة في البدء؟ تريد مشاركة تعليقاتك؟
-              فريقنا هنا لمساعدتك في الاستفادة القصوى من تجربة القراءة.
+              لديك أسئلة حول {APP_NAME}؟ تحتاج مساعدة في البدء؟ تريد مشاركة
+              تعليقاتك؟ فريقنا هنا لمساعدتك في الاستفادة القصوى من تجربة
+              القراءة.
             </p>
 
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
@@ -221,9 +223,7 @@ export function ContactPage() {
 
               <Card className="library-card-hover">
                 <CardHeader>
-                  <CardTitle className="text-2xl">
-                  أرسل لنا رسالة
-                  </CardTitle>
+                  <CardTitle className="text-2xl">أرسل لنا رسالة</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
@@ -334,7 +334,7 @@ export function ContactPage() {
                 الأسئلة الشائعة
               </h2>
               <p className="text-xl text-muted-foreground">
-                إجابات سريعة للأسئلة الشائعة حول عليم
+                إجابات سريعة للأسئلة الشائعة حول {APP_NAME}
               </p>
             </div>
 

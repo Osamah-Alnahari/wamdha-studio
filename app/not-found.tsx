@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Book, Home, Search, ArrowLeft, Library } from "lucide-react";
+import { APP_NAME } from "@/constants";
 
 export default function NotFound() {
   return (
@@ -31,7 +32,7 @@ export default function NotFound() {
 
         <div className="flex items-center justify-center gap-3 text-base text-muted-foreground">
           <Library className="h-5 w-5" />
-          <span>عليم Library</span>
+          <span>{APP_NAME} Library</span>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-6 justify-center">

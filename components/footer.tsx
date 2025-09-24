@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { APP_NAME } from "@/constants";
 
 export function Footer() {
   const pathname = usePathname();
@@ -43,7 +44,7 @@ export function Footer() {
     {
       href: "/terms-and-conditions",
       label: "الشروط والأحكام",
-      icon: ScrollText, 
+      icon: ScrollText,
     },
   ];
 
@@ -90,7 +91,7 @@ export function Footer() {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-6">
               <Book className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold">عليم</span>
+              <span className="text-2xl font-bold">{APP_NAME}</span>
             </div>
             <p className="text-muted-foreground leading-relaxed mb-6 max-w-md">
               منصة ذكية لتحليل المستندات وإنشاء الملخصات باستخدام الذكاء
@@ -200,7 +201,7 @@ export function Footer() {
         <div className="border-t mt-6 pt-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-sm text-muted-foreground">
-              © {currentYear} عليم. جميع الحقوق محفوظة.
+              © {currentYear} {APP_NAME}. جميع الحقوق محفوظة.
             </div>
           </div>
         </div>

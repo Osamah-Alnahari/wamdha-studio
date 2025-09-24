@@ -20,6 +20,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { APP_NAME } from "@/constants";
 
 export function OurStoryPage() {
   const [isVisible, setIsVisible] = useState(false);
@@ -54,8 +55,7 @@ export function OurStoryPage() {
     {
       year: "2024",
       title: "الإطلاق",
-      description:
-        "أطلقنا عليم كمنصة بسيطة لرفع المستندات والحصول على ملخصات ذكية. ",
+      description: `أطلقنا ${APP_NAME} كمنصة بسيطة لرفع المستندات والحصول على ملخصات ذكية. `,
       icon: Target,
     },
     {
@@ -106,8 +106,7 @@ export function OurStoryPage() {
       avatar: "أ.ن",
     },
     {
-      quote:
-        "نطور عليم خطوة بخطوة بناءً على احتياجات المستخدمين. كل ميزة جديدة تهدف إلى تحسين تجربة القراءة.",
+      quote: `نطور ${APP_NAME} خطوة بخطوة بناءً على احتياجات المستخدمين. كل ميزة جديدة تهدف إلى تحسين تجربة القراءة.`,
       author: "أسامة النهاري",
       avatar: "أ.ن",
     },
@@ -162,13 +161,14 @@ export function OurStoryPage() {
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
               القصة وراء{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
-                عليم
+                {APP_NAME}
               </span>
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              بدأت فكرة عليم من تحديات القراءة اليومية: مستندات طويلة، معلومات
-              معقدة، ووقت محدود. أردنا أن نجعل فهم المحتوى أسرع وأسهل للجميع.
+              بدأت فكرة {APP_NAME} من تحديات القراءة اليومية: مستندات طويلة،
+              معلومات معقدة، ووقت محدود. أردنا أن نجعل فهم المحتوى أسرع وأسهل
+              للجميع.
             </p>
 
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
@@ -344,7 +344,7 @@ export function OurStoryPage() {
                 أصوات من فريقنا
               </h2>
               <p className="text-xl text-muted-foreground">
-                تعرف على بعض العقول المتحمسة وراء عليم
+                تعرف على بعض العقول المتحمسة وراء {APP_NAME}
               </p>
             </div>
 
@@ -384,8 +384,8 @@ export function OurStoryPage() {
               انضم إلى قصتنا
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              كن جزءاً من ثورة المعرفة. ابدأ رحلتك مع عليم اليوم وساعدنا في
-              كتابة الفصل التالي من التعلم.
+              كن جزءاً من ثورة المعرفة. ابدأ رحلتك مع {APP_NAME} اليوم وساعدنا
+              في كتابة الفصل التالي من التعلم.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

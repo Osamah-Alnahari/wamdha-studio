@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { signUpUser } from "@/lib/services";
+import { APP_NAME } from "@/constants";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -485,7 +486,7 @@ export function RegisterForm() {
                         <Book className="h-9 w-9 text-white" />
                       </div>
                       <span className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
-                        عليم
+                        {APP_NAME}
                       </span>
                     </div>
 

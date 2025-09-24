@@ -28,6 +28,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { APP_NAME } from "@/constants";
 
 export function PrivacyPage() {
   const [activeSection, setActiveSection] = useState("overview");
@@ -94,7 +95,7 @@ export function PrivacyPage() {
     },
     {
       category: "تحليلات الاستخدام",
-      description: "بيانات مجهولة المصدر حول كيفية استخدامك لعليم",
+      description: `بيانات مجهولة المصدر حول كيفية استخدامك ل${APP_NAME}`,
       items: [
         "أنماط استخدام الميزات",
         "مقاييس الأداء",
@@ -195,8 +196,8 @@ export function PrivacyPage() {
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              في عليم، نؤمن أن الخصوصية حق أساسي. تعلم كيف نحمي بياناتك، نحترم
-              خصوصيتك، ونمنحك السيطرة الكاملة على معلوماتك.
+              في {APP_NAME}، نؤمن أن الخصوصية حق أساسي. تعلم كيف نحمي بياناتك،
+              نحترم خصوصيتك، ونمنحك السيطرة الكاملة على معلوماتك.
             </p>
 
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
@@ -296,8 +297,8 @@ export function PrivacyPage() {
                   </CardHeader>
                   <CardContent className="prose prose-gray dark:prose-invert max-w-none text-right">
                     <p className="text-lg leading-relaxed mb-6">
-                      توضح سياسة الخصوصية هذه كيف يجمع عليم ويستخدم ويعالج ويحمي
-                      معلوماتك الشخصية عند استخدامك للمنصة
+                      توضح سياسة الخصوصية هذه كيف يجمع ${APP_NAME} ويستخدم
+                      ويعالج ويحمي معلوماتك الشخصية عند استخدامك للمنصة
                     </p>
                     <p className="leading-relaxed mb-4">
                       نحن ملتزمون بحماية خصوصيتك وضمان حصولك على تجربة إيجابية
@@ -306,7 +307,7 @@ export function PrivacyPage() {
                     </p>
                     <p className="leading-relaxed mb-4">
                       هذه السياسة سارية المفعول اعتباراً من ديسمبر 2024 وتنطبق
-                      على جميع مستخدمي منصة عليم.
+                      على جميع مستخدمي منصة ${APP_NAME}.
                     </p>
                     <div className="bg-violet-50 dark:bg-violet-900/20 p-6 rounded-lg border border-violet-200 dark:border-violet-800">
                       <h4 className="font-semibold mb-2 flex items-center gap-2">
@@ -314,9 +315,9 @@ export function PrivacyPage() {
                         ملاحظة مهمة
                       </h4>
                       <p className="text-sm text-muted-foreground text-right">
-                        باستخدام عليم، فإنك توافق على جمع واستخدام المعلومات
-                        وفقاً لهذه السياسة. إذا كنت لا توافق على سياساتنا
-                        وممارساتنا، يرجى عدم استخدام خدماتنا.
+                        باستخدام ${APP_NAME}، فإنك توافق على جمع واستخدام
+                        المعلومات وفقاً لهذه السياسة. إذا كنت لا توافق على
+                        سياساتنا وممارساتنا، يرجى عدم استخدام خدماتنا.
                       </p>
                     </div>
                   </CardContent>

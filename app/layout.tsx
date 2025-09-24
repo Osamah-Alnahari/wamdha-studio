@@ -10,12 +10,14 @@ import "./amplify-cognito-config";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AmplifyErrorBoundary } from "@/components/amplify-error-boundary";
 import "@aws-amplify/ui-react/styles.css";
+import { APP_NAME } from "@/constants";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "عليم - Your Digital Reading Companion",
-  description: "Transform your reading experience with AI-powered summaries and document analysis",
+  title: `${APP_NAME} - Your Digital Reading Companion`,
+  description:
+    "Transform your reading experience with AI-powered summaries and document analysis",
 };
 
 export default function RootLayout({

@@ -33,6 +33,7 @@ import {
 import { getCurrentUser, signInWithRedirect } from "@aws-amplify/auth";
 import type { AuthUser } from "@aws-amplify/auth";
 import { useAmplifyClient } from "@/hooks/use-amplify-client";
+import { APP_NAME } from "@/constants";
 
 export function LoginForm() {
   const router = useRouter();
@@ -229,7 +230,7 @@ export function LoginForm() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center">
                 <Book className="h-7 w-7 text-white" />
               </div>
-              <span className="text-3xl font-bold">عليم</span>
+              <span className="text-3xl font-bold">{APP_NAME}</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold">
               مرحباً بك مرة أخرى

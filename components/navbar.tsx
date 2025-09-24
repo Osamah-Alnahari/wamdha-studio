@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { useAuth } from "@/contexts/AuthContext";
 import { signOutUser } from "@/lib/services";
+import { APP_NAME } from "@/constants";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -94,7 +95,7 @@ export function Navbar() {
             onClick={() => handleNavigation(isBooksRoute ? "/books" : "/")}
           >
             <Book className="h-6 w-6" />
-            <span className="font-bold">عليم</span>
+            <span className="font-bold">{APP_NAME}</span>
           </div>
         </div>
 
