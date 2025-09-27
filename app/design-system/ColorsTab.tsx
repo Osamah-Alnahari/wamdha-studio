@@ -80,24 +80,24 @@ export const ColorsTab: React.FC = () => {
             <div className="space-y-2">
               <div
                 className="h-16 rounded-lg border shadow-sm"
-                style={{ backgroundColor: "hsl(142 76% 36%)" }}
+                style={{ backgroundColor: "hsl(95 35% 58%)" }}
               ></div>
               <div className="text-sm">
                 <div className="font-medium">Success</div>
                 <div className="text-muted-foreground text-xs">
-                  hsl(142 76% 36%)
+                  hsl(95 35% 58%)
                 </div>
               </div>
             </div>
             <div className="space-y-2">
               <div
                 className="h-16 rounded-lg border shadow-sm"
-                style={{ backgroundColor: "hsl(48 96% 53%)" }}
+                style={{ backgroundColor: "hsl(30 45% 65%)" }}
               ></div>
               <div className="text-sm">
                 <div className="font-medium">Warning</div>
                 <div className="text-muted-foreground text-xs">
-                  hsl(48 96% 53%)
+                  hsl(30 45% 65%)
                 </div>
               </div>
             </div>
@@ -113,12 +113,12 @@ export const ColorsTab: React.FC = () => {
             <div className="space-y-2">
               <div
                 className="h-16 rounded-lg border shadow-sm"
-                style={{ backgroundColor: "hsl(221 83% 53%)" }}
+                style={{ backgroundColor: "hsl(215 40% 68%)" }}
               ></div>
               <div className="text-sm">
                 <div className="font-medium">Info</div>
                 <div className="text-muted-foreground text-xs">
-                  hsl(221 83% 53%)
+                  hsl(215 40% 68%)
                 </div>
               </div>
             </div>
@@ -212,6 +212,231 @@ export const ColorsTab: React.FC = () => {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Brand Scale</CardTitle>
+          <CardDescription>
+            10-step brand color scale for comprehensive theming
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
+            <div className="space-y-2">
+              <div
+                className="h-12 rounded-lg border shadow-sm"
+                style={{ backgroundColor: "hsl(210 60% 98%)" }}
+              ></div>
+              <div className="text-xs text-center">
+                <div className="font-medium">50</div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div
+                className="h-12 rounded-lg border shadow-sm"
+                style={{ backgroundColor: "hsl(210 50% 95%)" }}
+              ></div>
+              <div className="text-xs text-center">
+                <div className="font-medium">100</div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div
+                className="h-12 rounded-lg border shadow-sm"
+                style={{ backgroundColor: "hsl(210 45% 90%)" }}
+              ></div>
+              <div className="text-xs text-center">
+                <div className="font-medium">200</div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div
+                className="h-12 rounded-lg border shadow-sm"
+                style={{ backgroundColor: "hsl(210 40% 82%)" }}
+              ></div>
+              <div className="text-xs text-center">
+                <div className="font-medium">300</div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div
+                className="h-12 rounded-lg border shadow-sm"
+                style={{ backgroundColor: "hsl(210 35% 72%)" }}
+              ></div>
+              <div className="text-xs text-center">
+                <div className="font-medium">400</div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div
+                className="h-12 rounded-lg border shadow-sm"
+                style={{ backgroundColor: "hsl(210 30% 62%)" }}
+              ></div>
+              <div className="text-xs text-center">
+                <div className="font-medium">500</div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div
+                className="h-12 rounded-lg border shadow-sm"
+                style={{ backgroundColor: "hsl(210 55% 45%)" }}
+              ></div>
+              <div className="text-xs text-center">
+                <div className="font-medium text-white">600</div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div
+                className="h-12 rounded-lg border shadow-sm"
+                style={{ backgroundColor: "hsl(210 53% 35%)" }}
+              ></div>
+              <div className="text-xs text-center">
+                <div className="font-medium text-white">700</div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div
+                className="h-12 rounded-lg border shadow-sm"
+                style={{ backgroundColor: "hsl(210 52% 25%)" }}
+              ></div>
+              <div className="text-xs text-center">
+                <div className="font-medium text-white">800</div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div
+                className="h-12 rounded-lg border shadow-sm"
+                style={{ backgroundColor: "hsl(210 55% 20%)" }}
+              ></div>
+              <div className="text-xs text-center">
+                <div className="font-medium text-white">900</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Book-Inspired Palette</CardTitle>
+          <CardDescription>
+            Reading-focused colors with light and dark theme variants
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <h4 className="font-medium mb-3">Light Theme</h4>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="space-y-2">
+                <div
+                  className="h-16 rounded-lg border shadow-sm"
+                  style={{ backgroundColor: "#fefefe" }}
+                ></div>
+                <div className="text-sm">
+                  <div className="font-medium">Paper</div>
+                  <div className="text-muted-foreground text-xs">#fefefe</div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div
+                  className="h-16 rounded-lg border shadow-sm"
+                  style={{ backgroundColor: "#1a1a1a" }}
+                ></div>
+                <div className="text-sm">
+                  <div className="font-medium text-white">Ink</div>
+                  <div className="text-muted-foreground text-xs">#1a1a1a</div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div
+                  className="h-16 rounded-lg border shadow-sm"
+                  style={{ backgroundColor: "#8B4B3C" }}
+                ></div>
+                <div className="text-sm">
+                  <div className="font-medium text-white">Burgundy</div>
+                  <div className="text-muted-foreground text-xs">#8B4B3C</div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div
+                  className="h-16 rounded-lg border shadow-sm"
+                  style={{ backgroundColor: "#8B4513" }}
+                ></div>
+                <div className="text-sm">
+                  <div className="font-medium text-white">Leather</div>
+                  <div className="text-muted-foreground text-xs">#8B4513</div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div
+                  className="h-16 rounded-lg border shadow-sm"
+                  style={{ backgroundColor: "#D4B896" }}
+                ></div>
+                <div className="text-sm">
+                  <div className="font-medium">Parchment</div>
+                  <div className="text-muted-foreground text-xs">#D4B896</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-medium mb-3">Dark Theme</h4>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="space-y-2">
+                <div
+                  className="h-16 rounded-lg border shadow-sm"
+                  style={{ backgroundColor: "#0f0f0f" }}
+                ></div>
+                <div className="text-sm">
+                  <div className="font-medium text-white">Paper Dark</div>
+                  <div className="text-muted-foreground text-xs">#0f0f0f</div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div
+                  className="h-16 rounded-lg border shadow-sm"
+                  style={{ backgroundColor: "#f5f5f5" }}
+                ></div>
+                <div className="text-sm">
+                  <div className="font-medium">Ink Light</div>
+                  <div className="text-muted-foreground text-xs">#f5f5f5</div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div
+                  className="h-16 rounded-lg border shadow-sm"
+                  style={{ backgroundColor: "#6B342E" }}
+                ></div>
+                <div className="text-sm">
+                  <div className="font-medium text-white">Burgundy Dark</div>
+                  <div className="text-muted-foreground text-xs">#6B342E</div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div
+                  className="h-16 rounded-lg border shadow-sm"
+                  style={{ backgroundColor: "#654321" }}
+                ></div>
+                <div className="text-sm">
+                  <div className="font-medium text-white">Leather Dark</div>
+                  <div className="text-muted-foreground text-xs">#654321</div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div
+                  className="h-16 rounded-lg border shadow-sm"
+                  style={{ backgroundColor: "#B8A082" }}
+                ></div>
+                <div className="text-sm">
+                  <div className="font-medium">Parchment Dark</div>
+                  <div className="text-muted-foreground text-xs">#B8A082</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">CSS Variables</h3>
         <CodeBlock
@@ -232,25 +457,75 @@ export const ColorsTab: React.FC = () => {
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Custom Colors</h3>
+        <h3 className="text-lg font-semibold">Book Palette Implementation</h3>
         <CodeBlock
-          title="Adding Custom Colors"
+          title="Book-Inspired Colors Configuration"
           code={`// In your tailwind.config.js
 module.exports = {
   theme: {
     extend: {
       colors: {
+        book: {
+          // Light theme
+          paper: '#fefefe',
+          ink: '#1a1a1a',
+          forest: '#22c55e',
+          leather: '#8b4513',
+          gold: '#ffd700',
+          // Dark theme
+          'paper-dark': '#0f0f0f',
+          'ink-light': '#f5f5f5',
+          'forest-dark': '#16a34a',
+          'leather-dark': '#654321',
+          'gold-dark': '#b8860b',
+        },
         brand: {
-          50: 'hsl(210 100% 97%)',
-          100: 'hsl(210 100% 94%)',
-          500: 'hsl(210 100% 50%)',
-          900: 'hsl(210 100% 15%)',
+          50: 'hsl(220 14.3% 95.9%)',
+          100: 'hsl(220 13% 91%)',
+          200: 'hsl(216 12.2% 83.9%)',
+          300: 'hsl(218 10.6% 65%)',
+          400: 'hsl(220 8.9% 46.1%)',
+          500: 'hsl(220.9 39.3% 11%)',
+          600: 'hsl(221.2 83.2% 53.3%)',
+          700: 'hsl(224 71.4% 4.1%)',
+          800: 'hsl(222.2 84% 4.9%)',
+          900: 'hsl(221.2 83.2% 53.3%)',
         }
       }
     }
   }
 }`}
           fileName="tailwind.config.js"
+        />
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Usage Examples</h3>
+        <CodeBlock
+          title="Using Book Palette Colors"
+          code={`/* CSS Variables for Theme Switching */
+:root {
+  --book-paper: #fefefe;
+  --book-ink: #1a1a1a;
+  --book-forest: #22c55e;
+}
+
+[data-theme="dark"] {
+  --book-paper: #0f0f0f;
+  --book-ink: #f5f5f5;
+  --book-forest: #16a34a;
+}
+
+/* Tailwind Classes */
+<div className="bg-book-paper text-book-ink border-book-forest">
+  Reading interface with book-inspired colors
+</div>
+
+/* Reading-focused components */
+<article className="bg-book-paper-dark text-book-ink-light">
+  Dark mode reading experience
+</article>`}
+          fileName="book-colors.css"
         />
       </div>
     </div>
