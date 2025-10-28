@@ -13,6 +13,7 @@ export interface DocumentUploaderProps {
   onProcessingStateChange: (isProcessing: boolean) => void;
   onError: (error: string | null) => void;
   onStartFromScratch: () => void;
+  bookId?: string;
 }
 
 export interface DocumentPageProps {

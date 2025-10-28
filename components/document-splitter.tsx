@@ -552,6 +552,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
                 }
               }}
               onStartFromScratch={handleStartFromScratch}
+              bookId={bookId}
             />
           </div>
         ) : (

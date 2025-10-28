@@ -67,6 +67,7 @@ export {
 // Storage Service
 export {
   uploadFile,
+  uploadBookFile,
   getFileUrl,
   deleteFile,
   validateFile,

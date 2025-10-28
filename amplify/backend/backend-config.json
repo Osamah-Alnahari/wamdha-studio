@@ -1,10 +1,5 @@
 {
-  "analytics": {
-    "wamdhaAnalytics": {
-      "providerPlugin": "awscloudformation",
-      "service": "Pinpoint"
-    }
-  },
+  "analytics": {},
   "api": {
     "wamdha": {
       "dependsOn": [

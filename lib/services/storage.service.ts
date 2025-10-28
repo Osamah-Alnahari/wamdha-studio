@@ -18,7 +18,7 @@ export interface UploadResult {
 // Upload file to S3
 export const uploadFile = async (
   file: File,
-  accessLevel: "guest" | "private" | "protected" | "public" = "public",
+  accessLevel: "guest" | "private" | "protected" = "guest",
   options: UploadOptions = {}
 ): Promise<UploadResult> => {
   try {
@@ -27,16 +27,25 @@ export const uploadFile = async (
     // Generate unique path based on access level and file properties
     const uniqueId = uuidv4();
     const extension = file.name.split(".").pop() || "";
-    const path = `${accessLevel}/${uniqueId}.${extension}`;
+    const path = `${uniqueId}.${extension}`;
 
-    await uploadData({
+    const uploadTask = uploadData({
       path,
       data: file,
       options: {
-        onProgress,
+        onProgress: (progress) => {
+          if (onProgress && progress.totalBytes) {
+            onProgress({
+              transferredBytes: progress.transferredBytes,
+              totalBytes: progress.totalBytes,
+            });
+          }
+        },
         contentType,
       },
     });
+
+    await uploadTask.result;
 
     // Get the public URL for the uploaded file
     const { url } = await getUrl({ path });
@@ -49,6 +58,78 @@ export const uploadFile = async (
     console.error("Error uploading file:", error);
     throw new Error(
       `Failed to upload file: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
+  }
+};
+
+// Upload a book file to a specific S3 path convention
+// Path convention: public/books/{userId}/{bookId}/{bookTitle}.docs
+export const uploadBookFile = async (
+  file: File,
+  userId: string,
+  bookId: string,
+  bookTitle: string,
+  options: UploadOptions = {}
+): Promise<UploadResult> => {
+  try {
+    const { onProgress, contentType } = options;
+    const safeTitle = bookTitle
+    .trim()
+    .replace(/[\/\\?%*:|"<>]/g, "-") 
+    .substring(0, 200);
+
+    // Use the public/ prefix directly in the path since Amplify Storage
+    // requires explicit paths for authenticated uploads
+    const path = `public/books/${userId}/${bookId}/${safeTitle}.docs`;
+
+    console.log("Uploading book file:", {
+      path,
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      userId,
+      bookId,
+      bookTitle,
+      safeTitle,
+    });
+
+    // Upload to S3 - note: path is relative, Amplify adds the access level prefix
+    const uploadTask = uploadData({
+      path,
+      data: file,
+      options: {
+        contentType: contentType ?? file.type,
+        onProgress: (progress) => {
+          console.log(
+            `Upload progress: ${progress.transferredBytes}/${progress.totalBytes}`
+          );
+          if (onProgress && progress.totalBytes) {
+            onProgress({
+              transferredBytes: progress.transferredBytes,
+              totalBytes: progress.totalBytes,
+            });
+          }
+        },
+      },
+    });
+
+    // Wait for the upload to complete
+    const result = await uploadTask.result;
+    console.log("Upload completed successfully:", result);
+
+    // Get the public URL for the uploaded file
+    const { url } = await getUrl({ path });
+
+    return {
+      key: path,
+      url: url.href,
+    };
+  } catch (error) {
+    console.error("Error uploading book file:", error);
+    throw new Error(
+      `Failed to upload book: ${
         error instanceof Error ? error.message : "Unknown error"
       }`
     );

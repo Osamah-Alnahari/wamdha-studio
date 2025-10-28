@@ -58,13 +58,15 @@ type UserBookProgress @model
   @auth(rules: [
     { allow: owner, ownerField: "userId", operations: [create, read, update, delete] }
   ]) {
-  id: ID!
-  userId: ID! @index(name: "byUser")
-  user: User @belongsTo(fields: ["userId"])
-
+  userId: ID!
+    @primaryKey(sortKeyFields: ["bookId"])
+    @index(name: "byUser", queryField: "listUserBookProgressByUser", sortKeyFields: ["updatedAt"])
   bookId: ID!
+  user: User @belongsTo(fields: ["userId"])
   lastSlideNumber: Int!
   updatedAt: AWSDateTime!
+  isSaved: Boolean
+  isFinished: Boolean
 }
 
 type Achievement @model
