@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import { Upload, FileText, Plus, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ export function DocumentUploader({
   bookId,
 }: DocumentUploaderProps) {
   const { user } = useAuth();
+  const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -212,15 +214,26 @@ export function DocumentUploader({
       </Card>
 
       {/* Post-upload dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          // Redirect to books page when dialog is closed
+          if (!open) {
+            router.push("/books");
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>We’ve received your book</DialogTitle>
+            <DialogTitle>We've received your book</DialogTitle>
             <DialogDescription>
-              We will send you an email once your summaries are done. You can
-              safely close this page.
+              We will send you an email once your summaries are done.
             </DialogDescription>
           </DialogHeader>
+          <div className="flex justify-end mt-4">
+            <Button onClick={() => router.push("/books")}>OK</Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

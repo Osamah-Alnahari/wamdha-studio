@@ -84,17 +84,6 @@ export const uploadBookFile = async (
     // requires explicit paths for authenticated uploads
     const path = `public/books/${userId}/${bookId}/${safeTitle}.docs`;
 
-    console.log("Uploading book file:", {
-      path,
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-      userId,
-      bookId,
-      bookTitle,
-      safeTitle,
-    });
-
     // Upload to S3 - note: path is relative, Amplify adds the access level prefix
     const uploadTask = uploadData({
       path,
@@ -102,9 +91,6 @@ export const uploadBookFile = async (
       options: {
         contentType: contentType ?? file.type,
         onProgress: (progress) => {
-          console.log(
-            `Upload progress: ${progress.transferredBytes}/${progress.totalBytes}`
-          );
           if (onProgress && progress.totalBytes) {
             onProgress({
               transferredBytes: progress.transferredBytes,
@@ -114,14 +100,11 @@ export const uploadBookFile = async (
         },
       },
     });
-
     // Wait for the upload to complete
     const result = await uploadTask.result;
     console.log("Upload completed successfully:", result);
-
     // Get the public URL for the uploaded file
     const { url } = await getUrl({ path });
-
     return {
       key: path,
       url: url.href,

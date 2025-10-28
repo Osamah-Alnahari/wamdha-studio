@@ -23,6 +23,7 @@ import { getErrorMessage } from "@/utils/get-error-message";
 import { useAuth } from "@/contexts/AuthContext";
 import { signOutUser } from "@/lib/services";
 import { APP_NAME } from "@/constants";
+import Image from "next/image";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -94,7 +95,7 @@ export function Navbar() {
             className="flex items-center space-x-2 cursor-pointer"
             onClick={() => handleNavigation(isBooksRoute ? "/books" : "/")}
           >
-            <Book className="h-6 w-6" />
+            <Image width={48} height={48} src="/logo.png" alt="Logo" />
             <span className="font-bold">{APP_NAME}</span>
           </div>
         </div>
