@@ -115,16 +115,16 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
               viewMode: "summaries",
             });
 
-            toast.success("Loaded saved content", {
-              description: `Loaded ${content.length} pages from "${newBookInfo.title}"`,
+            toast.success("تم تحميل المحتوى المحفوظ", {
+              description: `تم تحميل ${content.length} صفحة من "${newBookInfo.title}"`,
             });
           }
         }
       } catch (error) {
         console.error("Error loading book data:", error);
-        toast.error("Error loading book data", {
+        toast.error("خطأ في تحميل بيانات الكتاب", {
           description:
-            "There was a problem loading your book data. Please try again.",
+            "حدثت مشكلة في تحميل بيانات كتابك. يرجى المحاولة مرة أخرى",
         });
       } finally {
         updateLoadingState({ isLoadingData: false });
@@ -165,8 +165,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         startedFromScratch: false,
       });
 
-      toast.success("Document processed successfully", {
-        description: `${result.length} pages extracted from ${name}`,
+      toast.success("تمت معالجة المستند بنجاح", {
+        description: `تم استخراج ${result.length} صفحة من ${name}`,
       });
     },
     [updateDocumentState]
@@ -191,8 +191,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
       viewMode: "summaries",
     });
 
-    toast.success("Started from scratch", {
-      description: "You can now add pages and create your summaries.",
+    toast.success("بدأت من الصفر", {
+      description: "يمكنك الآن إضافة صفحات وإنشاء ملخصاتك",
     });
   }, [bookInfo.title, updateDocumentState]);
 
@@ -232,9 +232,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         updatePageSummary(sanitizedSummary, pageIndex);
       } catch (error) {
         console.error("Error updating summary:", error);
-        toast.error("Failed to save summary", {
-          description:
-            "There was an error saving your changes. Please try again.",
+        toast.error("فشل حفظ الملخص", {
+          description: "حدث خطأ أثناء حفظ التغييرات. يرجى المحاولة مرة أخرى",
         });
       } finally {
         updateLoadingState({ isSaving: false });
@@ -290,8 +289,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
         const updatedSummary = { ...currentSummary, isGeneratingImage: false };
         updatePageSummary(updatedSummary, pageIndex);
 
-        toast.error("Error processing generated image", {
-          description: "There was a problem processing the generated image.",
+        toast.error("خطأ في معالجة الصورة المُنشأة", {
+          description: "حدثت مشكلة في معالجة الصورة المُنشأة",
         });
       }
     },
@@ -335,8 +334,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
           updatePageSummary(updatedSummary, pageIndex);
 
-          toast.success("Summary generated", {
-            description: `Summary for page ${pageIndex + 1} has been created.`,
+          toast.success("تم إنشاء الملخص", {
+            description: `تم إنشاء ملخص للصفحة ${pageIndex + 1}`,
           });
 
           updateProcessingState({
@@ -359,9 +358,8 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
             ),
           });
 
-          toast.error("Failed to generate summary", {
-            description:
-              "There was an error generating the summary. Please try again.",
+          toast.error("فشل إنشاء الملخص", {
+            description: "حدث خطأ أثناء إنشاء الملخص. يرجى المحاولة مرة أخرى",
           });
           reject(error);
         }
@@ -377,15 +375,15 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
 
   const handleSummarizeAllPages = useCallback(async () => {
     if (documentState.pages.length === 0) {
-      toast.error("No pages to summarize", {
-        description: "Please upload a document first.",
+      toast.error("لا توجد صفحات للتلخيص", {
+        description: "يرجى رفع مستند أولاً",
       });
       return;
     }
 
     updateLoadingState({ isSummarizingAll: true });
-    toast.info(`Summarizing ${documentState.pages.length} pages`, {
-      description: "This may take a moment...",
+    toast.info(`جارٍ تلخيص ${documentState.pages.length} صفحة`, {
+      description: "قد يستغرق هذا بعض الوقت...",
     });
 
     let completedCount = 0;
@@ -438,9 +436,9 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
               completedCount + failedCount === documentState.pages.length
             ) {
               toast.success(
-                `Progress: ${completedCount}/${documentState.pages.length} pages summarized`,
+                `التقدم: ${completedCount}/${documentState.pages.length} صفحة تم تلخيصها`,
                 {
-                  description: "Summarization is in progress...",
+                  description: "التلخيص قيد التقدم...",
                   duration: 3000,
                 }
               );
@@ -462,12 +460,12 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
     }
 
     if (failedCount > 0) {
-      toast.error(`Summarization completed with errors`, {
-        description: `Generated ${completedCount} summaries, ${failedCount} failed.`,
+      toast.error(`اكتمل التلخيص مع وجود أخطاء`, {
+        description: `تم إنشاء ${completedCount} ملخص، فشل ${failedCount}`,
       });
     } else {
-      toast.success("All pages summarized", {
-        description: `Successfully summarized ${completedCount} pages.`,
+      toast.success("تم تلخيص جميع الصفحات", {
+        description: `تم تلخيص ${completedCount} صفحة بنجاح`,
       });
     }
 
@@ -546,7 +544,7 @@ export function DocumentSplitter({ bookId }: DocumentSplitterProps) {
               onError={(errorMsg) => {
                 updateProcessingState({ error: errorMsg });
                 if (errorMsg) {
-                  toast.error("Error processing document", {
+                  toast.error("خطأ في معالجة المستند", {
                     description: errorMsg,
                   });
                 }

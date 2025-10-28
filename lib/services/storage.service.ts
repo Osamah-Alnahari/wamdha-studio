@@ -18,7 +18,7 @@ export interface UploadResult {
 // Upload file to S3
 export const uploadFile = async (
   file: File,
-  accessLevel: "guest" | "private" | "protected" = "guest",
+  accessLevel: "guest" | "private" | "protected" | "public" = "public",
   options: UploadOptions = {}
 ): Promise<UploadResult> => {
   try {
@@ -27,25 +27,16 @@ export const uploadFile = async (
     // Generate unique path based on access level and file properties
     const uniqueId = uuidv4();
     const extension = file.name.split(".").pop() || "";
-    const path = `${uniqueId}.${extension}`;
+    const path = `${accessLevel}/${uniqueId}.${extension}`;
 
-    const uploadTask = uploadData({
+    await uploadData({
       path,
       data: file,
       options: {
-        onProgress: (progress) => {
-          if (onProgress && progress.totalBytes) {
-            onProgress({
-              transferredBytes: progress.transferredBytes,
-              totalBytes: progress.totalBytes,
-            });
-          }
-        },
+        onProgress,
         contentType,
       },
     });
-
-    await uploadTask.result;
 
     // Get the public URL for the uploaded file
     const { url } = await getUrl({ path });
@@ -76,9 +67,9 @@ export const uploadBookFile = async (
   try {
     const { onProgress, contentType } = options;
     const safeTitle = bookTitle
-    .trim()
-    .replace(/[\/\\?%*:|"<>]/g, "-") 
-    .substring(0, 200);
+      .trim()
+      .replace(/[\/\\?%*:|"<>]/g, "-")
+      .substring(0, 200);
 
     // Use the public/ prefix directly in the path since Amplify Storage
     // requires explicit paths for authenticated uploads

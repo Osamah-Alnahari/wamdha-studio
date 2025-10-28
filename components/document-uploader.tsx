@@ -142,9 +142,9 @@ export function DocumentUploader({
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
             <Plus className="h-8 w-8 text-primary" />
           </div>
-          <h3 className="mt-4 text-lg font-semibold">Start from scratch</h3>
+          <h3 className="mt-4 text-lg font-semibold">ابدأ من الصفر</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            Create your own summaries without uploading a document
+            أنشئ ملخصاتك الخاصة دون الحاجة لرفع مستند
           </p>
           <Button
             className="mt-6"
@@ -155,7 +155,7 @@ export function DocumentUploader({
             }}
           >
             <FileText className="mr-2 h-4 w-4" />
-            Create New Summaries
+            إنشاء ملخصات جديدة
           </Button>
         </div>
       </Card>
@@ -172,14 +172,12 @@ export function DocumentUploader({
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
             <Upload className="h-8 w-8 text-primary" />
           </div>
-          <h3 className="mt-4 text-lg font-semibold">
-            Drag & drop your document
-          </h3>
+          <h3 className="mt-4 text-lg font-semibold">لديك ملخصاتك جاهزة؟</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            Or click to browse files (DOC and DOCX files are supported)
+            قم بسحب وإفلات ملف الملخصات أو انقر لاختيار ملف
           </p>
           <Button className="mt-6" variant="outline">
-            Select File
+            اختيار الملف
           </Button>
         </div>
       </Card>
@@ -190,10 +188,10 @@ export function DocumentUploader({
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
             <BookOpen className="h-8 w-8 text-primary" />
           </div>
-          <h3 className="mt-4 text-lg font-semibold">Upload book to S3</h3>
+          <h3 className="mt-4 text-lg font-semibold">رفع كتاب للتلخيص</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            We’ll upload your DOC/DOCX to our storage and notify you when the
-            summaries are ready.
+            سنقوم برفع ملفك وتلخيصه تلقائياً، وسنرسل لك إشعاراً عند اكتمال
+            التلخيص
           </p>
           <input
             ref={fileInputRef}
@@ -208,7 +206,7 @@ export function DocumentUploader({
             onClick={handleS3UploadClick}
           >
             <Upload className="mr-2 h-4 w-4" />
-            Upload Book to S3
+            رفع الكتاب
           </Button>
         </div>
       </Card>
@@ -226,13 +224,13 @@ export function DocumentUploader({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>We've received your book</DialogTitle>
+            <DialogTitle>تم استلام كتابك</DialogTitle>
             <DialogDescription>
-              We will send you an email once your summaries are done.
+              سنرسل لك بريداً إلكترونياً عند اكتمال التلخيص
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end mt-4">
-            <Button onClick={() => router.push("/books")}>OK</Button>
+            <Button onClick={() => router.push("/books")}>حسناً</Button>
           </div>
         </DialogContent>
       </Dialog>

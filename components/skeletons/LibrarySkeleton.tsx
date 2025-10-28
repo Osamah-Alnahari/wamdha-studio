@@ -7,10 +7,10 @@ export default function LibrarySkeleton() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-              My Library
+              مكتبتي
             </h1>
             <p className="mt-2 text-muted-foreground md:text-xl">
-              Manage your books and summaries
+              إدارة كتبك وملخصاتك
             </p>
           </div>
           <div className="md:w-auto w-full h-10 bg-muted animate-pulse rounded-md" />

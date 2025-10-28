@@ -4,7 +4,7 @@ const BookDetailsSkeleton = ({ isNew }: { isNew: boolean }) => {
       <div className="flex flex-col space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-            {isNew ? "Create New Book" : "Book Details"}
+            {isNew ? "إنشاء كتاب جديد" : "تفاصيل الكتاب"}
           </h1>
           <div className="flex gap-3">
             <div className="h-10 w-32 bg-muted animate-pulse rounded-md" />
@@ -16,8 +16,8 @@ const BookDetailsSkeleton = ({ isNew }: { isNew: boolean }) => {
 
         <p className="max-w-[700px] text-muted-foreground md:text-xl">
           {isNew
-            ? "Enter the details of your new book below."
-            : "Edit the details of your book below before creating summaries."}
+            ? "أدخل تفاصيل كتابك الجديد أدناه"
+            : "عدّل تفاصيل كتابك أدناه قبل إنشاء الملخصات"}
         </p>
 
         {/* Book Details Form Skeleton */}

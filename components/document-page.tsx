@@ -73,12 +73,12 @@ export function DocumentPage({ bookId }: DocumentPageProps) {
           <Link href={`/books/${bookId}`}>
             <Button variant="outline">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Book Details
+              العودة لتفاصيل الكتاب
             </Button>
           </Link>
         </div>
         <p className="max-w-[700px] text-muted-foreground md:text-xl">
-          Upload a document and create summaries with custom images.
+          ارفع مستندك وأنشئ ملخصات مع صور مخصصة
         </p>
         <DocumentSplitter bookId={bookId} />
       </div>

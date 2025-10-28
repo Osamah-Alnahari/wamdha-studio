@@ -395,8 +395,8 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
       const uploadResult = await uploadSlides(client, bookId, pageSummaries);
 
       if (uploadResult.success) {
-        toastHook.success("Slides uploaded successfully", {
-          description: `${uploadResult.uploadedCount} slides uploaded.`,
+        toastHook.success("تم رفع الشرائح بنجاح", {
+          description: `تم رفع ${uploadResult.uploadedCount} شريحة`,
         });
         router.push("/books");
       } else {
@@ -404,9 +404,8 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
       }
     } catch (error) {
       console.error("Failed to upload slides:", error);
-      toastHook.error("Failed to upload slides", {
-        description:
-          "There was a problem uploading your slides. Please try again.",
+      toastHook.error("فشل رفع الشرائح", {
+        description: "حدثت مشكلة في رفع شرائحك. يرجى المحاولة مرة أخرى",
       });
     } finally {
       updateUIState({ isUploading: false });
@@ -416,12 +415,12 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
   const handleGenerateAllImages = async () => {
     try {
       const count = await generateAllImages();
-      toastHook.info(`Generating ${count} images`, {
-        description: "This may take a moment...",
+      toastHook.info(`جارٍ إنشاء ${count} صورة`, {
+        description: "قد يستغرق هذا بعض الوقت...",
       });
     } catch (error) {
-      toastHook.error("Failed to generate images", {
-        description: "There was a problem generating images. Please try again.",
+      toastHook.error("فشل إنشاء الصور", {
+        description: "حدثت مشكلة في إنشاء الصور. يرجى المحاولة مرة أخرى",
       });
     }
   };
@@ -451,7 +450,7 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
         </div>
         <div className="flex space-x-2">
           <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">
-            {pageSummaries.length} pages
+            {pageSummaries.length} صفحة
           </span>
           <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary uppercase">
             {fileType}
@@ -470,12 +469,12 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
           {isDownloading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Downloading...
+              جارٍ التحميل...
             </>
           ) : (
             <>
               <Download className="mr-2 h-4 w-4" />
-              Download All Summaries
+              تحميل جميع الملخصات
             </>
           )}
         </Button>
@@ -485,8 +484,8 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
           size="sm"
           className="flex-shrink-0"
           onClick={() => handleAddNewPage()}
-          aria-label="Add new page"
-          title="Add new page (Ctrl+N)"
+          aria-label="إضافة صفحة جديدة"
+          title="إضافة صفحة جديدة (Ctrl+N)"
           disabled={isAddingPage}
         >
           {isAddingPage ? (
@@ -507,12 +506,12 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
         {pageSummaries.some((summary) => summary.isGeneratingImage) ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Generating Images...
+            جارٍ إنشاء الصور...
           </>
         ) : (
           <>
             <ImageIcon className="mr-2 h-4 w-4" />
-            Generate All Images
+            إنشاء جميع الصور
           </>
         )}
       </Button>
@@ -525,7 +524,7 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
         {isUploading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Uploading Slides...
+            جارٍ رفع الشرائح...
           </>
         ) : (
           <>
@@ -543,13 +542,13 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
                 d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
               />
             </svg>
-            Save & Publish Slides
+            حفظ ونشر الشرائح
           </>
         )}
       </Button>
 
       <div className="space-y-2 mt-4">
-        <h4 className="text-sm font-medium">Summarized Pages</h4>
+        <h4 className="text-sm font-medium">الصفحات الملخصة</h4>
         <div
           ref={listContainerRef}
           className="space-y-3 max-h-[calc(100vh-270px)] overflow-y-auto pr-2 relative"
@@ -580,7 +579,7 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
                     <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     {summarizingPageIndices.has(index) && (
                       <span className="text-xs text-center mt-2">
-                        Generating summary...
+                        جارٍ إنشاء الملخص...
                       </span>
                     )}
                   </div>
@@ -591,14 +590,14 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
                   <div className="absolute inset-0 bg-background/70 backdrop-blur-[1px] flex flex-col items-center justify-center rounded-md z-10">
                     <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
                     <span className="text-xs text-center">
-                      Generating image...
+                      جارٍ إنشاء الصورة...
                     </span>
                   </div>
                 ) : null}
 
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1 min-w-0">
-                    <h5 className="font-medium">Page {index + 1}</h5>
+                    <h5 className="font-medium">الصفحة {index + 1}</h5>
                     <p className="text-sm font-medium text-muted-foreground truncate">
                       {typeof summary.title === "string"
                         ? summary.title
@@ -612,7 +611,7 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
                       size="icon"
                       className="h-8 w-8 text-muted-foreground hover:text-destructive"
                       onClick={(e) => handleDeleteClick(index, e)}
-                      aria-label="Delete page"
+                      aria-label="حذف الصفحة"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -687,19 +686,18 @@ export function SummarizedPagesList({ bookId }: { bookId?: string }) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Page</AlertDialogTitle>
+            <AlertDialogTitle>حذف الصفحة</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this page? This action cannot be
-              undone.
+              هل أنت متأكد من حذف هذه الصفحة؟ لا يمكن التراجع عن هذا الإجراء
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelDelete}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={cancelDelete}>إلغاء</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              حذف
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

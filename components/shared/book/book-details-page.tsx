@@ -99,8 +99,8 @@ export function BookDetailsPage({
     try {
       if (!user?.userId) {
         console.error("User not found. Cannot create a book.");
-        toast.error("Authentication Error", {
-          description: "You must be logged in to create a book.",
+        toast.error("خطأ في المصادقة", {
+          description: "يجب تسجيل الدخول لإنشاء كتاب",
         });
         return;
       }
@@ -131,8 +131,8 @@ export function BookDetailsPage({
           description: info.description,
           thumbnailUrl: info.coverImageUrl ?? "",
         });
-        toast.success("Book details updated", {
-          description: "Your book details have been saved.",
+        toast.success("تم تحديث تفاصيل الكتاب", {
+          description: "تم حفظ تفاصيل كتابك بنجاح",
         });
         // Redirect to books page after successful save
         router.push("/books");
@@ -164,13 +164,13 @@ export function BookDetailsPage({
       <div className="flex flex-col space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-            {isNew ? "Create New Book" : "Book Details"}
+            {isNew ? "إنشاء كتاب جديد" : "تفاصيل الكتاب"}
           </h1>
           <div className="flex gap-3">
             <Link href="/books">
               <Button variant="outline">
                 <FileText className="mr-2 h-4 w-4" />
-                My Library
+                مكتبتي
               </Button>
             </Link>
             {!isNew && (
@@ -181,12 +181,12 @@ export function BookDetailsPage({
                 {isNavigatingToContent ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Content Management...
+                    إدارة المحتوى...
                   </>
                 ) : (
                   <>
                     <FileText className="mr-2 h-4 w-4" />
-                    Go to Content Management
+                    الذهاب لإدارة المحتوى
                   </>
                 )}
               </Button>
@@ -196,8 +196,8 @@ export function BookDetailsPage({
 
         <p className="max-w-[700px] text-muted-foreground md:text-xl">
           {isNew
-            ? "Enter the details of your new book below."
-            : "Edit the details of your book below before creating summaries."}
+            ? "أدخل تفاصيل كتابك الجديد أدناه"
+            : "عدّل تفاصيل كتابك أدناه قبل إنشاء الملخصات"}
         </p>
 
         <BookDetails

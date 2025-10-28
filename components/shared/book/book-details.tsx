@@ -101,8 +101,8 @@ export function BookDetails({
     // Redirect to books page after saving
     router.push("/books");
 
-    toast.success("Book details updated", {
-      description: "Your book details have been saved.",
+    toast.success("تم تحديث تفاصيل الكتاب", {
+      description: "تم حفظ تفاصيل كتابك بنجاح",
     });
   };
 
@@ -123,10 +123,10 @@ export function BookDetails({
       setCoverImageUrl(result.key);
       setLocalImageUrl(URL.createObjectURL(file));
       setHasChanges(true);
-      toast.success("Cover image uploaded successfully!");
+      toast.success("تم رفع صورة الغلاف بنجاح!");
     } catch (error) {
       console.error("Upload failed:", error);
-      toast.error("Failed to upload cover image.");
+      toast.error("فشل رفع صورة الغلاف");
     }
   };
 
@@ -182,8 +182,8 @@ export function BookDetails({
       if (file.type.startsWith("image/")) {
         processImageFile(file);
       } else {
-        toast.error("Invalid file type", {
-          description: "Please upload an image file.",
+        toast.error("نوع ملف غير صالح", {
+          description: "يرجى رفع ملف صورة",
         });
       }
     }
@@ -192,44 +192,44 @@ export function BookDetails({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle>Book Information</CardTitle>
+        <CardTitle>معلومات الكتاب</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-5">
             <div className="space-y-2">
               <label htmlFor="book-title" className="text-sm font-medium">
-                Book Title
+                عنوان الكتاب
               </label>
               <Input
                 id="book-title"
                 value={title}
                 onChange={handleTitleChange}
-                placeholder="Enter book title"
+                placeholder="أدخل عنوان الكتاب"
               />
             </div>
 
             <div className="space-y-2">
               <label htmlFor="book-author" className="text-sm font-medium">
-                Author Name
+                اسم المؤلف
               </label>
               <Input
                 id="book-author"
                 value={author}
                 onChange={handleAuthorChange}
-                placeholder="Enter author name"
+                placeholder="أدخل اسم المؤلف"
               />
             </div>
 
             <div className="space-y-2">
               <label htmlFor="book-description" className="text-sm font-medium">
-                Description
+                الوصف
               </label>
               <Textarea
                 id="book-description"
                 value={description}
                 onChange={handleDescriptionChange}
-                placeholder="Enter book description"
+                placeholder="أدخل وصف الكتاب"
                 className="min-h-[150px]"
               />
             </div>
@@ -244,8 +244,7 @@ export function BookDetails({
                 htmlFor="ownership"
                 className="text-sm font-medium cursor-pointer"
               >
-                I confirm that I own the rights to this book or have permission
-                to use it
+                أؤكد أنني أملك حقوق هذا الكتاب أو لدي إذن باستخدامه
               </Label>
             </div>
 
@@ -253,8 +252,8 @@ export function BookDetails({
               <Alert variant="destructive" className="mt-3">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  You must confirm that you own the rights to this book or have
-                  permission to use it before saving.
+                  يجب عليك تأكيد أنك تملك حقوق هذا الكتاب أو لديك إذن باستخدامه
+                  قبل الحفظ
                 </AlertDescription>
               </Alert>
             )}
@@ -274,10 +273,10 @@ export function BookDetails({
                   {isSaving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating Book...
+                      جارٍ إنشاء الكتاب...
                     </>
                   ) : (
-                    "Create Book"
+                    "إنشاء الكتاب"
                   )}
                 </Button>
               ) : (
@@ -294,10 +293,10 @@ export function BookDetails({
                   {isSaving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
+                      جارٍ الحفظ...
                     </>
                   ) : (
-                    "Save Book Details"
+                    "حفظ تفاصيل الكتاب"
                   )}
                 </Button>
               )}
@@ -305,7 +304,7 @@ export function BookDetails({
           </div>
 
           <div className="space-y-3">
-            <label className="text-sm font-medium">Book Cover</label>
+            <label className="text-sm font-medium">غلاف الكتاب</label>
             <div
               className={cn(
                 "border rounded-md overflow-hidden transition-colors",
@@ -341,8 +340,8 @@ export function BookDetails({
                   <ImageIcon className="h-12 w-12 mb-3 text-primary/70" />
                   <p className="text-center text-sm">
                     {isDragging
-                      ? "Drop image here"
-                      : "Click or drag to upload cover image"}
+                      ? "أفلت الصورة هنا"
+                      : "انقر أو اسحب لرفع صورة الغلاف"}
                   </p>
                 </div>
               )}

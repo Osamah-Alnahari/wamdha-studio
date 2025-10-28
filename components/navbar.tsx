@@ -54,7 +54,7 @@ export function Navbar() {
       window.location.href = "/login";
     } catch (error) {
       console.log("Error during logout:", getErrorMessage(error));
-      toast.error("Error during logout. Please try again.");
+      toast.error("حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة مرة أخرى");
     } finally {
       setIsLoggingOut(false);
     }
@@ -80,9 +80,9 @@ export function Navbar() {
 
   // Navigation items for books routes (authenticated app)
   const appNavItems = [
-    { path: "/", label: "Home", icon: Home },
-    { path: "/books", label: "Library", icon: FileText },
-    { path: "/books/new", label: "New Book", icon: PlusCircle },
+    { path: "/", label: "الرئيسية", icon: Home },
+    { path: "/books", label: "المكتبة", icon: FileText },
+    { path: "/books/new", label: "كتاب جديد", icon: PlusCircle },
   ];
 
   const navItems = isBooksRoute ? appNavItems : publicNavItems;
@@ -151,10 +151,10 @@ export function Navbar() {
                 variant="ghost"
                 onClick={() => handleNavigation("/login")}
               >
-                Sign in
+                الدخول
               </Button>
               <Button onClick={() => handleNavigation("/register")}>
-                Sign up
+                التسجيل
               </Button>
             </div>
           )}
@@ -240,10 +240,10 @@ export function Navbar() {
                     variant="ghost"
                     onClick={() => handleNavigation("/login")}
                   >
-                    Sign in
+                    الدخول
                   </Button>
                   <Button onClick={() => handleNavigation("/register")}>
-                    Sign up
+                    التسجيل
                   </Button>
                 </div>
               )}

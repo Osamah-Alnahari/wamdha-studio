@@ -223,7 +223,7 @@ export function SummaryViewer({
         pendingChangesRef.current.delete(pageIdx);
       } catch (error) {
         console.error("Failed to save changes:", error);
-        toast.error("Failed to save changes. Please try again.");
+        toast.error("فشل حفظ التغييرات. يرجى المحاولة مرة أخرى");
       } finally {
         isSavingRef.current = false;
         updateLoadingState({ isSaving: false });
@@ -315,7 +315,7 @@ export function SummaryViewer({
 
     updateLoadingState({ isUploading: true });
     try {
-      toast.loading("Uploading image...", { id: "uploadToast" });
+      toast.loading("جارٍ رفع الصورة...", { id: "uploadToast" });
 
       const result = await uploadFile(file, "public", {
         onProgress: ({ transferredBytes, totalBytes = 100 }) => {
@@ -344,12 +344,12 @@ export function SummaryViewer({
         targetPageIndex
       );
 
-      toast.success("Cover image uploaded successfully!", {
+      toast.success("تم رفع صورة الغلاف بنجاح!", {
         id: "uploadToast",
       });
     } catch (error) {
       console.error("Upload failed:", error);
-      toast.error("Failed to upload cover image.", { id: "uploadToast" });
+      toast.error("فشل رفع صورة الغلاف", { id: "uploadToast" });
     } finally {
       updateLoadingState({ isUploading: false });
     }
@@ -460,16 +460,14 @@ export function SummaryViewer({
             targetPageIdx
           );
 
-          toast.success("Generated image uploaded successfully!");
+          toast.success("تم رفع الصورة المُنشأة بنجاح!");
         } catch (uploadError) {
           console.error("Upload of generated image failed:", uploadError);
-          toast.error("Failed to upload generated image.");
+          toast.error("فشل رفع الصورة المُنشأة");
         }
 
-        toast.success("Image generated", {
-          description: `Image for page ${
-            targetPageIdx + 1
-          } has been generated.`,
+        toast.success("تم إنشاء الصورة", {
+          description: `تم إنشاء صورة للصفحة ${targetPageIdx + 1}.`,
         });
       })
       .catch((error) => {
@@ -484,8 +482,8 @@ export function SummaryViewer({
         debouncedSave({ isGeneratingImage: false }, targetPageIndex);
 
         if (!signal.aborted) {
-          toast.error("Failed to generate image", {
-            description: "Please try again later.",
+          toast.error("فشل إنشاء الصورة", {
+            description: "يرجى المحاولة لاحقًا.",
           });
         }
       });
@@ -532,10 +530,10 @@ export function SummaryViewer({
         imageUrl: undefined,
         localImageUrl: undefined,
       });
-      toast.success("Image removed successfully");
+      toast.success("تم حذف الصورة بنجاح");
     } catch (error) {
       console.error("Failed to remove image:", error);
-      toast.error("Failed to remove image");
+      toast.error("فشل حذف الصورة");
     } finally {
       updateLoadingState({ isRemoving: false });
     }
@@ -574,8 +572,8 @@ export function SummaryViewer({
       if (file.type.startsWith("image/")) {
         processImageFile(file);
       } else {
-        toast.error("Invalid file type", {
-          description: "Please upload an image file.",
+        toast.error("نوع ملف غير صالح", {
+          description: "يرجى رفع ملف صورة.",
         });
       }
     }
@@ -584,7 +582,7 @@ export function SummaryViewer({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Page {pageIndex + 1} Summary</h2>
+        <h2 className="text-xl font-semibold">ملخص الصفحة {pageIndex + 1}</h2>
         <div className="flex items-center gap-2">
           <Tabs
             value={editorState.viewMode}
@@ -595,11 +593,11 @@ export function SummaryViewer({
             <TabsList>
               <TabsTrigger value="edit">
                 <Edit className="mr-2 h-4 w-4" />
-                Edit
+                تعديل
               </TabsTrigger>
               <TabsTrigger value="preview">
                 <Smartphone className="mr-2 h-4 w-4" />
-                Mobile Preview
+                معاينة الجوال
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -610,13 +608,13 @@ export function SummaryViewer({
         <>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Title</CardTitle>
+              <CardTitle className="text-base">العنوان</CardTitle>
             </CardHeader>
             <CardContent>
               <Input
                 value={editorState.title}
                 onChange={handleTitleChange}
-                placeholder="Enter a title for this summary"
+                placeholder="أدخل عنوان الملخص"
                 className="mb-4"
               />
             </CardContent>
@@ -624,13 +622,13 @@ export function SummaryViewer({
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Summary Content</CardTitle>
+              <CardTitle className="text-base">محتوى الملخص</CardTitle>
             </CardHeader>
             <CardContent>
               <Textarea
                 value={editorState.content}
                 onChange={handleContentChange}
-                placeholder="Enter your summary here..."
+                placeholder="أدخل ملخصك هنا..."
                 className="min-h-[250px]"
               />
             </CardContent>
@@ -638,7 +636,7 @@ export function SummaryViewer({
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Summary Image</CardTitle>
+              <CardTitle className="text-base">صورة الملخص</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -666,7 +664,7 @@ export function SummaryViewer({
                           }
                           tempUrl={imageState.localImageUrl !== undefined}
                           className="w-full h-auto object-cover"
-                          alt="Summary illustration"
+                          alt="صورة توضيحية للملخص"
                         />
                       </div>
                       <Button
@@ -691,8 +689,8 @@ export function SummaryViewer({
                       <ImageIcon className="h-10 w-10 mb-2" />
                       <p>
                         {imageState.isDragging
-                          ? "Drop image here"
-                          : "Drag & drop an image or click to upload"}
+                          ? "أفلت الصورة هنا"
+                          : "اسحب وأفلت صورة أو انقر للرفع"}
                       </p>
                     </div>
                   )}
@@ -708,12 +706,12 @@ export function SummaryViewer({
                     {loadingState.isUploading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
+                        جارٍ الرفع...
                       </>
                     ) : (
                       <>
                         <Upload className="mr-2 h-4 w-4" />
-                        Upload Image
+                        رفع صورة
                       </>
                     )}
                   </Button>
@@ -733,12 +731,12 @@ export function SummaryViewer({
                     {loadingState.isGeneratingImage ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Generating...
+                        جارٍ الإنشاء...
                       </>
                     ) : (
                       <>
                         <ImageIcon className="mr-2 h-4 w-4" />
-                        Generate Image
+                        إنشاء صورة
                       </>
                     )}
                   </Button>
@@ -755,17 +753,17 @@ export function SummaryViewer({
                         )}
                       </div>
                       <div>
-                        <p className="font-medium">Image Position</p>
+                        <p className="font-medium">موضع الصورة</p>
                         <p className="text-sm text-muted-foreground">
                           {editorState.imagePosition === "top"
-                            ? "Image shown below title"
-                            : "Image shown below content"}
+                            ? "تظهر الصورة أسفل العنوان"
+                            : "تظهر الصورة أسفل المحتوى"}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Label htmlFor="image-position" className="sr-only">
-                        Image Position
+                        موضع الصورة
                       </Label>
                       <Switch
                         id="image-position"

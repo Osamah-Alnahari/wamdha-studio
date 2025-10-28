@@ -109,8 +109,8 @@ export function LibraryPage() {
         return prevBooks.filter((book) => book.id !== deletedBookId);
       });
 
-      toast.success("Book deleted", {
-        description: "The book has been removed from your library.",
+      toast.success("تم حذف الكتاب", {
+        description: "تم إزالة الكتاب من مكتبتك",
       });
     } catch (e) {
       console.log("Error deleting book:", e);
@@ -158,16 +158,16 @@ export function LibraryPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-              My Library
+              مكتبتي
             </h1>
             <p className="mt-2 text-muted-foreground md:text-xl">
-              Manage your books and summaries
+              إدارة كتبك وملخصاتك
             </p>
           </div>
           {books.length > 0 && (
             <Button className="md:w-auto w-full" onClick={handleCreateNewBook}>
               <Plus className="mr-2 h-4 w-4" />
-              Create New Book
+              إنشاء كتاب جديد
             </Button>
           )}
         </div>
@@ -175,7 +175,7 @@ export function LibraryPage() {
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search books by title or author..."
+            placeholder="ابحث عن الكتب بالعنوان أو المؤلف..."
             className="pl-10"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -223,7 +223,7 @@ export function LibraryPage() {
                     onClick={() => handleEditBook(book.id)}
                   >
                     <Edit className="h-4 w-4 mr-1" />
-                    Edit
+                    تعديل
                   </Button>
                   <Button
                     variant="ghost"
@@ -231,7 +231,7 @@ export function LibraryPage() {
                     onClick={() => handleDeleteClick(book.id)}
                   >
                     <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
+                    حذف
                   </Button>
                 </CardFooter>
               </Card>
@@ -240,16 +240,14 @@ export function LibraryPage() {
         ) : (
           <div className="text-center py-16">
             <BookOpen className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-6 text-lg font-medium">No books found</h3>
+            <h3 className="mt-6 text-lg font-medium">لا توجد كتب</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              {searchQuery
-                ? "Try a different search term"
-                : "Start by creating your first book"}
+              {searchQuery ? "جرّب كلمة بحث مختلفة" : "ابدأ بإنشاء كتابك الأول"}
             </p>
             {!searchQuery && (
               <Button className="mt-6" onClick={handleCreateNewBook}>
                 <Plus className="mr-2 h-4 w-4" />
-                Create New Book
+                إنشاء كتاب جديد
               </Button>
             )}
           </div>
@@ -260,14 +258,13 @@ export function LibraryPage() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Book</AlertDialogTitle>
+            <AlertDialogTitle>حذف الكتاب</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this book? This action cannot be
-              undone.
+              هل أنت متأكد من حذف هذا الكتاب؟ لا يمكن التراجع عن هذا الإجراء
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelDelete}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={cancelDelete}>إلغاء</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -276,10 +273,10 @@ export function LibraryPage() {
               {isDeleting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
+                  جارٍ الحذف...
                 </>
               ) : (
-                "Delete"
+                "حذف"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
