@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { signUpUser } from "@/lib/services";
+import { signInWithRedirect } from "@aws-amplify/auth";
 import { APP_NAME } from "@/constants";
 
 export function RegisterForm() {
@@ -432,6 +433,19 @@ export function RegisterForm() {
                         type="button"
                         disabled={isLoading}
                         className="py-2 rounded-xl border-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+                        onClick={async () => {
+                          setIsLoading(true);
+                          try {
+                            await signInWithRedirect({
+                              provider: "Google",
+                              customState: "/books",
+                            });
+                          } catch (error) {
+                            console.error("Google sign-in error:", error);
+                            toast.error("Failed to initiate Google sign-in");
+                            setIsLoading(false);
+                          }
+                        }}
                       >
                         <svg className="mr-2 h-4 w-4" viewBox="0 0 488 512">
                           <path

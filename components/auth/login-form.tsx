@@ -29,6 +29,7 @@ import {
   getCurrentSession,
   extractUserFromSession,
   listenToAuthEvents,
+  createUserAfterSignup,
 } from "@/lib/services";
 import { getCurrentUser, signInWithRedirect } from "@aws-amplify/auth";
 import type { AuthUser } from "@aws-amplify/auth";
@@ -78,6 +79,16 @@ export function LoginForm() {
         const userInfo = extractUserFromSession(session);
         if (userInfo) {
           setUser(userInfo);
+
+          // Try to create user in database if they don't exist (for OAuth first-time users)
+          try {
+            await createUserAfterSignup(userInfo.email);
+            console.log("User record created/verified in database");
+          } catch (err) {
+            console.error("Error creating user record:", err);
+            // Don't fail the login if user creation fails
+          }
+
           // Only redirect if we're on the login page
           if (
             window.location.pathname === "/login" ||

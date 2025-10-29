@@ -45,6 +45,7 @@ export function ConfirmSignupForm() {
         username: String(email),
         confirmationCode: String(code),
       });
+
       toast.success("Email verified successfully", {
         description: "You can now log in to your account.",
       });

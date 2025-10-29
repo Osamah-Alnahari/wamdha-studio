@@ -51,23 +51,48 @@ export const signInUser = async (credentials: SignInCredentials) => {
       password: credentials.password,
     });
 
-    try {
-      // TODO: Fix user creation after each login
-      await client.graphql({
-        query: createUser,
-        variables: {
-          input: {
-            email: credentials.username,
-            givenName: credentials.username,
-            dailyStreak: 0,
-            lastActive: new Date().toISOString(),
-          },
-        },
-        authMode: "userPool",
-      });
-    } catch (err: any) {
-      if (!err.errors?.[0]?.message.includes("already exists")) {
-        console.log("User Already exists in the database");
+    // After successful sign-in, check if user exists in database
+    // If not, create them (this handles first login after signup)
+    if (result.isSignedIn) {
+      try {
+        const currentUser = await getCurrentUser();
+
+        // Check if user exists in database
+        const existingUser = await client.graphql({
+          query: getUser,
+          variables: { id: currentUser.userId },
+          authMode: "userPool",
+        });
+
+        // User doesn't exist in database, create them
+        if (!existingUser.data?.getUser) {
+          const attributes = await fetchUserAttributes();
+
+          await client.graphql({
+            query: createUser,
+            variables: {
+              input: {
+                id: currentUser.userId,
+                email: attributes.email || credentials.username,
+                givenName:
+                  attributes.given_name ||
+                  attributes.name ||
+                  attributes.email ||
+                  credentials.username,
+                dailyStreak: 0,
+                lastActive: new Date().toISOString(),
+              },
+            },
+            authMode: "userPool",
+          });
+          console.log("User successfully created in database on first login");
+        } else {
+          // User exists, optionally update lastActive
+          console.log("User already exists in database");
+        }
+      } catch (err: any) {
+        // Log error but don't fail the sign-in
+        console.error("Error checking/creating user in database:", err);
       }
     }
 
@@ -109,6 +134,69 @@ export const confirmSignUpUser = async (confirmData: ConfirmSignUpData) => {
   } catch (error) {
     console.error("Error confirming sign up:", error);
     throw error;
+  }
+};
+
+// Create user in database after signup confirmation
+// Should be called after confirmSignUp when user is auto-signed in
+export const createUserAfterSignup = async (username: string) => {
+  try {
+    // Get current user and attributes
+    const currentUser = await getCurrentUser();
+    const attributes = await fetchUserAttributes();
+
+    // Check if user already exists in database
+    const existingUser = await client.graphql({
+      query: getUser,
+      variables: { id: currentUser.userId },
+      authMode: "userPool",
+    });
+
+    // User already exists, no need to create
+    if (existingUser.data?.getUser) {
+      console.log("User already exists in the database");
+      return true;
+    }
+
+    // User doesn't exist, create them
+    await client.graphql({
+      query: createUser,
+      variables: {
+        input: {
+          id: currentUser.userId,
+          email: attributes.email || username,
+          givenName:
+            attributes.given_name ||
+            attributes.name ||
+            attributes.email ||
+            username,
+          dailyStreak: 0,
+          lastActive: new Date().toISOString(),
+        },
+      },
+      authMode: "userPool",
+    });
+    console.log("User successfully created in database");
+    return true;
+  } catch (err: any) {
+    // Check for specific error types
+    const errorMessage = err?.errors?.[0]?.message || "";
+    const errorType = err?.errors?.[0]?.errorType || "";
+    
+    // DynamoDB ConditionalCheckFailedException means user already exists
+    if (errorType === "DynamoDB:ConditionalCheckFailedException" || 
+        errorMessage.includes("ConditionalCheckFailedException") ||
+        errorMessage.includes("already exists")) {
+      console.log("User already exists in the database (detected from error)");
+      return true;
+    }
+    
+    // Log other errors for debugging
+    console.error("Error creating user in database:", err);
+    if (err?.errors) {
+      console.error("GraphQL errors:", JSON.stringify(err.errors, null, 2));
+    }
+    return false;
   }
 };
 

@@ -49,6 +49,7 @@ export {
   signInUser,
   signUpUser,
   confirmSignUpUser,
+  createUserAfterSignup,
   resendConfirmationCode,
   signOutUser,
   getCurrentUserInfo,
