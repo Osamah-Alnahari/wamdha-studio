@@ -1,4 +1,25 @@
 {
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-wamdha-staging-db827-authRole",
+      "UnauthRoleArn": "arn:aws:iam::180141513784:role/amplify-wamdha-staging-db827-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::180141513784:role/amplify-wamdha-staging-db827-authRole",
+      "Region": "me-south-1",
+      "DeploymentBucketName": "amplify-wamdha-staging-db827-deployment",
+      "UnauthRoleName": "amplify-wamdha-staging-db827-unauthRole",
+      "StackName": "amplify-wamdha-staging-db827",
+      "StackId": "arn:aws:cloudformation:me-south-1:180141513784:stack/amplify-wamdha-staging-db827/87aca0c0-98b7-11f0-89a4-0aef0ce961cf",
+      "AmplifyAppId": "d3qncqtpuwmoc1"
+    },
+    "categories": {
+      "auth": {
+        "wamdha7c758018": {}
+      },
+      "storage": {
+        "wamdhaStorage": {}
+      }
+    }
+  },
   "dev": {
     "awscloudformation": {
       "AuthRoleName": "amplify-wamdha-dev-f2def-authRole",

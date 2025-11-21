@@ -83,6 +83,7 @@ export function BookDetailsPage({
           author: book.authorName,
           description:
             typeof book.description === "string" ? book.description : "",
+          category: book.category,
           coverImageUrl: book.thumbnailUrl,
           isOwnedByUser: book.userId === user?.userId,
           createdAt: new Date(book.createdAt).getTime(),
@@ -114,6 +115,7 @@ export function BookDetailsPage({
           title: info.title,
           authorName: info.author,
           description: info.description,
+          category: info.category,
           thumbnailUrl: info.coverImageUrl ?? "",
           userId: user.userId,
         });
@@ -129,6 +131,7 @@ export function BookDetailsPage({
           title: info.title,
           authorName: info.author,
           description: info.description,
+          category: info.category,
           thumbnailUrl: info.coverImageUrl ?? "",
         });
         toast.success("تم تحديث تفاصيل الكتاب", {

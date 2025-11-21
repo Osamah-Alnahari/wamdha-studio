@@ -15,6 +15,7 @@ export interface BookInfo {
   description: string;
   coverImageUrl?: string;
   isOwnedByUser: boolean;
+  category?: string;
   id?: string;
 }
 
@@ -25,6 +26,7 @@ export interface Book {
   description: string;
   coverImageUrl?: string;
   isOwnedByUser: boolean;
+  category?: string;
   createdAt: number;
 }
 
