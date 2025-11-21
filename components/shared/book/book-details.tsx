@@ -139,8 +139,13 @@ export function BookDetails({
         setHasChanges(true);
       }
     };
-    // triggers the onload event
-    reader.readAsDataURL(file);
+
+    // Read as text for JSON files, otherwise as data URL
+    if (file.type === "application/json" || file.name.endsWith(".json")) {
+      reader.readAsText(file);
+    } else {
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleRemoveImage = (e: React.MouseEvent) => {
@@ -179,11 +184,15 @@ export function BookDetails({
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
-      if (file.type.startsWith("image/")) {
+      if (
+        file.type.startsWith("image/") ||
+        file.type === "application/json" ||
+        file.name.endsWith(".json")
+      ) {
         processImageFile(file);
       } else {
         toast.error("نوع ملف غير صالح", {
-          description: "يرجى رفع ملف صورة",
+          description: "يرجى رفع ملف صورة أو ملف JSON للرسوم المتحركة",
         });
       }
     }
@@ -350,7 +359,7 @@ export function BookDetails({
               type="file"
               ref={fileInputRef}
               onChange={handleImageUpload}
-              accept="image/png, image/jpeg, image/gif"
+              accept="image/png, image/jpeg, image/gif, application/json, .json"
               className="hidden"
             />
           </div>

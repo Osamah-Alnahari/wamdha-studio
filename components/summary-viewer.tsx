@@ -317,6 +317,43 @@ export function SummaryViewer({
     try {
       toast.loading("جارٍ رفع الصورة...", { id: "uploadToast" });
 
+      // Check if it's a JSON file (Lottie animation)
+      const isJsonFile =
+        file.type === "application/json" || file.name.endsWith(".json");
+
+      if (isJsonFile) {
+        // For JSON files, read the content and store it directly
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const jsonContent = event.target?.result as string;
+
+          // Update UI if still on the same page
+          if (targetPageIndex === currentPageIndexRef.current) {
+            updateImageState({
+              localImageUrl: jsonContent,
+              imageUrl: jsonContent,
+            });
+          }
+
+          // Save the JSON content directly
+          await handleImmediateSave(
+            {
+              imageUrl: jsonContent,
+              localImageUrl: jsonContent,
+            },
+            targetPageIndex
+          );
+
+          toast.success("تم رفع الرسوم المتحركة بنجاح!", {
+            id: "uploadToast",
+          });
+          updateLoadingState({ isUploading: false });
+        };
+        reader.readAsText(file);
+        return;
+      }
+
+      // For regular images, upload to S3
       const result = await uploadFile(file, "public", {
         onProgress: ({ transferredBytes, totalBytes = 100 }) => {
           const percent = Math.round((transferredBytes / totalBytes) * 100);
@@ -349,7 +386,7 @@ export function SummaryViewer({
       });
     } catch (error) {
       console.error("Upload failed:", error);
-      toast.error("فشل رفع صورة الغلاف", { id: "uploadToast" });
+      toast.error("فشل رفع الصورة", { id: "uploadToast" });
     } finally {
       updateLoadingState({ isUploading: false });
     }
@@ -379,7 +416,13 @@ export function SummaryViewer({
         targetPageIndex
       );
     };
-    reader.readAsDataURL(file);
+
+    // Read as text for JSON files, otherwise as data URL
+    if (file.type === "application/json" || file.name.endsWith(".json")) {
+      reader.readAsText(file);
+    } else {
+      reader.readAsDataURL(file);
+    }
   };
 
   // Modify the handleGenerateImage function to be more robust
@@ -569,11 +612,15 @@ export function SummaryViewer({
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
-      if (file.type.startsWith("image/")) {
+      if (
+        file.type.startsWith("image/") ||
+        file.type === "application/json" ||
+        file.name.endsWith(".json")
+      ) {
         processImageFile(file);
       } else {
         toast.error("نوع ملف غير صالح", {
-          description: "يرجى رفع ملف صورة.",
+          description: "يرجى رفع ملف صورة أو ملف JSON للرسوم المتحركة.",
         });
       }
     }
@@ -719,7 +766,7 @@ export function SummaryViewer({
                     type="file"
                     ref={fileInputRef}
                     onChange={handleImageUpload}
-                    accept="image/png, image/jpeg, image/gif"
+                    accept="image/png, image/jpeg, image/gif, application/json, .json"
                     className="hidden"
                   />
                   <Button
