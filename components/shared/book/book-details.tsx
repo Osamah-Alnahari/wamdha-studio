@@ -1,11 +1,11 @@
 "use client";
 import { uploadFile } from "@/lib/services";
 import type React from "react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, X, AlertCircle } from "lucide-react";
+import { ImageIcon, X, AlertCircle, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,6 +15,14 @@ import { toast } from "sonner";
 import FetchKeyImage from "@/components/FetchKeyImage";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { BOOK_CATEGORIES } from "@/constants";
 
 interface BookInfo {
   title: string;
@@ -22,6 +30,7 @@ interface BookInfo {
   description: string;
   coverImageUrl?: string;
   isOwnedByUser: boolean;
+  category?: string;
 }
 
 interface BookDetailsProps {
@@ -40,6 +49,8 @@ export function BookDetails({
   const [title, setTitle] = useState(bookInfo.title);
   const [author, setAuthor] = useState(bookInfo.author);
   const [description, setDescription] = useState(bookInfo.description || "");
+  const [category, setCategory] = useState(bookInfo.category || "");
+  const [categorySearch, setCategorySearch] = useState("");
   const [isOwnedByUser, setIsOwnedByUser] = useState(
     bookInfo.isOwnedByUser || false
   );
@@ -59,6 +70,7 @@ export function BookDetails({
     setTitle(bookInfo.title || "");
     setAuthor(bookInfo.author || "");
     setDescription(bookInfo.description || "");
+    setCategory(bookInfo.category || "");
     setIsOwnedByUser(bookInfo.isOwnedByUser || false);
     setCoverImageUrl(bookInfo.coverImageUrl);
     setHasChanges(false);
@@ -81,6 +93,18 @@ export function BookDetails({
     setHasChanges(true);
   };
 
+  const handleCategoryChange = (value: string) => {
+    setCategory(value);
+    setCategorySearch("");
+    setHasChanges(true);
+  };
+
+  // Filter categories based on search
+  const filteredCategories = useMemo(() => {
+    if (!categorySearch) return BOOK_CATEGORIES;
+    return BOOK_CATEGORIES.filter((cat) => cat.includes(categorySearch));
+  }, [categorySearch]);
+
   const handleOwnershipChange = (checked: boolean) => {
     setIsOwnedByUser(checked);
     setHasChanges(true);
@@ -91,6 +115,7 @@ export function BookDetails({
       title,
       author,
       description,
+      category,
       coverImageUrl,
       isOwnedByUser,
     };
@@ -228,6 +253,40 @@ export function BookDetails({
                 onChange={handleAuthorChange}
                 placeholder="أدخل اسم المؤلف"
               />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="book-category" className="text-sm font-medium">
+                التصنيف
+              </label>
+              <Select value={category} onValueChange={handleCategoryChange}>
+                <SelectTrigger id="book-category" className="text-right">
+                  <SelectValue placeholder="اختر تصنيف الكتاب" />
+                </SelectTrigger>
+                <SelectContent className="text-right">
+                  <div className="flex items-center border-b px-3 pb-2 mb-2">
+                    <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    <Input
+                      placeholder="ابحث عن تصنيف..."
+                      value={categorySearch}
+                      onChange={(e) => setCategorySearch(e.target.value)}
+                      className="h-8 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-right"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                  {filteredCategories.length > 0 ? (
+                    filteredCategories.map((cat) => (
+                      <SelectItem key={cat} value={cat} className="text-right">
+                        {cat}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="py-6 text-center text-sm text-muted-foreground">
+                      لا توجد نتائج
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
