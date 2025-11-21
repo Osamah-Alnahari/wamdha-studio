@@ -1,6 +1,7 @@
 "use client";
 
 import { MobilePreviewProps } from "@/types";
+import FetchKeyImage from "./FetchKeyImage";
 
 export function MobilePreview({
   title,
@@ -25,6 +26,14 @@ export function MobilePreview({
     typeof bookTitle === "string" ? bookTitle : "Book Title";
   const safeAuthor = typeof author === "string" ? author : "Author";
   const safeDescription = typeof description === "string" ? description : "";
+
+  // Determine if this is a temp URL (blob URL, data URL, or JSON string)
+  const isTempUrl =
+    typeof imageUrl === "string" &&
+    (imageUrl.startsWith("{") ||
+      imageUrl.startsWith("[") ||
+      imageUrl.startsWith("blob:") ||
+      imageUrl.startsWith("data:"));
 
   return (
     <div className="flex justify-center py-4">
@@ -63,8 +72,9 @@ export function MobilePreview({
             {/* Image at top position (below title) */}
             {imageUrl && imagePosition === "top" && (
               <div className="rounded-lg overflow-hidden shadow-md transition-all duration-500 transform">
-                <img
-                  src={imageUrl || "/placeholder.svg"}
+                <FetchKeyImage
+                  imageKey={imageUrl}
+                  tempUrl={isTempUrl}
                   alt={safeTitle}
                   className="w-full h-auto object-cover"
                 />
@@ -79,8 +89,9 @@ export function MobilePreview({
             {/* Image at bottom position (below content) */}
             {imageUrl && imagePosition === "bottom" && (
               <div className="rounded-lg overflow-hidden shadow-md mt-4 transition-all duration-500 transform">
-                <img
-                  src={imageUrl || "/placeholder.svg"}
+                <FetchKeyImage
+                  imageKey={imageUrl}
+                  tempUrl={isTempUrl}
                   alt={safeTitle}
                   className="w-full h-auto object-cover"
                 />

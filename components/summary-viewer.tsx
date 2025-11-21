@@ -162,23 +162,25 @@ export function SummaryViewer({
       saveTimeoutRef.current = null;
     }
 
-    // Load display image only if we don't have a local image URL
-    if (!pageSummary.localImageUrl) {
-      const loadDisplayImage = async () => {
-        if (pageSummary.imageUrl) {
-          try {
-            const displayUrl = await getFileUrl(pageSummary.imageUrl);
-            updateImageState({ imageDisplayUrl: displayUrl });
-          } catch (err) {
-            console.error("Failed to fetch display image:", err);
-            updateImageState({ imageDisplayUrl: undefined });
-          }
-        } else {
+    // Load display image
+    const loadDisplayImage = async () => {
+      // If we have a local image URL (e.g., JSON animation data or blob URL), use it directly
+      if (pageSummary.localImageUrl) {
+        updateImageState({ imageDisplayUrl: pageSummary.localImageUrl });
+      } else if (pageSummary.imageUrl) {
+        // Otherwise, fetch the URL from S3
+        try {
+          const displayUrl = await getFileUrl(pageSummary.imageUrl);
+          updateImageState({ imageDisplayUrl: displayUrl });
+        } catch (err) {
+          console.error("Failed to fetch display image:", err);
           updateImageState({ imageDisplayUrl: undefined });
         }
-      };
-      loadDisplayImage();
-    }
+      } else {
+        updateImageState({ imageDisplayUrl: undefined });
+      }
+    };
+    loadDisplayImage();
   }, [
     pageSummary,
     pageIndex,

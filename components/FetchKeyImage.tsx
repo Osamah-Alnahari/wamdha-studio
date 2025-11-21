@@ -41,6 +41,33 @@ const FetchKeyImage = ({
           }
         }
 
+        // Check if it's already a full URL (http:// or https://) or a data URL
+        if (
+          typeof imageKey === "string" &&
+          (imageKey.startsWith("http://") ||
+            imageKey.startsWith("https://") ||
+            imageKey.startsWith("data:") ||
+            imageKey.startsWith("blob:"))
+        ) {
+          // It's already a full URL, check if it's a JSON file
+          if (imageKey.includes(".json")) {
+            try {
+              const response = await fetch(imageKey);
+              const data = await response.json();
+              setIsLottie(true);
+              setLottieData(data);
+              return;
+            } catch (e) {
+              // Failed to parse as JSON, treat as regular image
+            }
+          }
+          // Use the URL directly
+          setSrc(imageKey);
+          setIsLottie(false);
+          return;
+        }
+
+        // Otherwise, it's an S3 key, fetch the URL
         const url = await getFileUrl(imageKey);
 
         // Check if the URL points to a JSON file
