@@ -8,14 +8,25 @@ export type CreateReadInput = {
   description?: string | null,
   thumbnailUrl: string,
   authorName: string,
+  category?: BookCategory | null,
   userId: string,
 };
+
+export enum BookCategory {
+  FICTION = "FICTION",
+  PERSONAL_GROWTH = "PERSONAL_GROWTH",
+  EDUCATION = "EDUCATION",
+  HISTORY = "HISTORY",
+  TECHNOLOGY = "TECHNOLOGY",
+}
+
 
 export type ModelReadConditionInput = {
   title?: ModelStringInput | null,
   description?: ModelStringInput | null,
   thumbnailUrl?: ModelStringInput | null,
   authorName?: ModelStringInput | null,
+  category?: ModelBookCategoryInput | null,
   userId?: ModelIDInput | null,
   and?: Array< ModelReadConditionInput | null > | null,
   or?: Array< ModelReadConditionInput | null > | null,
@@ -65,6 +76,11 @@ export type ModelSizeInput = {
   between?: Array< number | null > | null,
 };
 
+export type ModelBookCategoryInput = {
+  eq?: BookCategory | null,
+  ne?: BookCategory | null,
+};
+
 export type ModelIDInput = {
   ne?: string | null,
   eq?: string | null,
@@ -88,6 +104,7 @@ export type Read = {
   description?: string | null,
   thumbnailUrl: string,
   authorName: string,
+  category?: BookCategory | null,
   userId: string,
   user?: User | null,
   slides?: ModelSlideConnection | null,
@@ -125,12 +142,13 @@ export type ModelUserBookProgressConnection = {
 
 export type UserBookProgress = {
   __typename: "UserBookProgress",
-  id: string,
   userId: string,
-  user?: User | null,
   bookId: string,
+  user?: User | null,
   lastSlideNumber: number,
   updatedAt: string,
+  isSaved?: boolean | null,
+  isFinished?: boolean | null,
   createdAt: string,
 };
 
@@ -195,6 +213,7 @@ export type UpdateReadInput = {
   description?: string | null,
   thumbnailUrl?: string | null,
   authorName?: string | null,
+  category?: BookCategory | null,
   userId?: string | null,
 };
 
@@ -281,34 +300,45 @@ export type DeleteUserInput = {
 };
 
 export type CreateUserBookProgressInput = {
-  id?: string | null,
   userId: string,
   bookId: string,
   lastSlideNumber: number,
   updatedAt?: string | null,
+  isSaved?: boolean | null,
+  isFinished?: boolean | null,
 };
 
 export type ModelUserBookProgressConditionInput = {
-  userId?: ModelIDInput | null,
-  bookId?: ModelIDInput | null,
   lastSlideNumber?: ModelIntInput | null,
   updatedAt?: ModelStringInput | null,
+  isSaved?: ModelBooleanInput | null,
+  isFinished?: ModelBooleanInput | null,
   and?: Array< ModelUserBookProgressConditionInput | null > | null,
   or?: Array< ModelUserBookProgressConditionInput | null > | null,
   not?: ModelUserBookProgressConditionInput | null,
   createdAt?: ModelStringInput | null,
+  userId?: ModelStringInput | null,
+};
+
+export type ModelBooleanInput = {
+  ne?: boolean | null,
+  eq?: boolean | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
 };
 
 export type UpdateUserBookProgressInput = {
-  id: string,
-  userId?: string | null,
-  bookId?: string | null,
+  userId: string,
+  bookId: string,
   lastSlideNumber?: number | null,
   updatedAt?: string | null,
+  isSaved?: boolean | null,
+  isFinished?: boolean | null,
 };
 
 export type DeleteUserBookProgressInput = {
-  id: string,
+  userId: string,
+  bookId: string,
 };
 
 export type CreateAchievementInput = {
@@ -381,6 +411,7 @@ export type ModelReadFilterInput = {
   description?: ModelStringInput | null,
   thumbnailUrl?: ModelStringInput | null,
   authorName?: ModelStringInput | null,
+  category?: ModelBookCategoryInput | null,
   userId?: ModelIDInput | null,
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
@@ -423,17 +454,35 @@ export type ModelUserConnection = {
   nextToken?: string | null,
 };
 
+export type ModelIDKeyConditionInput = {
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
+};
+
 export type ModelUserBookProgressFilterInput = {
-  id?: ModelIDInput | null,
   userId?: ModelIDInput | null,
   bookId?: ModelIDInput | null,
   lastSlideNumber?: ModelIntInput | null,
   updatedAt?: ModelStringInput | null,
+  isSaved?: ModelBooleanInput | null,
+  isFinished?: ModelBooleanInput | null,
+  id?: ModelIDInput | null,
   createdAt?: ModelStringInput | null,
   and?: Array< ModelUserBookProgressFilterInput | null > | null,
   or?: Array< ModelUserBookProgressFilterInput | null > | null,
   not?: ModelUserBookProgressFilterInput | null,
 };
+
+export enum ModelSortDirection {
+  ASC = "ASC",
+  DESC = "DESC",
+}
+
 
 export type ModelAchievementFilterInput = {
   id?: ModelIDInput | null,
@@ -461,12 +510,6 @@ export type ModelBadgeFilterInput = {
   not?: ModelBadgeFilterInput | null,
 };
 
-export enum ModelSortDirection {
-  ASC = "ASC",
-  DESC = "DESC",
-}
-
-
 export type ModelIntKeyConditionInput = {
   eq?: number | null,
   le?: number | null,
@@ -476,12 +519,23 @@ export type ModelIntKeyConditionInput = {
   between?: Array< number | null > | null,
 };
 
+export type ModelStringKeyConditionInput = {
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
+};
+
 export type ModelSubscriptionReadFilterInput = {
   id?: ModelSubscriptionIDInput | null,
   title?: ModelSubscriptionStringInput | null,
   description?: ModelSubscriptionStringInput | null,
   thumbnailUrl?: ModelSubscriptionStringInput | null,
   authorName?: ModelSubscriptionStringInput | null,
+  category?: ModelSubscriptionStringInput | null,
   userId?: ModelSubscriptionIDInput | null,
   createdAt?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
@@ -558,14 +612,21 @@ export type ModelSubscriptionUserFilterInput = {
 };
 
 export type ModelSubscriptionUserBookProgressFilterInput = {
-  id?: ModelSubscriptionIDInput | null,
   bookId?: ModelSubscriptionIDInput | null,
   lastSlideNumber?: ModelSubscriptionIntInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
+  isSaved?: ModelSubscriptionBooleanInput | null,
+  isFinished?: ModelSubscriptionBooleanInput | null,
+  id?: ModelSubscriptionIDInput | null,
   createdAt?: ModelSubscriptionStringInput | null,
   and?: Array< ModelSubscriptionUserBookProgressFilterInput | null > | null,
   or?: Array< ModelSubscriptionUserBookProgressFilterInput | null > | null,
   userId?: ModelStringInput | null,
+};
+
+export type ModelSubscriptionBooleanInput = {
+  ne?: boolean | null,
+  eq?: boolean | null,
 };
 
 export type ModelSubscriptionAchievementFilterInput = {
@@ -605,6 +666,7 @@ export type CreateReadMutation = {
     description?: string | null,
     thumbnailUrl: string,
     authorName: string,
+    category?: BookCategory | null,
     userId: string,
     user?:  {
       __typename: "User",
@@ -639,6 +701,7 @@ export type UpdateReadMutation = {
     description?: string | null,
     thumbnailUrl: string,
     authorName: string,
+    category?: BookCategory | null,
     userId: string,
     user?:  {
       __typename: "User",
@@ -673,6 +736,7 @@ export type DeleteReadMutation = {
     description?: string | null,
     thumbnailUrl: string,
     authorName: string,
+    category?: BookCategory | null,
     userId: string,
     user?:  {
       __typename: "User",
@@ -711,6 +775,7 @@ export type CreateSlideMutation = {
       description?: string | null,
       thumbnailUrl: string,
       authorName: string,
+      category?: BookCategory | null,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -742,6 +807,7 @@ export type UpdateSlideMutation = {
       description?: string | null,
       thumbnailUrl: string,
       authorName: string,
+      category?: BookCategory | null,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -773,6 +839,7 @@ export type DeleteSlideMutation = {
       description?: string | null,
       thumbnailUrl: string,
       authorName: string,
+      category?: BookCategory | null,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -897,8 +964,8 @@ export type CreateUserBookProgressMutationVariables = {
 export type CreateUserBookProgressMutation = {
   createUserBookProgress?:  {
     __typename: "UserBookProgress",
-    id: string,
     userId: string,
+    bookId: string,
     user?:  {
       __typename: "User",
       id: string,
@@ -909,9 +976,10 @@ export type CreateUserBookProgressMutation = {
       createdAt: string,
       updatedAt: string,
     } | null,
-    bookId: string,
     lastSlideNumber: number,
     updatedAt: string,
+    isSaved?: boolean | null,
+    isFinished?: boolean | null,
     createdAt: string,
   } | null,
 };
@@ -924,8 +992,8 @@ export type UpdateUserBookProgressMutationVariables = {
 export type UpdateUserBookProgressMutation = {
   updateUserBookProgress?:  {
     __typename: "UserBookProgress",
-    id: string,
     userId: string,
+    bookId: string,
     user?:  {
       __typename: "User",
       id: string,
@@ -936,9 +1004,10 @@ export type UpdateUserBookProgressMutation = {
       createdAt: string,
       updatedAt: string,
     } | null,
-    bookId: string,
     lastSlideNumber: number,
     updatedAt: string,
+    isSaved?: boolean | null,
+    isFinished?: boolean | null,
     createdAt: string,
   } | null,
 };
@@ -951,8 +1020,8 @@ export type DeleteUserBookProgressMutationVariables = {
 export type DeleteUserBookProgressMutation = {
   deleteUserBookProgress?:  {
     __typename: "UserBookProgress",
-    id: string,
     userId: string,
+    bookId: string,
     user?:  {
       __typename: "User",
       id: string,
@@ -963,9 +1032,10 @@ export type DeleteUserBookProgressMutation = {
       createdAt: string,
       updatedAt: string,
     } | null,
-    bookId: string,
     lastSlideNumber: number,
     updatedAt: string,
+    isSaved?: boolean | null,
+    isFinished?: boolean | null,
     createdAt: string,
   } | null,
 };
@@ -1150,6 +1220,7 @@ export type GetReadQuery = {
     description?: string | null,
     thumbnailUrl: string,
     authorName: string,
+    category?: BookCategory | null,
     userId: string,
     user?:  {
       __typename: "User",
@@ -1187,6 +1258,7 @@ export type ListReadsQuery = {
       description?: string | null,
       thumbnailUrl: string,
       authorName: string,
+      category?: BookCategory | null,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -1212,6 +1284,7 @@ export type GetSlideQuery = {
       description?: string | null,
       thumbnailUrl: string,
       authorName: string,
+      category?: BookCategory | null,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -1307,14 +1380,15 @@ export type ListUsersQuery = {
 };
 
 export type GetUserBookProgressQueryVariables = {
-  id: string,
+  userId: string,
+  bookId: string,
 };
 
 export type GetUserBookProgressQuery = {
   getUserBookProgress?:  {
     __typename: "UserBookProgress",
-    id: string,
     userId: string,
+    bookId: string,
     user?:  {
       __typename: "User",
       id: string,
@@ -1325,17 +1399,21 @@ export type GetUserBookProgressQuery = {
       createdAt: string,
       updatedAt: string,
     } | null,
-    bookId: string,
     lastSlideNumber: number,
     updatedAt: string,
+    isSaved?: boolean | null,
+    isFinished?: boolean | null,
     createdAt: string,
   } | null,
 };
 
 export type ListUserBookProgressesQueryVariables = {
+  userId?: string | null,
+  bookId?: ModelIDKeyConditionInput | null,
   filter?: ModelUserBookProgressFilterInput | null,
   limit?: number | null,
   nextToken?: string | null,
+  sortDirection?: ModelSortDirection | null,
 };
 
 export type ListUserBookProgressesQuery = {
@@ -1343,11 +1421,12 @@ export type ListUserBookProgressesQuery = {
     __typename: "ModelUserBookProgressConnection",
     items:  Array< {
       __typename: "UserBookProgress",
-      id: string,
       userId: string,
       bookId: string,
       lastSlideNumber: number,
       updatedAt: string,
+      isSaved?: boolean | null,
+      isFinished?: boolean | null,
       createdAt: string,
     } | null >,
     nextToken?: string | null,
@@ -1454,6 +1533,34 @@ export type ListBadgesQuery = {
   } | null,
 };
 
+export type ReadsByCategoryQueryVariables = {
+  category: BookCategory,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelReadFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ReadsByCategoryQuery = {
+  readsByCategory?:  {
+    __typename: "ModelReadConnection",
+    items:  Array< {
+      __typename: "Read",
+      id: string,
+      title: string,
+      description?: string | null,
+      thumbnailUrl: string,
+      authorName: string,
+      category?: BookCategory | null,
+      userId: string,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type ReadsByUserIdQueryVariables = {
   userId: string,
   sortDirection?: ModelSortDirection | null,
@@ -1472,6 +1579,7 @@ export type ReadsByUserIdQuery = {
       description?: string | null,
       thumbnailUrl: string,
       authorName: string,
+      category?: BookCategory | null,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -1508,24 +1616,26 @@ export type SlidesByReadIdAndSlideNumberQuery = {
   } | null,
 };
 
-export type UserBookProgressesByUserIdQueryVariables = {
+export type ListUserBookProgressByUserQueryVariables = {
   userId: string,
+  updatedAt?: ModelStringKeyConditionInput | null,
   sortDirection?: ModelSortDirection | null,
   filter?: ModelUserBookProgressFilterInput | null,
   limit?: number | null,
   nextToken?: string | null,
 };
 
-export type UserBookProgressesByUserIdQuery = {
-  userBookProgressesByUserId?:  {
+export type ListUserBookProgressByUserQuery = {
+  listUserBookProgressByUser?:  {
     __typename: "ModelUserBookProgressConnection",
     items:  Array< {
       __typename: "UserBookProgress",
-      id: string,
       userId: string,
       bookId: string,
       lastSlideNumber: number,
       updatedAt: string,
+      isSaved?: boolean | null,
+      isFinished?: boolean | null,
       createdAt: string,
     } | null >,
     nextToken?: string | null,
@@ -1595,6 +1705,7 @@ export type OnCreateReadSubscription = {
     description?: string | null,
     thumbnailUrl: string,
     authorName: string,
+    category?: BookCategory | null,
     userId: string,
     user?:  {
       __typename: "User",
@@ -1629,6 +1740,7 @@ export type OnUpdateReadSubscription = {
     description?: string | null,
     thumbnailUrl: string,
     authorName: string,
+    category?: BookCategory | null,
     userId: string,
     user?:  {
       __typename: "User",
@@ -1663,6 +1775,7 @@ export type OnDeleteReadSubscription = {
     description?: string | null,
     thumbnailUrl: string,
     authorName: string,
+    category?: BookCategory | null,
     userId: string,
     user?:  {
       __typename: "User",
@@ -1701,6 +1814,7 @@ export type OnCreateSlideSubscription = {
       description?: string | null,
       thumbnailUrl: string,
       authorName: string,
+      category?: BookCategory | null,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -1732,6 +1846,7 @@ export type OnUpdateSlideSubscription = {
       description?: string | null,
       thumbnailUrl: string,
       authorName: string,
+      category?: BookCategory | null,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -1763,6 +1878,7 @@ export type OnDeleteSlideSubscription = {
       description?: string | null,
       thumbnailUrl: string,
       authorName: string,
+      category?: BookCategory | null,
       userId: string,
       createdAt: string,
       updatedAt: string,
@@ -1887,8 +2003,8 @@ export type OnCreateUserBookProgressSubscriptionVariables = {
 export type OnCreateUserBookProgressSubscription = {
   onCreateUserBookProgress?:  {
     __typename: "UserBookProgress",
-    id: string,
     userId: string,
+    bookId: string,
     user?:  {
       __typename: "User",
       id: string,
@@ -1899,9 +2015,10 @@ export type OnCreateUserBookProgressSubscription = {
       createdAt: string,
       updatedAt: string,
     } | null,
-    bookId: string,
     lastSlideNumber: number,
     updatedAt: string,
+    isSaved?: boolean | null,
+    isFinished?: boolean | null,
     createdAt: string,
   } | null,
 };
@@ -1914,8 +2031,8 @@ export type OnUpdateUserBookProgressSubscriptionVariables = {
 export type OnUpdateUserBookProgressSubscription = {
   onUpdateUserBookProgress?:  {
     __typename: "UserBookProgress",
-    id: string,
     userId: string,
+    bookId: string,
     user?:  {
       __typename: "User",
       id: string,
@@ -1926,9 +2043,10 @@ export type OnUpdateUserBookProgressSubscription = {
       createdAt: string,
       updatedAt: string,
     } | null,
-    bookId: string,
     lastSlideNumber: number,
     updatedAt: string,
+    isSaved?: boolean | null,
+    isFinished?: boolean | null,
     createdAt: string,
   } | null,
 };
@@ -1941,8 +2059,8 @@ export type OnDeleteUserBookProgressSubscriptionVariables = {
 export type OnDeleteUserBookProgressSubscription = {
   onDeleteUserBookProgress?:  {
     __typename: "UserBookProgress",
-    id: string,
     userId: string,
+    bookId: string,
     user?:  {
       __typename: "User",
       id: string,
@@ -1953,9 +2071,10 @@ export type OnDeleteUserBookProgressSubscription = {
       createdAt: string,
       updatedAt: string,
     } | null,
-    bookId: string,
     lastSlideNumber: number,
     updatedAt: string,
+    isSaved?: boolean | null,
+    isFinished?: boolean | null,
     createdAt: string,
   } | null,
 };

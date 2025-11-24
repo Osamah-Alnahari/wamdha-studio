@@ -18,6 +18,7 @@ export const createRead = /* GraphQL */ `mutation CreateRead(
     description
     thumbnailUrl
     authorName
+    category
     userId
     user {
       id
@@ -53,6 +54,7 @@ export const updateRead = /* GraphQL */ `mutation UpdateRead(
     description
     thumbnailUrl
     authorName
+    category
     userId
     user {
       id
@@ -88,6 +90,7 @@ export const deleteRead = /* GraphQL */ `mutation DeleteRead(
     description
     thumbnailUrl
     authorName
+    category
     userId
     user {
       id
@@ -126,6 +129,7 @@ export const createSlide = /* GraphQL */ `mutation CreateSlide(
       description
       thumbnailUrl
       authorName
+      category
       userId
       createdAt
       updatedAt
@@ -158,6 +162,7 @@ export const updateSlide = /* GraphQL */ `mutation UpdateSlide(
       description
       thumbnailUrl
       authorName
+      category
       userId
       createdAt
       updatedAt
@@ -190,6 +195,7 @@ export const deleteSlide = /* GraphQL */ `mutation DeleteSlide(
       description
       thumbnailUrl
       authorName
+      category
       userId
       createdAt
       updatedAt
@@ -319,8 +325,8 @@ export const createUserBookProgress = /* GraphQL */ `mutation CreateUserBookProg
   $condition: ModelUserBookProgressConditionInput
 ) {
   createUserBookProgress(input: $input, condition: $condition) {
-    id
     userId
+    bookId
     user {
       id
       email
@@ -331,9 +337,10 @@ export const createUserBookProgress = /* GraphQL */ `mutation CreateUserBookProg
       updatedAt
       __typename
     }
-    bookId
     lastSlideNumber
     updatedAt
+    isSaved
+    isFinished
     createdAt
     __typename
   }
@@ -347,8 +354,8 @@ export const updateUserBookProgress = /* GraphQL */ `mutation UpdateUserBookProg
   $condition: ModelUserBookProgressConditionInput
 ) {
   updateUserBookProgress(input: $input, condition: $condition) {
-    id
     userId
+    bookId
     user {
       id
       email
@@ -359,9 +366,10 @@ export const updateUserBookProgress = /* GraphQL */ `mutation UpdateUserBookProg
       updatedAt
       __typename
     }
-    bookId
     lastSlideNumber
     updatedAt
+    isSaved
+    isFinished
     createdAt
     __typename
   }
@@ -375,8 +383,8 @@ export const deleteUserBookProgress = /* GraphQL */ `mutation DeleteUserBookProg
   $condition: ModelUserBookProgressConditionInput
 ) {
   deleteUserBookProgress(input: $input, condition: $condition) {
-    id
     userId
+    bookId
     user {
       id
       email
@@ -387,9 +395,10 @@ export const deleteUserBookProgress = /* GraphQL */ `mutation DeleteUserBookProg
       updatedAt
       __typename
     }
-    bookId
     lastSlideNumber
     updatedAt
+    isSaved
+    isFinished
     createdAt
     __typename
   }

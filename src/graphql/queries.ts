@@ -15,6 +15,7 @@ export const getRead = /* GraphQL */ `query GetRead($id: ID!) {
     description
     thumbnailUrl
     authorName
+    category
     userId
     user {
       id
@@ -49,6 +50,7 @@ export const listReads = /* GraphQL */ `query ListReads(
       description
       thumbnailUrl
       authorName
+      category
       userId
       createdAt
       updatedAt
@@ -70,6 +72,7 @@ export const getSlide = /* GraphQL */ `query GetSlide($id: ID!) {
       description
       thumbnailUrl
       authorName
+      category
       userId
       createdAt
       updatedAt
@@ -161,10 +164,10 @@ export const listUsers = /* GraphQL */ `query ListUsers(
   }
 }
 ` as GeneratedQuery<APITypes.ListUsersQueryVariables, APITypes.ListUsersQuery>;
-export const getUserBookProgress = /* GraphQL */ `query GetUserBookProgress($id: ID!) {
-  getUserBookProgress(id: $id) {
-    id
+export const getUserBookProgress = /* GraphQL */ `query GetUserBookProgress($userId: ID!, $bookId: ID!) {
+  getUserBookProgress(userId: $userId, bookId: $bookId) {
     userId
+    bookId
     user {
       id
       email
@@ -175,9 +178,10 @@ export const getUserBookProgress = /* GraphQL */ `query GetUserBookProgress($id:
       updatedAt
       __typename
     }
-    bookId
     lastSlideNumber
     updatedAt
+    isSaved
+    isFinished
     createdAt
     __typename
   }
@@ -187,21 +191,28 @@ export const getUserBookProgress = /* GraphQL */ `query GetUserBookProgress($id:
   APITypes.GetUserBookProgressQuery
 >;
 export const listUserBookProgresses = /* GraphQL */ `query ListUserBookProgresses(
+  $userId: ID
+  $bookId: ModelIDKeyConditionInput
   $filter: ModelUserBookProgressFilterInput
   $limit: Int
   $nextToken: String
+  $sortDirection: ModelSortDirection
 ) {
   listUserBookProgresses(
+    userId: $userId
+    bookId: $bookId
     filter: $filter
     limit: $limit
     nextToken: $nextToken
+    sortDirection: $sortDirection
   ) {
     items {
-      id
       userId
       bookId
       lastSlideNumber
       updatedAt
+      isSaved
+      isFinished
       createdAt
       __typename
     }
@@ -310,6 +321,41 @@ export const listBadges = /* GraphQL */ `query ListBadges(
   APITypes.ListBadgesQueryVariables,
   APITypes.ListBadgesQuery
 >;
+export const readsByCategory = /* GraphQL */ `query ReadsByCategory(
+  $category: BookCategory!
+  $sortDirection: ModelSortDirection
+  $filter: ModelReadFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  readsByCategory(
+    category: $category
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      title
+      description
+      thumbnailUrl
+      authorName
+      category
+      userId
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ReadsByCategoryQueryVariables,
+  APITypes.ReadsByCategoryQuery
+>;
 export const readsByUserId = /* GraphQL */ `query ReadsByUserId(
   $userId: ID!
   $sortDirection: ModelSortDirection
@@ -330,6 +376,7 @@ export const readsByUserId = /* GraphQL */ `query ReadsByUserId(
       description
       thumbnailUrl
       authorName
+      category
       userId
       createdAt
       updatedAt
@@ -379,26 +426,29 @@ export const slidesByReadIdAndSlideNumber = /* GraphQL */ `query SlidesByReadIdA
   APITypes.SlidesByReadIdAndSlideNumberQueryVariables,
   APITypes.SlidesByReadIdAndSlideNumberQuery
 >;
-export const userBookProgressesByUserId = /* GraphQL */ `query UserBookProgressesByUserId(
+export const listUserBookProgressByUser = /* GraphQL */ `query ListUserBookProgressByUser(
   $userId: ID!
+  $updatedAt: ModelStringKeyConditionInput
   $sortDirection: ModelSortDirection
   $filter: ModelUserBookProgressFilterInput
   $limit: Int
   $nextToken: String
 ) {
-  userBookProgressesByUserId(
+  listUserBookProgressByUser(
     userId: $userId
+    updatedAt: $updatedAt
     sortDirection: $sortDirection
     filter: $filter
     limit: $limit
     nextToken: $nextToken
   ) {
     items {
-      id
       userId
       bookId
       lastSlideNumber
       updatedAt
+      isSaved
+      isFinished
       createdAt
       __typename
     }
@@ -407,8 +457,8 @@ export const userBookProgressesByUserId = /* GraphQL */ `query UserBookProgresse
   }
 }
 ` as GeneratedQuery<
-  APITypes.UserBookProgressesByUserIdQueryVariables,
-  APITypes.UserBookProgressesByUserIdQuery
+  APITypes.ListUserBookProgressByUserQueryVariables,
+  APITypes.ListUserBookProgressByUserQuery
 >;
 export const achievementsByUserId = /* GraphQL */ `query AchievementsByUserId(
   $userId: ID!

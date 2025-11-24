@@ -1,4 +1,32 @@
 ############################
+# Enums
+############################
+enum ReadStatus {
+  PUBLISHED
+  DRAFT
+  IN_REVIEW
+  PRIVATE
+  ARCHIVED
+  SUMMARY_PENDING
+  SUMMARY_FAILED
+  REJECTED
+  EMPTY
+}
+
+enum BookCategory {
+  FICTION
+  PERSONAL_GROWTH
+  EDUCATION
+  HISTORY
+  TECHNOLOGY
+  SCIENCE
+  ART
+  BUSINESS
+  BIOGRAPHY
+  OTHER
+}
+
+############################
 # 1. Reading Models
 ############################
 
@@ -12,6 +40,8 @@ type Read @model
   description: String
   thumbnailUrl: String!
   authorName: String!
+  status: ReadStatus @index(name: "byStatus", queryField: "readsByStatus")
+  category: BookCategory @index(name: "byCategory", queryField: "readsByCategory")
 
   # Associate each Read with its owner
   userId: ID! @index(name: "byUser")

@@ -18,6 +18,7 @@ export const onCreateRead = /* GraphQL */ `subscription OnCreateRead(
     description
     thumbnailUrl
     authorName
+    category
     userId
     user {
       id
@@ -53,6 +54,7 @@ export const onUpdateRead = /* GraphQL */ `subscription OnUpdateRead(
     description
     thumbnailUrl
     authorName
+    category
     userId
     user {
       id
@@ -88,6 +90,7 @@ export const onDeleteRead = /* GraphQL */ `subscription OnDeleteRead(
     description
     thumbnailUrl
     authorName
+    category
     userId
     user {
       id
@@ -126,6 +129,7 @@ export const onCreateSlide = /* GraphQL */ `subscription OnCreateSlide(
       description
       thumbnailUrl
       authorName
+      category
       userId
       createdAt
       updatedAt
@@ -158,6 +162,7 @@ export const onUpdateSlide = /* GraphQL */ `subscription OnUpdateSlide(
       description
       thumbnailUrl
       authorName
+      category
       userId
       createdAt
       updatedAt
@@ -190,6 +195,7 @@ export const onDeleteSlide = /* GraphQL */ `subscription OnDeleteSlide(
       description
       thumbnailUrl
       authorName
+      category
       userId
       createdAt
       updatedAt
@@ -319,8 +325,8 @@ export const onCreateUserBookProgress = /* GraphQL */ `subscription OnCreateUser
   $userId: String
 ) {
   onCreateUserBookProgress(filter: $filter, userId: $userId) {
-    id
     userId
+    bookId
     user {
       id
       email
@@ -331,9 +337,10 @@ export const onCreateUserBookProgress = /* GraphQL */ `subscription OnCreateUser
       updatedAt
       __typename
     }
-    bookId
     lastSlideNumber
     updatedAt
+    isSaved
+    isFinished
     createdAt
     __typename
   }
@@ -347,8 +354,8 @@ export const onUpdateUserBookProgress = /* GraphQL */ `subscription OnUpdateUser
   $userId: String
 ) {
   onUpdateUserBookProgress(filter: $filter, userId: $userId) {
-    id
     userId
+    bookId
     user {
       id
       email
@@ -359,9 +366,10 @@ export const onUpdateUserBookProgress = /* GraphQL */ `subscription OnUpdateUser
       updatedAt
       __typename
     }
-    bookId
     lastSlideNumber
     updatedAt
+    isSaved
+    isFinished
     createdAt
     __typename
   }
@@ -375,8 +383,8 @@ export const onDeleteUserBookProgress = /* GraphQL */ `subscription OnDeleteUser
   $userId: String
 ) {
   onDeleteUserBookProgress(filter: $filter, userId: $userId) {
-    id
     userId
+    bookId
     user {
       id
       email
@@ -387,9 +395,10 @@ export const onDeleteUserBookProgress = /* GraphQL */ `subscription OnDeleteUser
       updatedAt
       __typename
     }
-    bookId
     lastSlideNumber
     updatedAt
+    isSaved
+    isFinished
     createdAt
     __typename
   }

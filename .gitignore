@@ -27,7 +27,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 /app/ui-components/
-
+src/ui-components/
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend
 amplify/.config/local-*
