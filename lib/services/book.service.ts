@@ -11,9 +11,14 @@ import { PageSummary } from "../api-client";
 // Book CRUD Operations
 export const createBook = async (client: any, input: any) => {
   try {
+    // Ensure category is included in the input
+    const bookInput = {
+      ...input,
+      category: input.category || null, // Explicitly include category
+    };
     const response = await client.graphql({
       query: createRead,
-      variables: { input },
+      variables: { input: bookInput },
       authMode: "userPool",
     });
     return response.data?.createRead || null;

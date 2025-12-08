@@ -102,7 +102,7 @@ export function BookDetails({
   // Filter categories based on search
   const filteredCategories = useMemo(() => {
     if (!categorySearch) return BOOK_CATEGORIES;
-    return BOOK_CATEGORIES.filter((cat) => cat.includes(categorySearch));
+    return BOOK_CATEGORIES.filter((cat) => cat.label.includes(categorySearch));
   }, [categorySearch]);
 
   const handleOwnershipChange = (checked: boolean) => {
@@ -276,8 +276,12 @@ export function BookDetails({
                   </div>
                   {filteredCategories.length > 0 ? (
                     filteredCategories.map((cat) => (
-                      <SelectItem key={cat} value={cat} className="text-right">
-                        {cat}
+                      <SelectItem
+                        key={cat.value}
+                        value={cat.value}
+                        className="text-right"
+                      >
+                        {cat.label}
                       </SelectItem>
                     ))
                   ) : (
