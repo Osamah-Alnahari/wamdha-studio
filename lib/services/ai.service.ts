@@ -19,7 +19,6 @@ export async function summarizeText(text: string): Promise<SummarizeResponse> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Origin: "http://localhost:3000",
       },
       body: JSON.stringify({ text }),
       signal: controller.signal,
@@ -82,7 +81,9 @@ export async function summarizeText(text: string): Promise<SummarizeResponse> {
 
 // Image Generation
 export async function generateImageFromPrompt(
-  prompt: string
+  prompt: string,
+  width: number = 1024,
+  height: number = 1024
 ): Promise<GenerateImageResponse> {
   // Validate input prompt
   if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
@@ -90,20 +91,24 @@ export async function generateImageFromPrompt(
   }
 
   const url =
-    "https://bvi4upsf3ahhys37bs3knikkge0poftv.lambda-url.me-south-1.on.aws/";
+    "https://4kn3kjsdnr3gr3gwtzhipzq57e0gjmms.lambda-url.me-south-1.on.aws/";
 
   // Set up AbortController for timeout
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 1000 * 60 * 2); // 2 minutes
 
   try {
+    // Send the request body directly as expected by Lambda
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Origin: "http://localhost:3000",
       },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({
+        text: prompt,
+        width: width,
+        height: height,
+      }),
       signal: controller.signal,
     });
 
@@ -128,15 +133,20 @@ export async function generateImageFromPrompt(
 
     const data = await response.json();
 
-    // Validate response structure
-    if (!data || typeof data.imageUrl !== "string" || !data.imageUrl.trim()) {
+    // Validate response structure - Lambda returns 'url' not 'imageUrl'
+    if (
+      !data ||
+      !data.success ||
+      typeof data.url !== "string" ||
+      !data.url.trim()
+    ) {
       throw new Error("Invalid response format from server");
     }
 
-    console.log("Image URL received:", data.imageUrl);
+    console.log("Image URL received:", data.url);
 
     return {
-      imageUrl: data.imageUrl,
+      imageUrl: data.url,
     };
   } catch (error) {
     // Handle specific errors

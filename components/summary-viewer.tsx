@@ -449,7 +449,13 @@ export function SummaryViewer({
       if (signal.aborted) {
         throw new Error("Image generation was cancelled");
       }
-      const { imageUrl } = await generateImageFromPrompt(pageSummary.title);
+      // Use the page content (summarized text) as the prompt for image generation
+      const prompt = pageSummary.content || pageSummary.title;
+      console.log(
+        "Generating image with prompt:",
+        prompt.substring(0, 200) + "..."
+      );
+      const { imageUrl } = await generateImageFromPrompt(prompt, 1024, 1024);
       return imageUrl;
     })();
 

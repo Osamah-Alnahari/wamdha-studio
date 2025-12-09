@@ -14,5 +14,9 @@ export interface SummarizeTextFunction {
 }
 
 export interface GenerateImageFunction {
-  (prompt: string): Promise<GenerateImageResponse>;
+  (
+    prompt: string,
+    width?: number,
+    height?: number
+  ): Promise<GenerateImageResponse>;
 }
